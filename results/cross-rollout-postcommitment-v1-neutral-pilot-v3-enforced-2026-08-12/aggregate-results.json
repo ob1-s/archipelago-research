@@ -1,0 +1,72 @@
+{
+  "experiment": "cross-rollout-postcommitment-v1-neutral-pilot-v3-enforced",
+  "date": "2026-08-12",
+  "model": "Qwen/Qwen3.5-9B",
+  "environment_commit": "f4e11fd",
+  "condition": "neutral",
+  "planned_rollouts": 32,
+  "primary_validation_sample": {
+    "trace_path": "factorial-slice/traces.jsonl",
+    "n": 16,
+    "presentation_order": {
+      "A_first": 8,
+      "B_first": 8
+    },
+    "phase1_policy": {
+      "A": 10,
+      "B": 6
+    },
+    "transitions": {
+      "A->A": 8,
+      "A->B": 2,
+      "B->A": 2,
+      "B->B": 4
+    },
+    "persistence": {
+      "given_phase1_A": {
+        "numerator": 8,
+        "denominator": 10,
+        "rate": 0.8
+      },
+      "given_phase1_B": {
+        "numerator": 4,
+        "denominator": 6,
+        "rate": 0.6666666667
+      }
+    },
+    "phase1_success": 16,
+    "phase2_success": 16,
+    "task_success_both_resources": 16,
+    "exposure_delivered": 16,
+    "phase1_feedback_seen_before_exposure": 16,
+    "selection_ambiguity": 0,
+    "tool_failure_traces": 1,
+    "tool_failure_events": 2,
+    "tool_failure_ids": [
+      "26432f00cbd645e4b4ca792810e64cb3"
+    ],
+    "tool_failure_timing": "after both R1 and R2 had succeeded; redundant post-completion calls",
+    "r2_anticipation_before_first_reveal": 0
+  },
+  "supplementary_valid_trace_slice": {
+    "trace_path": "provider-hang-diagnostic/traces.jsonl",
+    "n": 8,
+    "presentation_order": {
+      "A_first": 8,
+      "B_first": 0
+    },
+    "transitions": {
+      "A->A": 8
+    },
+    "task_success_both_resources": 8,
+    "selection_ambiguity": 0,
+    "tool_failure_events": 1,
+    "note": "Valid completed traces retained from an interrupted sequential run; excluded from the balanced primary sample."
+  },
+  "other_diagnostics": {
+    "pre_harness_trace_count": 12,
+    "interrupted_shuffle_trace_count": 1,
+    "note": "These remain archived for provenance and are excluded from the primary validation result."
+  },
+  "statistical_tests": "none; neutral-only design validation pilot"
+}

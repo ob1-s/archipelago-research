@@ -1,0 +1,156 @@
+11:30:23    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-postcommitment-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "assignment_mode": "neutral",
+      "assignment_seed": "postcommitment-neutral-pilot-v3-enforced",
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "cross-rollout-postcommitment-v1",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "Qwen/Qwen3.5-9B",
+  "client": {
+    "base_url": "https://api.pinference.ai/api/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 2,
+  "num_rollouts": 8,
+  "shuffle": true,
+  "max_concurrent": 2,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "results/cross-rollout-postcommitment-v1-neutral-pilot-v3-enforced-2026-08-12/factorial-slice"
+}
+11:30:23    INFO running 2x8 rollouts on Qwen/Qwen3.5-9B
+11:30:23    INFO results: results/cross-rollout-postcommitment-v1-neutral-pilot-v3-enforced-2026-08-12/factorial-slice
+11:30:25    INFO shared tool server 'facility': http://127.0.0.1:46337/mcp
+11:30:25    INFO rollout start: id=5f53aeef9bb24e24ae0ca5f77c13fa77 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:30:25    INFO rollout start: id=7c1402ba2d2142d8b6d041313e3c4743 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:30:25    INFO interception up: url=http://127.0.0.1:39479
+11:30:25    INFO interception pool: 1 server(s), multiplex=32
+11:30:56    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:30:56    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:07    INFO rollout done: id=7c1402ba2d2142d8b6d041313e3c4743 task=0 reward=1.000 turns=8 stop=agent_completed
+11:31:07    INFO rollout start: id=c183486f49434ebdb28d00d96354fb02 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:07    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:16    INFO rollout done: id=c183486f49434ebdb28d00d96354fb02 task=0 reward=1.000 turns=8 stop=agent_completed
+11:31:16    INFO rollout start: id=65dd96ffd5f64f57ae8f4a739c10803f task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:16    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:17    INFO rollout done: id=5f53aeef9bb24e24ae0ca5f77c13fa77 task=0 reward=1.000 turns=8 stop=agent_completed
+11:31:17    INFO rollout start: id=6919d00fd8f44a558549f80e055ae827 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:17    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:25    INFO rollout done: id=6919d00fd8f44a558549f80e055ae827 task=0 reward=1.000 turns=6 stop=agent_completed
+11:31:25    INFO rollout start: id=7556e1d169804dc19a78eb492a4d8f7a task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:25    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:27    INFO rollout done: id=65dd96ffd5f64f57ae8f4a739c10803f task=0 reward=1.000 turns=8 stop=agent_completed
+11:31:27    INFO rollout start: id=26432f00cbd645e4b4ca792810e64cb3 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:27    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:37    INFO rollout done: id=7556e1d169804dc19a78eb492a4d8f7a task=0 reward=1.000 turns=7 stop=agent_completed
+11:31:37    INFO rollout start: id=fcb74792c7b74ea5a4b42f57af5a0310 task=0 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:37    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:39    INFO rollout done: id=26432f00cbd645e4b4ca792810e64cb3 task=0 reward=1.000 turns=9 stop=agent_completed
+11:31:39    INFO rollout start: id=64d20189829840968a8f7a3e58a01da4 task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:39    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:48    INFO rollout done: id=fcb74792c7b74ea5a4b42f57af5a0310 task=0 reward=1.000 turns=8 stop=agent_completed
+11:31:48    INFO rollout start: id=cf3d68ce4b594ad487ce8248cd636ad3 task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:48    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:51    INFO rollout done: id=64d20189829840968a8f7a3e58a01da4 task=1 reward=1.000 turns=8 stop=agent_completed
+11:31:51    INFO rollout start: id=0ad18d13ce1c4613845a3971bb6fe323 task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:51    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:31:59    INFO rollout done: id=cf3d68ce4b594ad487ce8248cd636ad3 task=1 reward=1.000 turns=8 stop=agent_completed
+11:31:59    INFO rollout start: id=0c55772813f64376842ec04ffa45cf34 task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:31:59    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:32:01    INFO rollout done: id=0ad18d13ce1c4613845a3971bb6fe323 task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:01    INFO rollout start: id=9f895151cd5d410891b7511cdfe17a3c task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:32:01    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:32:10    INFO rollout done: id=0c55772813f64376842ec04ffa45cf34 task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:10    INFO rollout start: id=5aaf85a8a2c341338a428b1d13cac9cf task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:32:10    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:32:14    INFO rollout done: id=9f895151cd5d410891b7511cdfe17a3c task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:14    INFO rollout start: id=332ef2b5dca94bf4b239f8a5ecb1288b task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:32:14    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:32:23    INFO rollout done: id=5aaf85a8a2c341338a428b1d13cac9cf task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:23    INFO rollout start: id=17e86b77d7484cb59a19a53e5e546d5f task=1 harness=cross-rollout-postcommitment-v1 runtime=subprocess
+11:32:23    INFO tool server 'facility' (shared): http://127.0.0.1:46337/mcp
+11:32:24    INFO rollout done: id=332ef2b5dca94bf4b239f8a5ecb1288b task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:33    INFO rollout done: id=17e86b77d7484cb59a19a53e5e546d5f task=1 reward=1.000 turns=8 stop=agent_completed
+11:32:33    INFO interception down: url=http://127.0.0.1:39479

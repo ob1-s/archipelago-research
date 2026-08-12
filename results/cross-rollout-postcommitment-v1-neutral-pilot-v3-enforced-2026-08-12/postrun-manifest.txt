@@ -1,0 +1,15 @@
+experiment=cross-rollout-postcommitment-v1-neutral-pilot-v3-enforced
+environment_commit=f4e11fd
+model=Qwen/Qwen3.5-9B
+condition=neutral
+primary_sample=factorial-slice/traces.jsonl
+primary_sample_rollouts=16
+primary_sample_order_balance=A_first:8,B_first:8
+supplementary_sample=provider-hang-diagnostic/traces.jsonl
+supplementary_sample_rollouts=8
+pre_harness_diagnostic=pre-harness-diagnostic/traces.jsonl
+pre_harness_diagnostic_rollouts=12
+interrupted_shuffle_diagnostic=bfirst-slice/traces.jsonl
+interrupted_shuffle_diagnostic_rollouts=1
+statistical_tests=none
+culture_treatments_run=none
