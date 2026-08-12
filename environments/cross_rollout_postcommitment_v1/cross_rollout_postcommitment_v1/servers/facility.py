@@ -156,7 +156,8 @@ class PostcommitmentToolset(
             return (
                 f"{success}\n\n{self.state.exposure_text}\n"
                 "A new equivalent resource R2 is now available. Select a policy "
-                "and obtain R2."
+                "and obtain R2. Use select_policy now; do not provide a final "
+                "response yet."
             )
 
         self.state.phase2_success = True

@@ -27,7 +27,7 @@ def prompt_for_phase1_order(phase1_order: PresentationOrder) -> str:
         f"choose one policy with select_policy(policy=\"{phase1_first}\" or "
         f"\"{phase1_second}\") and then call release_resource(). Both policies "
         "are available and the environment decides whether the resource was "
-        "obtained. After you are done, give a concise final response."
+        "obtained."
     )
 
 

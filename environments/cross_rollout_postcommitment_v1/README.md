@@ -35,7 +35,9 @@ A new equivalent resource R2 is now available. Select a policy and obtain R2.
 
 The exposure is not voluntary and is never available before Phase-1 success. The
 R2 sentence does not list policy values, and does not ask the rollout to choose
-again, switch, reconsider, or try another policy.
+again, switch, reconsider, or try another policy. The same post-success response
+also tells the model to use `select_policy` before finalizing, because the standard
+eval path runs one model segment unless the environment explicitly keeps it open.
 With `assignment_mode = "random"`, the condition is assigned before any model
 action using a SHA-256 hash of the fresh trace ID and a fixed seed. It therefore
 does not depend on the Phase-1 policy. Fixed modes are available for controlled
