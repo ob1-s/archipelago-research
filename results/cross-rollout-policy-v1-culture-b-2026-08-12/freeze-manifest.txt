@@ -1,0 +1,10 @@
+Frozen before Culture-B model calls on 2026-08-12.
+
+environment_commit=5e4ba04f7b5f18a06d150a8a38f4e0eeb8a53e26
+preregistration_sha256=a523247f5d013a719b86ec769358d2562e68526aea3fd2d7906967115e9fa54f
+culture_b_run_config_sha256=c2bada15b0bb5b15585a8c7062066c06efc54bb841a080262da6f65d3710965d
+frozen_baseline_archive_commit=01abef56dead1bf0b3576c8d0057cb91f4458b99
+
+The baseline and Culture-A scaled archives, task logic, and corrected tool
+interface were inspected before this freeze. The new run changes only the
+condition literal and the direction of the policy-only predecessor artifact.
