@@ -1,0 +1,198 @@
+10:16:25    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-postcommitment-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "assignment_mode": "random",
+      "assignment_seed": "postcommitment-pilot-v1",
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "null",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "Qwen/Qwen3.5-9B",
+  "client": {
+    "base_url": "https://api.pinference.ai/api/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 1,
+  "num_rollouts": 30,
+  "shuffle": false,
+  "max_concurrent": 1,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "results/cross-rollout-postcommitment-v1-pilot-2026-08-12"
+}
+10:16:25    INFO running 1x30 rollouts on Qwen/Qwen3.5-9B
+10:16:25    INFO results: results/cross-rollout-postcommitment-v1-pilot-2026-08-12
+10:16:27    INFO shared tool server 'facility': http://127.0.0.1:32807/mcp
+10:16:27    INFO rollout start: id=fddd7fd7c4684988b8a0b30942f1d49b task=0 harness=null runtime=subprocess
+10:16:27    INFO interception up: url=http://127.0.0.1:42017
+10:16:27    INFO interception pool: 1 server(s), multiplex=32
+10:16:40    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:16:48    INFO rollout done: id=fddd7fd7c4684988b8a0b30942f1d49b task=0 reward=0.000 turns=7 stop=TaskError
+10:16:48    INFO rollout start: id=e16660206dc841208dd484bc9d4eaa73 task=0 harness=null runtime=subprocess
+10:16:48    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:16:56    INFO rollout done: id=e16660206dc841208dd484bc9d4eaa73 task=0 reward=0.000 turns=6 stop=TaskError
+10:16:56    INFO rollout start: id=959b73b56035447fa6c562f92bbaae32 task=0 harness=null runtime=subprocess
+10:16:56    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:17:06    INFO rollout done: id=959b73b56035447fa6c562f92bbaae32 task=0 reward=0.000 turns=6 stop=TaskError
+10:17:06    INFO rollout start: id=45968dd6e9bf4184a903b121f48630d0 task=0 harness=null runtime=subprocess
+10:17:06    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:17:14    INFO rollout done: id=45968dd6e9bf4184a903b121f48630d0 task=0 reward=0.000 turns=7 stop=TaskError
+10:17:14    INFO rollout start: id=753406fe342f4e5fa8737839ac31d975 task=0 harness=null runtime=subprocess
+10:17:14    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:17:33    INFO rollout done: id=753406fe342f4e5fa8737839ac31d975 task=0 reward=0.000 turns=6 stop=TaskError
+10:17:33    INFO rollout start: id=02b7c85ab2e44225b1bd8cd62110e034 task=0 harness=null runtime=subprocess
+10:17:33    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:17:55    INFO rollout done: id=02b7c85ab2e44225b1bd8cd62110e034 task=0 reward=0.000 turns=6 stop=TaskError
+10:17:55    INFO rollout start: id=951ded337c274355b9a20c2ada67eaf9 task=0 harness=null runtime=subprocess
+10:17:55    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:02    INFO rollout done: id=951ded337c274355b9a20c2ada67eaf9 task=0 reward=0.000 turns=6 stop=TaskError
+10:18:02    INFO rollout start: id=6e2fc2480c1548c2a798a79658eb494b task=0 harness=null runtime=subprocess
+10:18:02    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:21    INFO rollout done: id=6e2fc2480c1548c2a798a79658eb494b task=0 reward=0.000 turns=6 stop=TaskError
+10:18:21    INFO rollout start: id=f20b0fd0b23b4506a367ec792b8abccf task=0 harness=null runtime=subprocess
+10:18:21    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:28    INFO rollout done: id=f20b0fd0b23b4506a367ec792b8abccf task=0 reward=0.000 turns=6 stop=TaskError
+10:18:28    INFO rollout start: id=44d6f6e0356f4240835332a63b88c5dd task=0 harness=null runtime=subprocess
+10:18:28    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:37    INFO rollout done: id=44d6f6e0356f4240835332a63b88c5dd task=0 reward=0.000 turns=7 stop=TaskError
+10:18:37    INFO rollout start: id=030c1c5242aa4eddae40a822a1102a0b task=0 harness=null runtime=subprocess
+10:18:37    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:45    INFO rollout done: id=030c1c5242aa4eddae40a822a1102a0b task=0 reward=0.000 turns=7 stop=TaskError
+10:18:45    INFO rollout start: id=019aebb893224933bdc2858683aa9d17 task=0 harness=null runtime=subprocess
+10:18:45    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:18:53    INFO rollout done: id=019aebb893224933bdc2858683aa9d17 task=0 reward=0.000 turns=7 stop=TaskError
+10:18:53    INFO rollout start: id=8a5ee59912b4482c9583881798cb9e18 task=0 harness=null runtime=subprocess
+10:18:53    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:20:59    INFO rollout done: id=8a5ee59912b4482c9583881798cb9e18 task=0 reward=0.000 turns=7 stop=TaskError
+10:20:59    INFO rollout start: id=7088fb6db7f641809cea1e49191f8e38 task=0 harness=null runtime=subprocess
+10:20:59    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:21:06    INFO rollout done: id=7088fb6db7f641809cea1e49191f8e38 task=0 reward=0.000 turns=6 stop=TaskError
+10:21:06    INFO rollout start: id=6761815d09a346dbafe9020c093213f2 task=0 harness=null runtime=subprocess
+10:21:06    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:21:14    INFO rollout done: id=6761815d09a346dbafe9020c093213f2 task=0 reward=0.000 turns=7 stop=TaskError
+10:21:14    INFO rollout start: id=9d308ea76c4b41a7bf94089a3b4ab92d task=0 harness=null runtime=subprocess
+10:21:14    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:21:21    INFO rollout done: id=9d308ea76c4b41a7bf94089a3b4ab92d task=0 reward=0.000 turns=7 stop=TaskError
+10:21:21    INFO rollout start: id=da744d824b984f54b6684d34d2580e60 task=0 harness=null runtime=subprocess
+10:21:21    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:21:29    INFO rollout done: id=da744d824b984f54b6684d34d2580e60 task=0 reward=0.000 turns=7 stop=TaskError
+10:21:29    INFO rollout start: id=d23c517a5c7f4150ad181f0832939753 task=0 harness=null runtime=subprocess
+10:21:29    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:21:37    INFO rollout done: id=d23c517a5c7f4150ad181f0832939753 task=0 reward=0.000 turns=7 stop=TaskError
+10:21:37    INFO rollout start: id=3929029272994dc3a55813125ad0c58e task=0 harness=null runtime=subprocess
+10:21:37    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:22:15    INFO rollout done: id=3929029272994dc3a55813125ad0c58e task=0 reward=0.000 turns=7 stop=TaskError
+10:22:15    INFO rollout start: id=4715f2c19ab44f1198e2bd4e25cfd8e4 task=0 harness=null runtime=subprocess
+10:22:15    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:22:23    INFO rollout done: id=4715f2c19ab44f1198e2bd4e25cfd8e4 task=0 reward=0.000 turns=7 stop=TaskError
+10:22:23    INFO rollout start: id=89732c67733b4dc283795111bc988b36 task=0 harness=null runtime=subprocess
+10:22:23    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:22:32    INFO rollout done: id=89732c67733b4dc283795111bc988b36 task=0 reward=0.000 turns=7 stop=TaskError
+10:22:32    INFO rollout start: id=a7e8d8529f01466888a5940ae1b77da3 task=0 harness=null runtime=subprocess
+10:22:32    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:22:40    INFO rollout done: id=a7e8d8529f01466888a5940ae1b77da3 task=0 reward=0.000 turns=6 stop=TaskError
+10:22:40    INFO rollout start: id=612beb8b2ba04e86ad491265da15ef90 task=0 harness=null runtime=subprocess
+10:22:40    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:22:48    INFO rollout done: id=612beb8b2ba04e86ad491265da15ef90 task=0 reward=0.000 turns=7 stop=TaskError
+10:22:48    INFO rollout start: id=fb1043a1e4c84f8ca9f4e7f90df2a689 task=0 harness=null runtime=subprocess
+10:22:48    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:00    INFO rollout done: id=fb1043a1e4c84f8ca9f4e7f90df2a689 task=0 reward=0.000 turns=7 stop=TaskError
+10:23:00    INFO rollout start: id=fe6d1569999349609e83d62c29993322 task=0 harness=null runtime=subprocess
+10:23:00    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:06    INFO rollout done: id=fe6d1569999349609e83d62c29993322 task=0 reward=0.000 turns=5 stop=TaskError
+10:23:06    INFO rollout start: id=4996398d81d14378bc3d9f6a1a26bb74 task=0 harness=null runtime=subprocess
+10:23:06    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:14    INFO rollout done: id=4996398d81d14378bc3d9f6a1a26bb74 task=0 reward=0.000 turns=7 stop=TaskError
+10:23:14    INFO rollout start: id=5cfc9f282e844d00a8da4eacc3738633 task=0 harness=null runtime=subprocess
+10:23:14    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:35    INFO rollout done: id=5cfc9f282e844d00a8da4eacc3738633 task=0 reward=0.000 turns=7 stop=TaskError
+10:23:35    INFO rollout start: id=b410f9ea7fa641ee9409ce88ffed5ee6 task=0 harness=null runtime=subprocess
+10:23:35    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:44    INFO rollout done: id=b410f9ea7fa641ee9409ce88ffed5ee6 task=0 reward=0.000 turns=6 stop=TaskError
+10:23:44    INFO rollout start: id=76e22d1101264dcc9a485434b18540a8 task=0 harness=null runtime=subprocess
+10:23:44    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:23:52    INFO rollout done: id=76e22d1101264dcc9a485434b18540a8 task=0 reward=0.000 turns=7 stop=TaskError
+10:23:52    INFO rollout start: id=9382dfc900964eb1bc53847069626822 task=0 harness=null runtime=subprocess
+10:23:52    INFO tool server 'facility' (shared): http://127.0.0.1:32807/mcp
+10:24:00    INFO rollout done: id=9382dfc900964eb1bc53847069626822 task=0 reward=0.000 turns=7 stop=TaskError
+10:24:00    INFO interception down: url=http://127.0.0.1:42017
