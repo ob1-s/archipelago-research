@@ -54,15 +54,18 @@ class PostcommitmentToolset(
             self.state.first_failure_index = index
 
     def _presentation(self) -> str:
-        order = (
-            self.state.phase1_presentation_order
-            if self.state.phase == "phase1"
-            else self.state.phase2_presentation_order
+        if self.state.phase == "phase2":
+            return (
+                "A new equivalent resource R2 is available. Both available "
+                "policies are operational and equally viable."
+            )
+        first, second = (
+            ("A", "B")
+            if self.state.phase1_presentation_order == "A_first"
+            else ("B", "A")
         )
-        first, second = ("A", "B") if order == "A_first" else ("B", "A")
-        resource = "R1" if self.state.phase == "phase1" else "R2"
         return (
-            f"Resource {resource} is available. Directly selectable policies are "
+            "Resource R1 is available. Directly selectable policies are "
             f"{first} and {second}; both are operational and equally viable."
         )
 
@@ -150,16 +153,10 @@ class PostcommitmentToolset(
                 "phase2_convention",
                 self.state.exposure_text,
             )
-            phase2_first, phase2_second = (
-                ("A", "B")
-                if self.state.phase2_presentation_order == "A_first"
-                else ("B", "A")
-            )
             return (
                 f"{success}\n\n{self.state.exposure_text}\n"
-                "Now obtain resource R2 with a second call to "
-                f"select_policy(policy=\"{phase2_first}\" or "
-                f"\"{phase2_second}\"), then call release_resource again."
+                "A new equivalent resource R2 is now available. Select a policy "
+                "and obtain R2."
             )
 
         self.state.phase2_success = True

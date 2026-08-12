@@ -33,7 +33,6 @@ class PostcommitmentState(vf.State):
     exposure_text: str = ""
     phase: Phase = "phase1"
     phase1_presentation_order: PresentationOrder = "A_first"
-    phase2_presentation_order: PresentationOrder = "B_first"
     phase1_policy: Policy | None = None
     phase2_policy: Policy | None = None
     phase1_success: bool = False
@@ -43,4 +42,3 @@ class PostcommitmentState(vf.State):
     first_failure_index: int | None = None
     selection_ambiguity: bool = False
     policy_selection_attempts: list[dict[str, str]] = Field(default_factory=list)
-
