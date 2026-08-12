@@ -1,0 +1,19 @@
+model = "Qwen/Qwen3.5-0.8B"
+num_tasks = 1
+num_rollouts = 10
+max_concurrent = 1
+push = false
+rich = false
+
+[env.taskset]
+id = "cross-rollout-policy-v1"
+condition = "baseline"
+notes_path = "/tmp/cross-rollout-policy-v1-cross-model-2026-08-12/qwen-0.8b-gate-baseline-notes.txt"
+
+[env.agent]
+harness = { id = "null" }
+runtime = { type = "subprocess" }
+
+[sampling]
+temperature = 0.7
+max_tokens = 1024

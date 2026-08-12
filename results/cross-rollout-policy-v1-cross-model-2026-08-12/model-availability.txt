@@ -1,0 +1,11 @@
+Provider snapshot inspected 2026-08-12 with `prime inference models --plain`.
+
+Selected dense same-family ladder:
+Qwen/Qwen3.5-0.8B     input $0.04 / 1M tokens, output $0.08 / 1M tokens
+Qwen/Qwen3.5-4B       input $0.10 / 1M tokens, output $0.30 / 1M tokens (archived anchor)
+Qwen/Qwen3.5-9B       input $0.18 / 1M tokens, output $0.54 / 1M tokens
+
+Other relevant listed variants:
+Qwen/Qwen3.5-2B       available but omitted from this compact first ladder
+Qwen/Qwen3.5-35B-A3B  available as larger MoE variants but omitted from this
+                      wallet-conscious first ladder
