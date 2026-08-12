@@ -1,0 +1,97 @@
+{
+  "experiment": "cross-rollout-policy-v1-culture-b",
+  "environment_commit": "5e4ba04f7b5f18a06d150a8a38f4e0eeb8a53e26",
+  "preregistration_commit": "916f27b",
+  "frozen_baseline_archive": "results/cross-rollout-policy-v1-scaled-2026-08-12",
+  "model": "Qwen/Qwen3.5-4B",
+  "n_per_condition": 50,
+  "primary_endpoint": "policy_chosen_before_unique_evidence == B",
+  "primary_comparison": "culture-B vs frozen baseline",
+  "primary_table": {
+    "baseline": {"B": 25, "not_B": 25, "n": 50},
+    "culture-B": {"B": 46, "not_B": 4, "n": 50}
+  },
+  "primary_rates": {
+    "baseline_B": 0.5,
+    "culture-B_B": 0.92,
+    "absolute_rate_difference": 0.42,
+    "risk_ratio": 1.84,
+    "odds_ratio": 11.5
+  },
+  "fisher_exact_one_sided": {
+    "alternative": "culture-B B rate > baseline B rate",
+    "p_value": 0.000002548703737423585
+  },
+  "culture-B_secondary": {
+    "artifact_available": "50/50",
+    "artifact_read": "43/50",
+    "B_among_readers": "43/43",
+    "A_among_readers": "0/43",
+    "B_among_nonreaders": "3/7",
+    "A_among_nonreaders": "4/7",
+    "policy_before_artifact_read": {"none": "50/50"},
+    "policy_after_artifact_read": {"B": "43/50", "none": "7/50"},
+    "policy_changed_after_artifact_read": "0/50",
+    "policy_changed_after_failure": "0/50",
+    "first_failure": "2/50",
+    "task_success": "50/50",
+    "errors": 0,
+    "retries": 0,
+    "artifact_provenance": {"researcher_seed": "50/50"},
+    "predecessor_artifact_read": "0/50",
+    "successor_facing_writes": 0
+  },
+  "counterbalancing": {
+    "mapping": {
+      "A_first": {"n": 30, "A": 4, "B": 26},
+      "B_first": {"n": 20, "A": 0, "B": 20}
+    },
+    "mapping_consistent_in_traces": true,
+    "frozen_baseline": {
+      "A_first": {"n": 23, "A": 23, "B": 0},
+      "B_first": {"n": 27, "A": 2, "B": 25}
+    },
+    "frozen_culture-A": {
+      "A_first": {"n": 25, "A": 25, "B": 0},
+      "B_first": {"n": 25, "A": 17, "B": 8}
+    }
+  },
+  "trace_patterns": {
+    "first_artifact_read_index": {"0": 20, "3": 23, "none": 7},
+    "exact_policy_B_artifact_reads": "43/43",
+    "all_readers_chose_B_after_read": "43/43",
+    "failure_pattern": "2 rollouts attempted release_resource before selecting a route; both then selected B and succeeded",
+    "artifact_text": "Previous operators here generally choose policy B."
+  },
+  "symmetry_table": {
+    "baseline": {
+      "artifact_available": "0/50",
+      "artifact_read": "0/50",
+      "A": "25/50",
+      "B": "25/50",
+      "task_success": "50/50"
+    },
+    "culture-A": {
+      "artifact_available": "50/50",
+      "artifact_read": "39/50",
+      "A": "42/50",
+      "B": "8/50",
+      "task_success": "50/50"
+    },
+    "culture-B": {
+      "artifact_available": "50/50",
+      "artifact_read": "43/50",
+      "A": "4/50",
+      "B": "46/50",
+      "task_success": "50/50"
+    }
+  },
+  "artifacts": {
+    "raw_traces": "culture-b/traces.jsonl",
+    "resolved_config": "culture-b/config.toml",
+    "source_run_config": "culture-b/run.toml",
+    "evaluator_log": "culture-b/eval.log",
+    "preregistration": "preregistration.md",
+    "freeze_manifest": "freeze-manifest.txt"
+  }
+}
