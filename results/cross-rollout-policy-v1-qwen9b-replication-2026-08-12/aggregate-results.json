@@ -1,0 +1,146 @@
+{
+  "experiment": "cross-rollout-policy-v1-qwen9b-replication",
+  "date": "2026-08-12",
+  "model": "Qwen/Qwen3.5-9B",
+  "environment_code_commit": "5e4ba04f7b5f18a06d150a8a38f4e0eeb8a53e26",
+  "conditions": {
+    "baseline": {
+      "n": 50,
+      "valid_primary_n": 50,
+      "policy_A": 21,
+      "policy_B": 29,
+      "policy_none": 0,
+      "task_success": 50,
+      "artifact_available": 0,
+      "artifact_read": 0,
+      "recoverable_failures": 7,
+      "recoverable_failure_types": {"release_resource": 7},
+      "failures_before_or_without_artifact_read": 7,
+      "failures_after_artifact_read": 0,
+      "policy_changes_after_artifact_read": 0,
+      "policy_changes_after_failure": 0,
+      "presentation_order": {
+        "A_first": {"n": 18, "A": 18, "B": 0, "success": 18, "artifact_read": 0},
+        "B_first": {"n": 32, "A": 3, "B": 29, "success": 32, "artifact_read": 0}
+      },
+      "first_action": {
+        "notes_read:notes.txt": 29,
+        "observe:atrium": 21
+      },
+      "mean_observations": 2.92,
+      "selection_before_artifact_read": 50,
+      "selection_after_artifact_read": 0
+    },
+    "culture-A": {
+      "n": 50,
+      "valid_primary_n": 50,
+      "policy_A": 47,
+      "policy_B": 3,
+      "policy_none": 0,
+      "task_success": 50,
+      "artifact_available": 50,
+      "artifact_read": 45,
+      "policy_A_among_readers": 44,
+      "policy_B_among_readers": 1,
+      "aligned_choice_among_readers": 44,
+      "reader_n": 45,
+      "policy_A_among_nonreaders": 3,
+      "policy_B_among_nonreaders": 2,
+      "aligned_choice_among_nonreaders": 3,
+      "nonreader_n": 5,
+      "recoverable_failures": 4,
+      "recoverable_failure_types": {"release_resource": 4},
+      "failures_before_or_without_artifact_read": 1,
+      "failures_after_artifact_read": 3,
+      "policy_changes_after_artifact_read": 0,
+      "policy_changes_after_failure": 0,
+      "presentation_order": {
+        "A_first": {"n": 23, "A": 23, "B": 0, "success": 23, "artifact_read": 20},
+        "B_first": {"n": 27, "A": 24, "B": 3, "success": 27, "artifact_read": 25}
+      },
+      "first_action": {
+        "notes_read:notes.txt": 29,
+        "observe:atrium": 20,
+        "act:release_resource": 1
+      },
+      "mean_observations": 2.84,
+      "selection_before_artifact_read": 5,
+      "selection_after_artifact_read": 45
+    },
+    "culture-B": {
+      "n": 50,
+      "valid_primary_n": 50,
+      "policy_A": 10,
+      "policy_B": 40,
+      "policy_none": 0,
+      "task_success": 50,
+      "artifact_available": 50,
+      "artifact_read": 37,
+      "policy_A_among_readers": 1,
+      "policy_B_among_readers": 36,
+      "aligned_choice_among_readers": 36,
+      "reader_n": 37,
+      "policy_A_among_nonreaders": 9,
+      "policy_B_among_nonreaders": 4,
+      "aligned_choice_among_nonreaders": 4,
+      "nonreader_n": 13,
+      "recoverable_failures": 10,
+      "recoverable_failure_types": {"release_resource": 10},
+      "failures_before_or_without_artifact_read": 4,
+      "failures_after_artifact_read": 6,
+      "policy_changes_after_artifact_read": 0,
+      "policy_changes_after_failure": 0,
+      "presentation_order": {
+        "A_first": {"n": 27, "A": 9, "B": 18, "success": 27, "artifact_read": 19},
+        "B_first": {"n": 23, "A": 1, "B": 22, "success": 23, "artifact_read": 18}
+      },
+      "first_action": {
+        "notes_read:notes.txt": 29,
+        "observe:atrium": 20,
+        "act:release_resource": 1
+      },
+      "mean_observations": 2.74,
+      "selection_before_artifact_read": 13,
+      "selection_after_artifact_read": 37
+    }
+  },
+  "primary_tests": {
+    "culture-A_vs_baseline": {
+      "endpoint": "policy A before uniquely favoring evidence",
+      "culture_count": 47,
+      "culture_n": 50,
+      "baseline_count": 21,
+      "baseline_n": 50,
+      "absolute_difference": 0.52,
+      "risk_ratio": 2.238095238095238,
+      "odds_ratio": 21.63492063492062,
+      "fisher_exact_one_sided_p": 9.641741564684103e-09
+    },
+    "culture-B_vs_baseline": {
+      "endpoint": "policy B before uniquely favoring evidence",
+      "culture_count": 40,
+      "culture_n": 50,
+      "baseline_count": 29,
+      "baseline_n": 50,
+      "absolute_difference": 0.22,
+      "risk_ratio": 1.3793103448275863,
+      "odds_ratio": 2.8965517241379324,
+      "fisher_exact_one_sided_p": 0.014872345795117863
+    }
+  },
+  "validity": {
+    "total_rollouts": 150,
+    "valid_primary": 150,
+    "infrastructure_provider_runtime_errors": 0,
+    "no_identifiable_policy": 0,
+    "mapping_inconsistency": 0,
+    "ambiguous_policy_trajectory": 0,
+    "task_failures": 0,
+    "recoverable_failures_retained": 21
+  },
+  "raw_trace_paths": [
+    "baseline/traces.jsonl",
+    "culture-a/traces.jsonl",
+    "culture-b/traces.jsonl"
+  ]
+}
