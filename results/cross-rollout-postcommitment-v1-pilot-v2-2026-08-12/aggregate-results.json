@@ -1,0 +1,67 @@
+{
+  "pilot": "cross-rollout-postcommitment-v1-pilot-v2",
+  "date": "2026-08-12",
+  "model": "Qwen/Qwen3.5-9B",
+  "environment_commit": "f84c66f",
+  "n": 32,
+  "rollouts_per_presentation_variant": 8,
+  "valid_rollouts": 32,
+  "ok_rollouts": 32,
+  "infrastructure_errors": 0,
+  "task_errors": 0,
+  "task_success": 32,
+  "assigned_conditions": {
+    "neutral": 13,
+    "culture-A": 8,
+    "culture-B": 11
+  },
+  "phase1_policy": {
+    "A": 18,
+    "B": 14
+  },
+  "phase1_success": {
+    "success": 32,
+    "failure": 0
+  },
+  "phase2_policy": {
+    "A": 16,
+    "B": 16
+  },
+  "phase2_success": {
+    "success": 32,
+    "failure": 0
+  },
+  "transitions": {
+    "A→A": 2,
+    "A→B": 16,
+    "B→A": 14,
+    "B→B": 0
+  },
+  "phase1_b_success_cohort": {
+    "neutral": {"n": 2, "B→A": 2, "B→B": 0},
+    "culture-A": {"n": 6, "B→A": 6, "B→B": 0},
+    "culture-B": {"n": 6, "B→A": 6, "B→B": 0}
+  },
+  "exposure": {
+    "delivered_after_phase1_success": 32,
+    "neutral_text": 13,
+    "culture_a_text": 8,
+    "culture_b_text": 11
+  },
+  "factorial_presentation_counts": {
+    "A_first_A_first": 8,
+    "A_first_B_first": 8,
+    "B_first_A_first": 8,
+    "B_first_B_first": 8
+  },
+  "phase1_policy_by_order": {
+    "A_first": {"A": 16, "B": 0},
+    "B_first": {"A": 2, "B": 14}
+  },
+  "phase2_policy_by_order": {
+    "A_first": {"A": 8, "B": 8},
+    "B_first": {"A": 8, "B": 8}
+  },
+  "recoverable_tool_failures": 0,
+  "selection_ambiguity": 0
+}
