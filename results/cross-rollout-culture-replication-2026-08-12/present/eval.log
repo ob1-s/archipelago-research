@@ -1,0 +1,262 @@
+01:57:24    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-culture-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "condition": "control",
+      "notes_path": "/tmp/cross-rollout-culture-replication/present/notes.txt",
+      "initial_notes": "Maintenance macro pulse_hold_resume completed. R dispenser is primed.",
+      "initial_notes_path": null,
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null,
+        "notes_path": "/tmp/cross-rollout-culture-v1/notes.txt",
+        "initial_notes": ""
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "null",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "Qwen/Qwen3.5-4B",
+  "client": {
+    "base_url": "https://api.pinference.ai/api/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 1,
+  "num_rollouts": 50,
+  "shuffle": false,
+  "max_concurrent": 1,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "/tmp/cross-rollout-culture-replication/present"
+}
+01:57:24    INFO running 1x50 rollouts on Qwen/Qwen3.5-4B
+01:57:24    INFO results: /tmp/cross-rollout-culture-replication/present
+01:57:26    INFO shared tool server 'facility': http://127.0.0.1:41805/mcp
+01:57:26    INFO rollout start: id=1402028c47bf40c6910c3584199795d3 task=0 harness=null runtime=subprocess
+01:57:26    INFO interception up: url=http://127.0.0.1:42927
+01:57:26    INFO interception pool: 1 server(s), multiplex=32
+01:57:49    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:58:03    INFO rollout done: id=1402028c47bf40c6910c3584199795d3 task=0 reward=1.000 turns=9 stop=agent_completed
+01:58:03    INFO rollout start: id=ec9a7dd1e79444c288b9adbf79830a37 task=0 harness=null runtime=subprocess
+01:58:03    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:58:15    INFO rollout done: id=ec9a7dd1e79444c288b9adbf79830a37 task=0 reward=1.000 turns=9 stop=agent_completed
+01:58:15    INFO rollout start: id=06fd830dd4f14f0c84f0a057449d41cb task=0 harness=null runtime=subprocess
+01:58:15    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:58:34    INFO rollout done: id=06fd830dd4f14f0c84f0a057449d41cb task=0 reward=0.000 turns=12 stop=turn_limit
+01:58:34    INFO rollout start: id=4fcfddc247504e25bf64408cdbd951bd task=0 harness=null runtime=subprocess
+01:58:34    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:58:46    INFO rollout done: id=4fcfddc247504e25bf64408cdbd951bd task=0 reward=0.000 turns=12 stop=turn_limit
+01:58:46    INFO rollout start: id=b65d1a98d47a4011b2324e5bf2f00752 task=0 harness=null runtime=subprocess
+01:58:46    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:04    INFO rollout done: id=b65d1a98d47a4011b2324e5bf2f00752 task=0 reward=0.000 turns=12 stop=turn_limit
+01:59:04    INFO rollout start: id=aeeab3cb3301429c9bebbb09a5f682da task=0 harness=null runtime=subprocess
+01:59:04    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:12    INFO rollout done: id=aeeab3cb3301429c9bebbb09a5f682da task=0 reward=1.000 turns=7 stop=agent_completed
+01:59:12    INFO rollout start: id=be5256f55ecd422ab68177e977ae7cb7 task=0 harness=null runtime=subprocess
+01:59:12    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:24    INFO rollout done: id=be5256f55ecd422ab68177e977ae7cb7 task=0 reward=1.000 turns=12 stop=turn_limit
+01:59:24    INFO rollout start: id=1a243b5ca57445fa84525846e80bfeff task=0 harness=null runtime=subprocess
+01:59:24    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:34    INFO rollout done: id=1a243b5ca57445fa84525846e80bfeff task=0 reward=1.000 turns=9 stop=agent_completed
+01:59:34    INFO rollout start: id=2bfda153bce34f6b8f6608e5ecc1fc0b task=0 harness=null runtime=subprocess
+01:59:34    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:41    INFO rollout done: id=2bfda153bce34f6b8f6608e5ecc1fc0b task=0 reward=1.000 turns=5 stop=agent_completed
+01:59:41    INFO rollout start: id=68b40153c7844a1280835849300e04ba task=0 harness=null runtime=subprocess
+01:59:41    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+01:59:53    INFO rollout done: id=68b40153c7844a1280835849300e04ba task=0 reward=1.000 turns=5 stop=agent_completed
+01:59:53    INFO rollout start: id=84681fa2de2440cfa82707b88e3e5d92 task=0 harness=null runtime=subprocess
+01:59:53    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:03    INFO rollout done: id=84681fa2de2440cfa82707b88e3e5d92 task=0 reward=1.000 turns=7 stop=agent_completed
+02:00:03    INFO rollout start: id=695c5b1b6263479aaf21c59337afefc7 task=0 harness=null runtime=subprocess
+02:00:03    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:14    INFO rollout done: id=695c5b1b6263479aaf21c59337afefc7 task=0 reward=0.000 turns=12 stop=turn_limit
+02:00:14    INFO rollout start: id=f925d2af67d1474595d071bd3bf633f2 task=0 harness=null runtime=subprocess
+02:00:14    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:20    INFO rollout done: id=f925d2af67d1474595d071bd3bf633f2 task=0 reward=1.000 turns=5 stop=agent_completed
+02:00:20    INFO rollout start: id=ac3d763607f54f0aab5398e74b2f34fe task=0 harness=null runtime=subprocess
+02:00:20    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:31    INFO rollout done: id=ac3d763607f54f0aab5398e74b2f34fe task=0 reward=0.000 turns=12 stop=turn_limit
+02:00:31    INFO rollout start: id=8a63b8f540294140b03b4bf1b9714199 task=0 harness=null runtime=subprocess
+02:00:31    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:42    INFO rollout done: id=8a63b8f540294140b03b4bf1b9714199 task=0 reward=0.000 turns=12 stop=turn_limit
+02:00:42    INFO rollout start: id=441c94d5f81946f38537323f4a2c4b7a task=0 harness=null runtime=subprocess
+02:00:42    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:00:51    INFO rollout done: id=441c94d5f81946f38537323f4a2c4b7a task=0 reward=1.000 turns=7 stop=agent_completed
+02:00:51    INFO rollout start: id=9bc221f5710642448f3cb7d26ca4ac8f task=0 harness=null runtime=subprocess
+02:00:51    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:01:08    INFO rollout done: id=9bc221f5710642448f3cb7d26ca4ac8f task=0 reward=0.000 turns=12 stop=turn_limit
+02:01:08    INFO rollout start: id=675e35f3c61940b9beb7cf53be0b644a task=0 harness=null runtime=subprocess
+02:01:08    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:01:36    INFO rollout done: id=675e35f3c61940b9beb7cf53be0b644a task=0 reward=0.000 turns=10 stop=agent_completed
+02:01:36    INFO rollout start: id=5e05e5b5dcd54e3dbd70cd3a3f63f9a5 task=0 harness=null runtime=subprocess
+02:01:36    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:01:51    INFO rollout done: id=5e05e5b5dcd54e3dbd70cd3a3f63f9a5 task=0 reward=0.000 turns=12 stop=turn_limit
+02:01:51    INFO rollout start: id=c2f6fd9a4e1141f6a6a40430971c4d9d task=0 harness=null runtime=subprocess
+02:01:51    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:02:44    INFO rollout done: id=c2f6fd9a4e1141f6a6a40430971c4d9d task=0 reward=0.000 turns=12 stop=turn_limit
+02:02:44    INFO rollout start: id=1aea391e7ce548f0be1e843379ac12fe task=0 harness=null runtime=subprocess
+02:02:44    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:03:00    INFO rollout done: id=1aea391e7ce548f0be1e843379ac12fe task=0 reward=1.000 turns=10 stop=agent_completed
+02:03:00    INFO rollout start: id=70b827a13b12444fa1deb04385a944f7 task=0 harness=null runtime=subprocess
+02:03:00    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:03:23    INFO rollout done: id=70b827a13b12444fa1deb04385a944f7 task=0 reward=0.000 turns=12 stop=turn_limit
+02:03:23    INFO rollout start: id=129b978a374949349f3ccbdd34610bbc task=0 harness=null runtime=subprocess
+02:03:23    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:03:35    INFO rollout done: id=129b978a374949349f3ccbdd34610bbc task=0 reward=0.000 turns=12 stop=turn_limit
+02:03:35    INFO rollout start: id=fff71bbb1c884f989b57c36517e97516 task=0 harness=null runtime=subprocess
+02:03:35    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:03:46    INFO rollout done: id=fff71bbb1c884f989b57c36517e97516 task=0 reward=1.000 turns=9 stop=agent_completed
+02:03:46    INFO rollout start: id=8db338e2e21345bc9e95616304beab68 task=0 harness=null runtime=subprocess
+02:03:46    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:03:56    INFO rollout done: id=8db338e2e21345bc9e95616304beab68 task=0 reward=1.000 turns=7 stop=agent_completed
+02:03:56    INFO rollout start: id=12116b594d84483794ec60d5978673a0 task=0 harness=null runtime=subprocess
+02:03:56    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:01    INFO rollout done: id=12116b594d84483794ec60d5978673a0 task=0 reward=1.000 turns=5 stop=agent_completed
+02:04:01    INFO rollout start: id=ceadaf4355804a8fbd0917fdc605cf26 task=0 harness=null runtime=subprocess
+02:04:01    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:13    INFO rollout done: id=ceadaf4355804a8fbd0917fdc605cf26 task=0 reward=0.000 turns=12 stop=turn_limit
+02:04:13    INFO rollout start: id=de5050f735024bdaa5f3273d5cd65435 task=0 harness=null runtime=subprocess
+02:04:13    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:23    INFO rollout done: id=de5050f735024bdaa5f3273d5cd65435 task=0 reward=1.000 turns=10 stop=agent_completed
+02:04:23    INFO rollout start: id=7d3cb976f4d745aa9be815559b7bb1a9 task=0 harness=null runtime=subprocess
+02:04:23    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:33    INFO rollout done: id=7d3cb976f4d745aa9be815559b7bb1a9 task=0 reward=0.000 turns=12 stop=turn_limit
+02:04:33    INFO rollout start: id=f3c635778406498ba34e9c0efbdbc163 task=0 harness=null runtime=subprocess
+02:04:33    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:45    INFO rollout done: id=f3c635778406498ba34e9c0efbdbc163 task=0 reward=0.000 turns=12 stop=turn_limit
+02:04:45    INFO rollout start: id=5c3210204ea341459a2d9e26451fda85 task=0 harness=null runtime=subprocess
+02:04:45    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:04:54    INFO rollout done: id=5c3210204ea341459a2d9e26451fda85 task=0 reward=0.000 turns=12 stop=turn_limit
+02:04:54    INFO rollout start: id=d1a2b005099343d8991acee7c0a6e3ca task=0 harness=null runtime=subprocess
+02:04:54    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:05:07    INFO rollout done: id=d1a2b005099343d8991acee7c0a6e3ca task=0 reward=0.000 turns=12 stop=turn_limit
+02:05:07    INFO rollout start: id=451e370dda224f7ba2038909c266cb88 task=0 harness=null runtime=subprocess
+02:05:07    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:05:21    INFO rollout done: id=451e370dda224f7ba2038909c266cb88 task=0 reward=0.000 turns=12 stop=turn_limit
+02:05:21    INFO rollout start: id=4da1a34238dc450eabee6995b6644dd9 task=0 harness=null runtime=subprocess
+02:05:21    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:05:40    INFO rollout done: id=4da1a34238dc450eabee6995b6644dd9 task=0 reward=0.000 turns=12 stop=turn_limit
+02:05:40    INFO rollout start: id=42ab7c7297a743b187e41902e12fe1bf task=0 harness=null runtime=subprocess
+02:05:40    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:06:07    INFO rollout done: id=42ab7c7297a743b187e41902e12fe1bf task=0 reward=1.000 turns=9 stop=agent_completed
+02:06:07    INFO rollout start: id=69bc1e9c863045329a89ff3452b6d382 task=0 harness=null runtime=subprocess
+02:06:07    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:06:18    INFO rollout done: id=69bc1e9c863045329a89ff3452b6d382 task=0 reward=0.000 turns=12 stop=turn_limit
+02:06:18    INFO rollout start: id=b5f9f719b27346febf4b998416087323 task=0 harness=null runtime=subprocess
+02:06:18    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:06:29    INFO rollout done: id=b5f9f719b27346febf4b998416087323 task=0 reward=0.000 turns=12 stop=turn_limit
+02:06:29    INFO rollout start: id=1ff9c06e6382474aad43614225f56fad task=0 harness=null runtime=subprocess
+02:06:29    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:06:41    INFO rollout done: id=1ff9c06e6382474aad43614225f56fad task=0 reward=1.000 turns=12 stop=turn_limit
+02:06:41    INFO rollout start: id=1b72706970aa46e8bb4c26da08719e00 task=0 harness=null runtime=subprocess
+02:06:41    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:06:51    INFO rollout done: id=1b72706970aa46e8bb4c26da08719e00 task=0 reward=1.000 turns=10 stop=agent_completed
+02:06:51    INFO rollout start: id=45a48a1385164cab9858213755982a6b task=0 harness=null runtime=subprocess
+02:06:51    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:03    INFO rollout done: id=45a48a1385164cab9858213755982a6b task=0 reward=0.000 turns=12 stop=turn_limit
+02:07:03    INFO rollout start: id=50a1d76cd1fe4cdc9d12d86a538fe505 task=0 harness=null runtime=subprocess
+02:07:03    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:14    INFO rollout done: id=50a1d76cd1fe4cdc9d12d86a538fe505 task=0 reward=0.000 turns=12 stop=turn_limit
+02:07:14    INFO rollout start: id=182e2b3fd2094908858ad291f1e77725 task=0 harness=null runtime=subprocess
+02:07:14    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:23    INFO rollout done: id=182e2b3fd2094908858ad291f1e77725 task=0 reward=1.000 turns=9 stop=agent_completed
+02:07:23    INFO rollout start: id=74587c415adb42a98786868b758182ee task=0 harness=null runtime=subprocess
+02:07:23    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:33    INFO rollout done: id=74587c415adb42a98786868b758182ee task=0 reward=1.000 turns=12 stop=agent_completed
+02:07:33    INFO rollout start: id=d88bb353b7a3477dbbb18e940f332678 task=0 harness=null runtime=subprocess
+02:07:33    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:45    INFO rollout done: id=d88bb353b7a3477dbbb18e940f332678 task=0 reward=0.000 turns=12 stop=turn_limit
+02:07:45    INFO rollout start: id=2002732207ab40a5b87ef398bb6291b3 task=0 harness=null runtime=subprocess
+02:07:45    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:07:57    INFO rollout done: id=2002732207ab40a5b87ef398bb6291b3 task=0 reward=0.000 turns=12 stop=turn_limit
+02:07:57    INFO rollout start: id=9ddb72911fbe408f84c2f56c6ac18afc task=0 harness=null runtime=subprocess
+02:07:57    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:08:13    INFO rollout done: id=9ddb72911fbe408f84c2f56c6ac18afc task=0 reward=0.000 turns=12 stop=turn_limit
+02:08:13    INFO rollout start: id=07c25235873546188c9195e2410e65c1 task=0 harness=null runtime=subprocess
+02:08:13    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:08:42    INFO rollout done: id=07c25235873546188c9195e2410e65c1 task=0 reward=1.000 turns=12 stop=agent_completed
+02:08:42    INFO rollout start: id=56a85b4540d34f52a860a7af37ce7784 task=0 harness=null runtime=subprocess
+02:08:42    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:08:59    INFO rollout done: id=56a85b4540d34f52a860a7af37ce7784 task=0 reward=0.000 turns=12 stop=turn_limit
+02:08:59    INFO rollout start: id=ec617ee6acf64eb084fae0cfd89d85db task=0 harness=null runtime=subprocess
+02:08:59    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:09:12    INFO rollout done: id=ec617ee6acf64eb084fae0cfd89d85db task=0 reward=0.000 turns=12 stop=turn_limit
+02:09:12    INFO rollout start: id=15a1fb4fa59d44cd97fb779c26e76eba task=0 harness=null runtime=subprocess
+02:09:12    INFO tool server 'facility' (shared): http://127.0.0.1:41805/mcp
+02:09:29    INFO rollout done: id=15a1fb4fa59d44cd97fb779c26e76eba task=0 reward=0.000 turns=12 stop=turn_limit
+02:09:29    INFO interception down: url=http://127.0.0.1:42927
