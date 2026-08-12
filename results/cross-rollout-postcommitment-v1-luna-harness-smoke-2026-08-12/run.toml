@@ -1,0 +1,56 @@
+model = "gpt-5.6-luna"
+num_tasks = 2
+num_rollouts = 4
+shuffle = false
+max_concurrent = 1
+verbose = false
+rich = false
+server = false
+push = false
+output_dir = "results/cross-rollout-postcommitment-v1-luna-harness-smoke-2026-08-12/run"
+
+[env]
+id = ""
+max_concurrent_agents = 1
+
+[env.taskset]
+id = "cross-rollout-postcommitment-confirmatory-v1"
+assignment_mode = "post_b_success_random"
+assignment_seed = "postcommitment-confirmatory-v1"
+
+[env.taskset.task]
+judges = []
+
+[env.taskset.tools.runtime]
+type = "subprocess"
+
+[env.timeout]
+
+[env.retries]
+max_retries = 0
+include = []
+exclude = []
+
+[env.interception]
+type = "elastic"
+multiplex = 32
+
+[env.agent]
+harness = { id = "cross-rollout-postcommitment-confirmatory-v1" }
+runtime = { type = "subprocess" }
+
+[serve]
+address = "tcp://127.0.0.1:5000"
+
+[serve.pool]
+type = "elastic"
+multiplex = 128
+
+[client]
+base_url = "http://127.0.0.1:10531/v1"
+api_key_var = "PRIME_API_KEY"
+type = "eval"
+
+[sampling]
+temperature = 0.7
+max_tokens = 1024

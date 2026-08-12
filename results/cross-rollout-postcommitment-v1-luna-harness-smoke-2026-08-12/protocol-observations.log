@@ -1,0 +1,17 @@
+model=gpt-5.6-luna
+proxy=openai-oauth 2.0.0
+proxy_source_commit=ec7dab2fcd8dab9da970a7a2b5dc34046c94905e
+environment_commit=a84a165f13c8e7cdb2f7c2c7a715087ec25d2531
+harness=cross-rollout-postcommitment-confirmatory-v1
+endpoint=/chat/completions
+reasoning_effort=unspecified/default/null
+requested_temperature=0.7
+temperature_behavior=ignored; proxy warned temperature unsupported for Luna reasoning model
+model_calls=34
+assistant_tool_calls=26
+tool_results=26
+tool_call_ids_match=true
+finish_reasons=tool_calls:26,stop:8
+reasoning_tokens_observed=483
+custom_phase2_nudge_messages=0
+proxy_security=localhost-only; OAuth credentials not archived

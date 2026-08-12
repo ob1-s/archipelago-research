@@ -1,0 +1,132 @@
+16:05:37    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-postcommitment-confirmatory-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "assignment_mode": "post_b_success_random",
+      "assignment_seed": "postcommitment-confirmatory-v1",
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "cross-rollout-postcommitment-confirmatory-v1",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "gpt-5.6-luna",
+  "client": {
+    "base_url": "http://127.0.0.1:10531/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 2,
+  "num_rollouts": 4,
+  "shuffle": false,
+  "max_concurrent": 1,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "results/cross-rollout-postcommitment-v1-luna-harness-smoke-2026-08-12/run"
+}
+16:05:37    INFO running 2x4 rollouts on gpt-5.6-luna
+16:05:37    INFO results: results/cross-rollout-postcommitment-v1-luna-harness-smoke-2026-08-12/run
+16:05:39    INFO shared tool server 'facility': http://127.0.0.1:45905/mcp
+16:05:39    INFO rollout start: id=fc6ddd3f60f9493b8baf1359340f5018 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:05:39    INFO interception up: url=http://127.0.0.1:44057
+16:05:39    INFO interception pool: 1 server(s), multiplex=32
+16:06:05    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:06:16    INFO rollout done: id=fc6ddd3f60f9493b8baf1359340f5018 task=0 reward=1.000 turns=4 stop=agent_completed
+16:06:16    INFO rollout start: id=96d7747064d24381b529af8c65b4645f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:06:16    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:06:23    INFO rollout done: id=96d7747064d24381b529af8c65b4645f task=0 reward=1.000 turns=3 stop=agent_completed
+16:06:23    INFO rollout start: id=24d0a7261e0c4dbf9fe9828e7d34cead task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:06:23    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:06:31    INFO rollout done: id=24d0a7261e0c4dbf9fe9828e7d34cead task=0 reward=1.000 turns=4 stop=agent_completed
+16:06:31    INFO rollout start: id=e54db699e60f471f9973d9c44002552d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:06:31    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:06:46    INFO rollout done: id=e54db699e60f471f9973d9c44002552d task=0 reward=1.000 turns=4 stop=agent_completed
+16:06:46    INFO rollout start: id=2de05f4ef26d44bdbbd918aa63166299 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:06:46    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:07:00    INFO rollout done: id=2de05f4ef26d44bdbbd918aa63166299 task=1 reward=1.000 turns=6 stop=agent_completed
+16:07:00    INFO rollout start: id=9fb14b1d63a14114ad443b15434f7cfb task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:07:00    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:07:13    INFO rollout done: id=9fb14b1d63a14114ad443b15434f7cfb task=1 reward=1.000 turns=5 stop=agent_completed
+16:07:13    INFO rollout start: id=9eae9a70e87548249b15fea88af70e1c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:07:13    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:07:29    INFO rollout done: id=9eae9a70e87548249b15fea88af70e1c task=1 reward=1.000 turns=5 stop=agent_completed
+16:07:29    INFO rollout start: id=ec40d107d427463181073e157508e8b0 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+16:07:29    INFO tool server 'facility' (shared): http://127.0.0.1:45905/mcp
+16:07:36    INFO rollout done: id=ec40d107d427463181073e157508e8b0 task=1 reward=1.000 turns=3 stop=agent_completed
+16:07:36    INFO interception down: url=http://127.0.0.1:44057

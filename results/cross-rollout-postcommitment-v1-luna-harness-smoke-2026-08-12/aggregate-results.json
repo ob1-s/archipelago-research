@@ -1,0 +1,51 @@
+{
+  "status": "mechanical_smoke_pass",
+  "scientific_use": "not_treatment_data",
+  "model": "gpt-5.6-luna",
+  "proxy": {
+    "project": "openai-oauth",
+    "version": "2.0.0",
+    "source_commit": "ec7dab2fcd8dab9da970a7a2b5dc34046c94905e",
+    "base_url": "http://127.0.0.1:10531/v1",
+    "endpoint": "/chat/completions",
+    "reasoning_effort": null,
+    "requested_temperature": 0.7,
+    "temperature_ignored": true
+  },
+  "environment_commit": "a84a165f13c8e7cdb2f7c2c7a715087ec25d2531",
+  "harness": "cross-rollout-postcommitment-confirmatory-v1",
+  "rollouts": 8,
+  "orders": {
+    "A_first": {"n": 4, "A": 4, "B": 0},
+    "B_first": {"n": 4, "A": 1, "B": 3}
+  },
+  "phase1_success": 8,
+  "task_success": 8,
+  "eligible_b_success": 3,
+  "eligible_by_condition": {
+    "neutral": {"n": 0, "B_to_A": 0, "B_to_B": 0, "r2_success": 0},
+    "culture-A": {"n": 3, "B_to_A": 3, "B_to_B": 0, "r2_success": 3}
+  },
+  "custom_nudge_messages_observed": 0,
+  "provider_runtime_errors": 0,
+  "selection_ambiguities": 0,
+  "tool_failures": 0,
+  "protocol": {
+    "model_calls": 34,
+    "assistant_tool_calls": 26,
+    "tool_results": 26,
+    "tool_call_ids_match": true,
+    "finish_reasons": {"tool_calls": 26, "stop": 8},
+    "reasoning_tokens_observed": 483
+  },
+  "trace_ids": [
+    "fc6ddd3f60f9493b8baf1359340f5018",
+    "96d7747064d24381b529af8c65b4645f",
+    "24d0a7261e0c4dbf9fe9828e7d34cead",
+    "e54db699e60f471f9973d9c44002552d",
+    "2de05f4ef26d44bdbbd918aa63166299",
+    "9fb14b1d63a14114ad443b15434f7cfb",
+    "9eae9a70e87548249b15fea88af70e1c",
+    "ec40d107d427463181073e157508e8b0"
+  ]
+}
