@@ -1,0 +1,125 @@
+{
+  "experiment": "cross-rollout-policy-v1-luna-qualification",
+  "date": "2026-08-12",
+  "status": "exploratory_qualification_only",
+  "intended_sample": {
+    "baseline": 10,
+    "culture-A": 10,
+    "culture-B": 10,
+    "total": 30
+  },
+  "environment": {
+    "taskset": "cross_rollout_policy_v1",
+    "environment_last_touched_commit": "5e4ba04f7b5f18a06d150a8a38f4e0eeb8a53e26",
+    "workspace_head_at_run": "76c181e",
+    "modified": false
+  },
+  "runtime": {
+    "model_condition": "GPT-5.6-Luna via ChatGPT OAuth / OpenAI-compatible chat proxy",
+    "proxy_project": "openai-oauth",
+    "proxy_version": "2.0.0",
+    "proxy_source_commit": "ec7dab2fcd8dab9da970a7a2b5dc34046c94905e",
+    "base_url": "http://127.0.0.1:10531/v1",
+    "model_id": "gpt-5.6-luna",
+    "requested_interface": "/v1/chat/completions",
+    "resolved_call_endpoint": "/chat/completions",
+    "harness": "null",
+    "runtime": "subprocess",
+    "temperature_requested": 0.7,
+    "temperature_effective": "ignored_by_proxy_for_reasoning_model",
+    "max_tokens_requested": 1024,
+    "retries": 0,
+    "push": false
+  },
+  "conditions": {
+    "baseline": {
+      "n": 10,
+      "valid": 10,
+      "task_success": 10,
+      "final_policy": {"A": 6, "B": 4, "none": 0},
+      "artifact_available": 0,
+      "artifact_read": 0,
+      "policy_before_artifact_read": {"A": 0, "B": 0, "none": 10},
+      "policy_after_artifact_read": {"A": 0, "B": 0, "none": 10},
+      "policy_changed_after_artifact_read": 0,
+      "policy_changed_after_failure": 0,
+      "recoverable_tool_failures": 0,
+      "ambiguous_policy": 0,
+      "infrastructure_errors": 0,
+      "presentation_order": {
+        "A_first": {"n": 6, "A": 6, "B": 0},
+        "B_first": {"n": 4, "A": 0, "B": 4}
+      },
+      "reader_breakdown": "not_applicable_no_artifact"
+    },
+    "culture-A": {
+      "n": 10,
+      "valid": 10,
+      "task_success": 10,
+      "final_policy": {"A": 10, "B": 0, "none": 0},
+      "artifact_available": 10,
+      "artifact_read": 10,
+      "read_before_policy_choice": 10,
+      "policy_before_artifact_read": {"A": 0, "B": 0, "none": 10},
+      "policy_after_artifact_read": {"A": 10, "B": 0, "none": 0},
+      "policy_changed_after_artifact_read": 0,
+      "policy_changed_after_failure": 0,
+      "recoverable_tool_failures": 0,
+      "ambiguous_policy": 0,
+      "infrastructure_errors": 0,
+      "convention_aligned": {
+        "readers": {"A": 10, "B": 0, "n": 10},
+        "nonreaders": {"A": 0, "B": 0, "n": 0}
+      },
+      "presentation_order": {
+        "A_first": {"n": 2, "A": 2, "B": 0},
+        "B_first": {"n": 8, "A": 8, "B": 0}
+      }
+    },
+    "culture-B": {
+      "n": 10,
+      "valid": 10,
+      "task_success": 10,
+      "final_policy": {"A": 1, "B": 9, "none": 0},
+      "artifact_available": 10,
+      "artifact_read": 9,
+      "read_before_policy_choice": 9,
+      "policy_chosen_without_read": 1,
+      "policy_before_artifact_read": {"A": 0, "B": 0, "none": 10},
+      "policy_after_artifact_read": {"A": 1, "B": 8, "none": 0},
+      "policy_changed_after_artifact_read": 0,
+      "policy_changed_after_failure": 0,
+      "recoverable_tool_failures": 0,
+      "ambiguous_policy": 0,
+      "infrastructure_errors": 0,
+      "convention_aligned": {
+        "readers": {"A": 1, "B": 8, "n": 9},
+        "nonreaders": {"A": 0, "B": 1, "n": 1}
+      },
+      "presentation_order": {
+        "A_first": {"n": 3, "A": 1, "B": 2},
+        "B_first": {"n": 7, "A": 0, "B": 7}
+      }
+    }
+  },
+  "qualification_totals": {
+    "valid": 30,
+    "task_success": 30,
+    "recoverable_tool_failures": 0,
+    "ambiguous_policy": 0,
+    "infrastructure_errors": 0,
+    "policy_changed_after_artifact_read": 0,
+    "policy_changed_after_failure": 0,
+    "artifact_reads": 19
+  },
+  "separate_infrastructure_incident": {
+    "condition": "baseline",
+    "attempted_rollouts": 10,
+    "valid": 0,
+    "provider_runtime_errors": 10,
+    "zero_turn": 10,
+    "error": "ProviderError: All connection attempts failed",
+    "included_in_qualification": false,
+    "archive_path": "baseline-infrastructure-failure/"
+  }
+}

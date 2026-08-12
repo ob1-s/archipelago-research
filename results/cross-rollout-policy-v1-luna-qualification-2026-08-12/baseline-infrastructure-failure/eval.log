@@ -1,0 +1,172 @@
+14:36:56    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-policy-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "condition": "baseline",
+      "notes_path": "/tmp/cross-rollout-policy-v1/pilot-baseline-notes.txt",
+      "initial_notes": "",
+      "initial_notes_path": null,
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null,
+        "notes_path": "/tmp/cross-rollout-policy-v1/notes.txt",
+        "initial_notes": ""
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "null",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "gpt-5.6-luna",
+  "client": {
+    "base_url": "http://127.0.0.1:10531/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 1,
+  "num_rollouts": 10,
+  "shuffle": false,
+  "max_concurrent": 1,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "results/cross-rollout-policy-v1-luna-qualification-2026-08-12/baseline"
+}
+14:36:56    INFO running 1x10 rollouts on gpt-5.6-luna
+14:36:56    INFO results: results/cross-rollout-policy-v1-luna-qualification-2026-08-12/baseline
+14:36:58    INFO shared tool server 'facility': http://127.0.0.1:33327/mcp
+14:36:58    INFO rollout start: id=d88ec322e50c4faaadedf77fb2a02bb4 task=0 harness=null runtime=subprocess
+14:36:58    INFO interception up: url=http://127.0.0.1:45217
+14:36:58    INFO interception pool: 1 server(s), multiplex=32
+14:37:15    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:16 WARNING model call failed: id=d88ec322e50c4faaadedf77fb2a02bb4 ProviderError: All connection attempts failed
+14:37:16 WARNING model call failed: id=d88ec322e50c4faaadedf77fb2a02bb4 ProviderError: All connection attempts failed
+14:37:17 WARNING model call failed: id=d88ec322e50c4faaadedf77fb2a02bb4 ProviderError: All connection attempts failed
+14:37:17    INFO rollout done: id=d88ec322e50c4faaadedf77fb2a02bb4 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:17    INFO rollout start: id=d6950632ef6342ddb106dd7f7e06e57c task=0 harness=null runtime=subprocess
+14:37:17    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:18 WARNING model call failed: id=d6950632ef6342ddb106dd7f7e06e57c ProviderError: All connection attempts failed
+14:37:19 WARNING model call failed: id=d6950632ef6342ddb106dd7f7e06e57c ProviderError: All connection attempts failed
+14:37:19 WARNING model call failed: id=d6950632ef6342ddb106dd7f7e06e57c ProviderError: All connection attempts failed
+14:37:20    INFO rollout done: id=d6950632ef6342ddb106dd7f7e06e57c task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:20    INFO rollout start: id=ac2ccb380ae143748a36bdb6155004ee task=0 harness=null runtime=subprocess
+14:37:20    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:21 WARNING model call failed: id=ac2ccb380ae143748a36bdb6155004ee ProviderError: All connection attempts failed
+14:37:21 WARNING model call failed: id=ac2ccb380ae143748a36bdb6155004ee ProviderError: All connection attempts failed
+14:37:22 WARNING model call failed: id=ac2ccb380ae143748a36bdb6155004ee ProviderError: All connection attempts failed
+14:37:22    INFO rollout done: id=ac2ccb380ae143748a36bdb6155004ee task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:22    INFO rollout start: id=e035df0599504a639d4b90cc6faaf347 task=0 harness=null runtime=subprocess
+14:37:22    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:23 WARNING model call failed: id=e035df0599504a639d4b90cc6faaf347 ProviderError: All connection attempts failed
+14:37:23 WARNING model call failed: id=e035df0599504a639d4b90cc6faaf347 ProviderError: All connection attempts failed
+14:37:24 WARNING model call failed: id=e035df0599504a639d4b90cc6faaf347 ProviderError: All connection attempts failed
+14:37:24    INFO rollout done: id=e035df0599504a639d4b90cc6faaf347 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:24    INFO rollout start: id=d73198c551fa4ec1b2232e6dfdefe4c6 task=0 harness=null runtime=subprocess
+14:37:24    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:25 WARNING model call failed: id=d73198c551fa4ec1b2232e6dfdefe4c6 ProviderError: All connection attempts failed
+14:37:26 WARNING model call failed: id=d73198c551fa4ec1b2232e6dfdefe4c6 ProviderError: All connection attempts failed
+14:37:27 WARNING model call failed: id=d73198c551fa4ec1b2232e6dfdefe4c6 ProviderError: All connection attempts failed
+14:37:27    INFO rollout done: id=d73198c551fa4ec1b2232e6dfdefe4c6 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:27    INFO rollout start: id=e531e5b2959a4e0fa71c7b4f3852ce71 task=0 harness=null runtime=subprocess
+14:37:27    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:28 WARNING model call failed: id=e531e5b2959a4e0fa71c7b4f3852ce71 ProviderError: All connection attempts failed
+14:37:28 WARNING model call failed: id=e531e5b2959a4e0fa71c7b4f3852ce71 ProviderError: All connection attempts failed
+14:37:29 WARNING model call failed: id=e531e5b2959a4e0fa71c7b4f3852ce71 ProviderError: All connection attempts failed
+14:37:29    INFO rollout done: id=e531e5b2959a4e0fa71c7b4f3852ce71 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:29    INFO rollout start: id=059423bc888d425aad7192bd870fa13d task=0 harness=null runtime=subprocess
+14:37:29    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:30 WARNING model call failed: id=059423bc888d425aad7192bd870fa13d ProviderError: All connection attempts failed
+14:37:31 WARNING model call failed: id=059423bc888d425aad7192bd870fa13d ProviderError: All connection attempts failed
+14:37:32 WARNING model call failed: id=059423bc888d425aad7192bd870fa13d ProviderError: All connection attempts failed
+14:37:32    INFO rollout done: id=059423bc888d425aad7192bd870fa13d task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:32    INFO rollout start: id=68178ac192814d66b7225ca6f3e28342 task=0 harness=null runtime=subprocess
+14:37:32    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:33 WARNING model call failed: id=68178ac192814d66b7225ca6f3e28342 ProviderError: All connection attempts failed
+14:37:33 WARNING model call failed: id=68178ac192814d66b7225ca6f3e28342 ProviderError: All connection attempts failed
+14:37:34 WARNING model call failed: id=68178ac192814d66b7225ca6f3e28342 ProviderError: All connection attempts failed
+14:37:34    INFO rollout done: id=68178ac192814d66b7225ca6f3e28342 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:34    INFO rollout start: id=93d254c9eec8419f807a7a785fdeb0db task=0 harness=null runtime=subprocess
+14:37:34    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:35 WARNING model call failed: id=93d254c9eec8419f807a7a785fdeb0db ProviderError: All connection attempts failed
+14:37:35 WARNING model call failed: id=93d254c9eec8419f807a7a785fdeb0db ProviderError: All connection attempts failed
+14:37:36 WARNING model call failed: id=93d254c9eec8419f807a7a785fdeb0db ProviderError: All connection attempts failed
+14:37:37    INFO rollout done: id=93d254c9eec8419f807a7a785fdeb0db task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:37    INFO rollout start: id=f0370c92c04d41a680c2efc9778725e1 task=0 harness=null runtime=subprocess
+14:37:37    INFO tool server 'facility' (shared): http://127.0.0.1:33327/mcp
+14:37:37 WARNING model call failed: id=f0370c92c04d41a680c2efc9778725e1 ProviderError: All connection attempts failed
+14:37:38 WARNING model call failed: id=f0370c92c04d41a680c2efc9778725e1 ProviderError: All connection attempts failed
+14:37:39 WARNING model call failed: id=f0370c92c04d41a680c2efc9778725e1 ProviderError: All connection attempts failed
+14:37:39    INFO rollout done: id=f0370c92c04d41a680c2efc9778725e1 task=0 reward=0.000 turns=0 stop=ProviderError
+14:37:39    INFO interception down: url=http://127.0.0.1:45217

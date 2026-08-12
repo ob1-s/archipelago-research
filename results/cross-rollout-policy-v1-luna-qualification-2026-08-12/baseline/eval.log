@@ -1,0 +1,142 @@
+14:38:26    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-policy-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "condition": "baseline",
+      "notes_path": "/tmp/cross-rollout-policy-v1/pilot-baseline-notes.txt",
+      "initial_notes": "",
+      "initial_notes_path": null,
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null,
+        "notes_path": "/tmp/cross-rollout-policy-v1/notes.txt",
+        "initial_notes": ""
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "null",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "gpt-5.6-luna",
+  "client": {
+    "base_url": "http://127.0.0.1:10531/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 1,
+  "num_rollouts": 10,
+  "shuffle": false,
+  "max_concurrent": 1,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": "results/cross-rollout-policy-v1-luna-qualification-2026-08-12/baseline"
+}
+14:38:26    INFO running 1x10 rollouts on gpt-5.6-luna
+14:38:26    INFO results: results/cross-rollout-policy-v1-luna-qualification-2026-08-12/baseline
+14:38:28    INFO shared tool server 'facility': http://127.0.0.1:34219/mcp
+14:38:28    INFO rollout start: id=bd1d1d6ae0f04eff8e0bb90836ac281c task=0 harness=null runtime=subprocess
+14:38:28    INFO interception up: url=http://127.0.0.1:34105
+14:38:28    INFO interception pool: 1 server(s), multiplex=32
+14:38:41    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:38:54    INFO rollout done: id=bd1d1d6ae0f04eff8e0bb90836ac281c task=0 reward=1.000 turns=7 stop=agent_completed
+14:38:54    INFO rollout start: id=db45e4d4f92143b4be816434dbee155d task=0 harness=null runtime=subprocess
+14:38:54    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:39:13    INFO rollout done: id=db45e4d4f92143b4be816434dbee155d task=0 reward=1.000 turns=7 stop=agent_completed
+14:39:13    INFO rollout start: id=0028d29a8fda4aba906cd627724dcadc task=0 harness=null runtime=subprocess
+14:39:13    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:39:25    INFO rollout done: id=0028d29a8fda4aba906cd627724dcadc task=0 reward=1.000 turns=7 stop=agent_completed
+14:39:25    INFO rollout start: id=7e5f8d566aaa486cad02a8eb9aceb1d3 task=0 harness=null runtime=subprocess
+14:39:25    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:39:40    INFO rollout done: id=7e5f8d566aaa486cad02a8eb9aceb1d3 task=0 reward=1.000 turns=7 stop=agent_completed
+14:39:40    INFO rollout start: id=f9fc1c6113cc49818fc27229511bb493 task=0 harness=null runtime=subprocess
+14:39:40    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:39:55    INFO rollout done: id=f9fc1c6113cc49818fc27229511bb493 task=0 reward=1.000 turns=7 stop=agent_completed
+14:39:55    INFO rollout start: id=35b2fd85b26542cd8f06c3cc1c267ec1 task=0 harness=null runtime=subprocess
+14:39:55    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:40:10    INFO rollout done: id=35b2fd85b26542cd8f06c3cc1c267ec1 task=0 reward=1.000 turns=7 stop=agent_completed
+14:40:10    INFO rollout start: id=c09a63791c3b43ecb51f2f8e8876636e task=0 harness=null runtime=subprocess
+14:40:10    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:40:23    INFO rollout done: id=c09a63791c3b43ecb51f2f8e8876636e task=0 reward=1.000 turns=6 stop=agent_completed
+14:40:23    INFO rollout start: id=1e213cb01e42403fb614eb4e6f8df4eb task=0 harness=null runtime=subprocess
+14:40:23    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:40:37    INFO rollout done: id=1e213cb01e42403fb614eb4e6f8df4eb task=0 reward=1.000 turns=7 stop=agent_completed
+14:40:37    INFO rollout start: id=f78f1159fbe04d2caf520dff278f6ea5 task=0 harness=null runtime=subprocess
+14:40:37    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:40:51    INFO rollout done: id=f78f1159fbe04d2caf520dff278f6ea5 task=0 reward=1.000 turns=7 stop=agent_completed
+14:40:51    INFO rollout start: id=a89d05b266804851a72d65d83e94ec1b task=0 harness=null runtime=subprocess
+14:40:51    INFO tool server 'facility' (shared): http://127.0.0.1:34219/mcp
+14:41:06    INFO rollout done: id=a89d05b266804851a72d65d83e94ec1b task=0 reward=1.000 turns=7 stop=agent_completed
+14:41:06    INFO interception down: url=http://127.0.0.1:34105

@@ -1,0 +1,6 @@
+OpenAI-compatible endpoint ready at http://127.0.0.1:10531/v1
+Use this as your OpenAI base URL. No API key is required.
+
+Available Models: gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.5, gpt-5.4, gpt-5.4-mini, gpt-image-2
+
+[d] Run in background  [q] Quit

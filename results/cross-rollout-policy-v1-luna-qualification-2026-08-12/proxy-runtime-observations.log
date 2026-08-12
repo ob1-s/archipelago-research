@@ -1,0 +1,22 @@
+Qualification runtime observations (2026-08-12)
+
+Proxy: openai-oauth 2.0.0
+Source commit: ec7dab2fcd8dab9da970a7a2b5dc34046c94905e
+Bind: 127.0.0.1:10531
+
+Startup output was captured in proxy.log. During the attached proxy session,
+the proxy emitted the following warning for gpt-5.6-luna requests:
+
+openai-oauth Warning (openai.responses / gpt-5.6-luna): The feature
+"temperature" is not supported. temperature is not supported for reasoning
+models
+
+The Verifiers resolved configs retain temperature=0.7 to document the requested
+Qwen-matched setting, but the proxy/backend ignored it. No attempt was made to
+emulate temperature or alter the taskset.
+
+The evaluator recorded /chat/completions for all intended-sample calls. The
+proxy session was loopback-only and was stopped after the qualification.
+
+This file is an observation record, not a raw stdout capture; it contains no
+credentials or OAuth material.

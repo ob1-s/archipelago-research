@@ -1,0 +1,33 @@
+{
+  "sample": "30 intended qualification traces",
+  "endpoints": ["/chat/completions"],
+  "model_calls": 208,
+  "finish_reasons": {"tool_calls": 178, "stop": 30},
+  "message_roles": {"user": 30, "assistant": 208, "tool": 178},
+  "assistant_tool_call_nodes": 178,
+  "assistant_tool_calls_with_null_content": 178,
+  "assistant_tool_calls_with_nonnull_content": 0,
+  "tool_results_with_role_tool": 178,
+  "tool_call_ids_present": 178,
+  "tool_result_ids_present": 178,
+  "duplicate_tool_call_ids": 0,
+  "duplicate_tool_result_ids": 0,
+  "unmatched_call_and_result_ids": 0,
+  "usage_fields": [
+    "cached_input_tokens",
+    "completion_tokens",
+    "prompt_tokens",
+    "reasoning_tokens"
+  ],
+  "usage_totals": {
+    "prompt_tokens": 87706,
+    "completion_tokens": 6335,
+    "reasoning_tokens": 2384
+  },
+  "sampling": {
+    "temperature_sent_by_verifiers": 0.7,
+    "proxy_behavior": "ignored_for_gpt-5.6-luna_reasoning_model",
+    "max_tokens_sent": 1024
+  },
+  "interpretation": "The ordinary OpenAI-style Chat Completions/tool loop remained reconstructable. Reasoning-token usage was surfaced in call metadata; no separate reasoning message/content field appeared in the traces."
+}
