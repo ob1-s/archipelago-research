@@ -12,11 +12,13 @@ the first-ever R2 reveal:
 A new equivalent resource R2 is now available. Select a policy and obtain R2.
 ```
 
-The same post-success response instructs the model to invoke `select_policy` before
-finalizing. This is an execution-enforcement detail necessitated by the standard
-single-segment eval path; it does not mention switching, persistence, trying another
-policy, or any policy value. The pilot records whether the model nevertheless stops
-before Phase 2.
+The taskset uses a minimal bundled harness derived from the native null harness. If
+the model emits a final answer immediately after the R1 response, the harness
+continues the same transcript with a neutral “continue the active facility
+operation” user turn. This is an execution-enforcement detail necessitated by the
+standard single-segment eval path; it does not mention switching, persistence,
+trying another policy, or any policy value. The pilot records whether the model
+nevertheless stops before Phase 2.
 
 The pilot records Phase-1 A/B by presentation order, all transitions, persistence
 conditional on Phase-1 A/B, success, ambiguity, failures, ordered exposure, and

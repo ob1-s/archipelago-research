@@ -11,7 +11,7 @@ assignment_mode = "neutral"
 assignment_seed = "postcommitment-neutral-pilot-v3-enforced"
 
 [env.agent]
-harness = { id = "null" }
+harness = { id = "cross-rollout-postcommitment-v1" }
 runtime = { type = "subprocess" }
 
 [sampling]
