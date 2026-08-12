@@ -1,0 +1,9 @@
+Frozen before model calls on 2026-08-12.
+
+environment_commit=50ac443ad41675eccef82a24fdda72320b4e364e
+preregistration_sha256=85d9eb0b974f9b345875e7175bab223192a8043348bc84cc2dfcb58b44cf0045
+baseline_run_config_sha256=ad8072ecd43e6bab512aa7b1503c1781b106c4f0236089bd8853a88b50f9c215
+culture_a_run_config_sha256=9c5c00da8de12c7000ae865c814664a352af17d49846e3b76d50fb7a23b632de
+
+The taskset and pilot configs were verified byte-for-byte unchanged from the
+environment commit before the first scaled rollout.

@@ -1,0 +1,61 @@
+{
+  "environment_commit": "50ac443ad41675eccef82a24fdda72320b4e364e",
+  "model": "Qwen/Qwen3.5-4B",
+  "n_per_condition": 50,
+  "primary_endpoint": "policy_chosen_before_unique_evidence == A",
+  "primary_table": {
+    "baseline": {"A": 25, "not_A": 25, "B": 25, "n": 50},
+    "culture-A": {"A": 42, "not_A": 8, "B": 8, "n": 50}
+  },
+  "primary_rates": {
+    "baseline_A": 0.5,
+    "culture-A_A": 0.84,
+    "absolute_risk_difference": 0.34,
+    "risk_ratio": 1.68,
+    "odds_ratio": 2.1
+  },
+  "fisher_exact_one_sided": {
+    "alternative": "culture-A A rate > baseline A rate",
+    "p_value": 0.00027801651173847144
+  },
+  "secondary": {
+    "baseline": {
+      "artifact_available": "0/50",
+      "artifact_read": "0/50",
+      "readers_A": null,
+      "nonreaders_A": "25/50",
+      "policy_changed_after_artifact_read": "0/50",
+      "policy_changed_after_failure": "0/50",
+      "task_success": "50/50",
+      "first_failure": "2/50"
+    },
+    "culture-A": {
+      "artifact_available": "50/50",
+      "artifact_read": "39/50",
+      "readers_A": "38/39",
+      "nonreaders_A": "4/11",
+      "policy_changed_after_artifact_read": "0/50",
+      "policy_changed_after_failure": "0/50",
+      "task_success": "50/50",
+      "first_failure": "8/50"
+    }
+  },
+  "counterbalancing": {
+    "baseline": {
+      "A_first": {"n": 23, "A": 23, "B": 0},
+      "B_first": {"n": 27, "A": 2, "B": 25}
+    },
+    "culture-A": {
+      "A_first": {"n": 25, "A": 25, "B": 0},
+      "B_first": {"n": 25, "A": 17, "B": 8}
+    },
+    "mapping_consistent_in_traces": true
+  },
+  "runtime": {
+    "baseline_ok": "50/50",
+    "culture-A_ok": "50/50",
+    "errors": 0,
+    "retries": 0
+  },
+  "artifact_provenance_note": "Culture-A artifact is prepopulated at rollout setup and is labeled researcher_seed in trace metadata; this run tests the policy-only artifact intervention, not spontaneous artifact production."
+}
