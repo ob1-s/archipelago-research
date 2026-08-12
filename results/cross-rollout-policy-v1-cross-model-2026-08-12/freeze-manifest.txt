@@ -15,3 +15,12 @@ qwen_9b_gate_culture_b_sha256=a6eddf93355c7e845918a717092335ad8993438161f0b583ba
 The corrected task logic, prompt, tools, metrics, sampling, and runtime were
 verified against the archived policy-transmission runs before this freeze.
 The 4B anchor is not rerun.
+
+Gate archive integrity:
+gate_report_sha256=c984053503b74806c82d65b1b142fe2285ed5bd41262c6f18a62751a2e3891e3
+gate_results_sha256=639d4b4265293c4fd72b138108d3a7bb94802c791ae0a6dd6ae75395917c5ccb
+aggregate_results_sha256=055f7121ba4cdad7d1fad1b4cd316ed2e9a015f18153a967a94aeff3c218f793
+final_report_sha256=3280ad6c874566e32269e7de2d5cd94e2d14e2994d8d418493b9cbf5e890e90b
+
+No model passed the frozen gate; therefore no scaled config or confirmatory
+scaled trace archive was created.
