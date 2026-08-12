@@ -1,0 +1,20 @@
+model = "Qwen/Qwen3.5-4B"
+num_tasks = 1
+num_rollouts = 10
+max_concurrent = 1
+push = false
+rich = false
+
+[env.taskset]
+id = "cross-rollout-policy-v1"
+condition = "culture-A"
+notes_path = "/tmp/cross-rollout-policy-v1/pilot-culture-a-notes.txt"
+initial_notes = "A previous operator used route_a then release_a to obtain R."
+
+[env.agent]
+harness = { id = "null" }
+runtime = { type = "subprocess" }
+
+[sampling]
+temperature = 0.7
+max_tokens = 1024

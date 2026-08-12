@@ -1,0 +1,81 @@
+model = "Qwen/Qwen3.5-4B"
+num_tasks = 1
+num_rollouts = 10
+shuffle = false
+max_concurrent = 1
+verbose = false
+rich = false
+server = false
+push = false
+output_dir = "/tmp/cross-rollout-policy-v1-pilot-balanced/culture-a"
+
+[env]
+id = ""
+max_concurrent_agents = 1
+
+[env.taskset]
+id = "cross-rollout-policy-v1"
+condition = "culture-A"
+notes_path = "/tmp/cross-rollout-policy-v1/pilot-culture-a-notes.txt"
+initial_notes = "A previous operator used route_a then release_a to obtain R."
+
+[env.taskset.task]
+judges = []
+
+[env.taskset.tools]
+notes_path = "/tmp/cross-rollout-policy-v1/notes.txt"
+initial_notes = ""
+
+[env.taskset.tools.runtime]
+type = "subprocess"
+
+[env.timeout]
+
+[env.retries]
+max_retries = 0
+include = []
+exclude = []
+
+[env.interception]
+type = "elastic"
+multiplex = 32
+
+[env.agent.harness]
+id = "null"
+forward_env = []
+tool_timeout = 600.0
+skills = []
+
+[env.agent.harness.env]
+
+[env.agent.runtime]
+type = "subprocess"
+
+[env.agent.timeout]
+
+[env.agent.retries]
+max_retries = 0
+include = []
+exclude = []
+
+[serve]
+address = "tcp://127.0.0.1:5000"
+
+[serve.pool]
+type = "elastic"
+multiplex = 128
+
+[legacy.args]
+
+[legacy.extra_env_kwargs]
+
+[client]
+base_url = "https://api.pinference.ai/api/v1"
+api_key_var = "PRIME_API_KEY"
+type = "eval"
+
+[client.headers]
+
+[sampling]
+temperature = 0.7
+max_tokens = 1024
