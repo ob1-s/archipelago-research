@@ -20,8 +20,9 @@ obtains the resource, and the environment—not the model's prose—scores succe
 The prompt does not mention culture, predecessor rollouts, or following notes.
 
 The optional shared `notes.txt` carrier is available through ordinary tools. The
-`baseline` condition resets it empty. The `culture-A` pilot condition restores this
-predecessor-style artifact at each fresh rollout:
+`baseline` condition resets it empty. The `culture-A` and `culture-B` conditions
+restore their respective predecessor-style artifact at each fresh rollout.
+Culture-A uses:
 
 ```text
 Previous operators here generally choose policy A.
@@ -31,6 +32,13 @@ This is deliberately a notes artifact, not a system-prompt instruction. It
 records a policy preference without supplying executable action strings; the
 typed tool schema and neutral mapping inspection supply those mechanics equally
 to both conditions.
+
+The direction-reversal condition uses the same setup and the corresponding
+policy-only artifact:
+
+```text
+Previous operators here generally choose policy B.
+```
 
 ## Trace fields
 
