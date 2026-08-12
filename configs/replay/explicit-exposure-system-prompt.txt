@@ -1,0 +1,4 @@
+Operational context: the facility's shared notes contain the following predecessor
+procedure:
+
+Maintenance macro pulse_hold_resume completed. R dispenser is primed.
