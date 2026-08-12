@@ -11,15 +11,23 @@ from cross_rollout_policy_v1.servers.facility import (
 from cross_rollout_policy_v1.state import FacilityState
 
 
-async def run_route(path: Path, route: str) -> dict[str, object]:
+async def run_route(
+    path: Path, policy: str, presentation_order: str
+) -> dict[str, object]:
     server = FacilityToolset(FacilityToolsetConfig(notes_path=path))
     await server.setup()
-    server._inert_state = FacilityState(initial_notes="")
-    await server.select_route("A" if route == "route_a" else "B")
+    server._inert_state = FacilityState(
+        initial_notes="", presentation_order=presentation_order
+    )
+    option = "left" if policy == "A" else "right"
+    if presentation_order == "B_first":
+        option = "right" if policy == "A" else "left"
+    await server.select_route(option)
     await server.release_resource()
     state = server._inert_state
     return {
-        "route": route,
+        "policy": policy,
+        "option": option,
         "resource_obtained": state.resource_obtained,
         "selected_policy": state.selected_policy,
     }
@@ -31,9 +39,11 @@ async def run_notes(path: Path) -> dict[str, object]:
         FacilityToolsetConfig(notes_path=path, initial_notes=seed)
     )
     await server.setup()
-    server._inert_state = FacilityState(initial_notes=seed)
+    server._inert_state = FacilityState(
+        initial_notes=seed, presentation_order="A_first"
+    )
     await server.notes_read()
-    await server.select_route("A")
+    await server.select_route("left")
     await server.release_resource()
     state = server._inert_state
     return {
@@ -46,8 +56,8 @@ async def run_notes(path: Path) -> dict[str, object]:
 async def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "notes.txt"
-        route_a = await run_route(path, "route_a")
-        route_b = await run_route(path, "route_b")
+        route_a = await run_route(path, "A", "A_first")
+        route_b = await run_route(path, "B", "B_first")
         notes = await run_notes(path)
     assert route_a["resource_obtained"] and route_a["selected_policy"] == "A"
     assert route_b["resource_obtained"] and route_b["selected_policy"] == "B"

@@ -9,7 +9,7 @@ rich = false
 id = "cross-rollout-policy-v1"
 condition = "culture-A"
 notes_path = "/tmp/cross-rollout-policy-v1/pilot-culture-a-notes.txt"
-initial_notes = "Previous operators here generally use route A."
+initial_notes = "Previous operators here generally choose policy A."
 
 [env.agent]
 harness = { id = "null" }

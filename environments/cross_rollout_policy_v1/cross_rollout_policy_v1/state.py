@@ -6,6 +6,7 @@ import verifiers.v1 as vf
 from pydantic import BaseModel, ConfigDict, Field
 
 Policy = Literal["A", "B"]
+Option = Literal["left", "right"]
 
 
 class FacilityEvent(BaseModel):

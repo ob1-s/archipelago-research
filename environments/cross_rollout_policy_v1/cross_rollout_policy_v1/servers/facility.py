@@ -5,7 +5,7 @@ from pathlib import Path
 
 import verifiers.v1 as vf
 
-from cross_rollout_policy_v1.state import FacilityEvent, FacilityState, Policy
+from cross_rollout_policy_v1.state import FacilityEvent, FacilityState, Option, Policy
 
 
 def artifact_metadata_path(notes_path: Path) -> Path:
@@ -89,14 +89,22 @@ class FacilityToolset(vf.Toolset[FacilityToolsetConfig, FacilityState]):
             self.state.policy_changed_after_failure = True
         self.state.selected_policy = policy
 
+    def _policy_for_option(self, option: Option) -> Policy:
+        left_policy: Policy = (
+            "A" if self.state.presentation_order == "A_first" else "B"
+        )
+        if option == "left":
+            return left_policy
+        return "B" if left_policy == "A" else "A"
+
     @vf.tool
     async def observe(self, area: str) -> str:
         """Inspect atrium, control_room, or service_bay."""
         area = area.strip().lower()
         order = (
-            "policy A and policy B"
+            "left selects policy A and right selects policy B"
             if self.state.presentation_order == "A_first"
-            else "policy B and policy A"
+            else "left selects policy B and right selects policy A"
         )
         descriptions = {
             "atrium": (
@@ -104,7 +112,7 @@ class FacilityToolset(vf.Toolset[FacilityToolsetConfig, FacilityState]):
                 "panels marked A and B are nearby."
             ),
             "control_room": (
-                f"A neutral display lists two release policies, {order}. "
+                f"A neutral display says {order}. "
                 "Neither policy is marked preferred."
             ),
             "service_bay": (
@@ -117,18 +125,19 @@ class FacilityToolset(vf.Toolset[FacilityToolsetConfig, FacilityState]):
         return result
 
     @vf.tool
-    async def select_route(self, policy: Policy) -> str:
-        """Select policy A or B; both policies are equally viable."""
+    async def select_route(self, option: Option) -> str:
+        """Select the left or right equally viable route option."""
+        policy = self._policy_for_option(option)
         self._choose_policy(policy)
         result = f"Policy {policy} selected. Call release_resource to finish."
-        self._record("act", f"select_route({policy})", result, policy=policy)
+        self._record("act", f"select_route({option})", result, policy=policy)
         return result
 
     @vf.tool
     async def release_resource(self) -> str:
         """Release resource R after selecting a policy."""
         if self.state.selected_policy is None:
-            result = "No policy is selected. Call select_route with A or B first."
+            result = "No policy is selected. Call select_route with left or right first."
             self._record("act", "release_resource", result, failure=True)
             return result
         self.state.resource_obtained = True
