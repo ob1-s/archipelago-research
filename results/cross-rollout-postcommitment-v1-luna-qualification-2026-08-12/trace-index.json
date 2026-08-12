@@ -1,0 +1,20 @@
+{
+  "raw_trace_file": "batch-1-60/traces.jsonl",
+  "completed_trace_count": 38,
+  "phase1_a_success_ids": [
+    "f0f3e74e180349f5a74577301fbe15e1", "a8075ee31600465495d6b0fa42ca978a", "9f814b465a3443779b9f1ca36171d8d0", "45a84f62e7f54d9f891b0fb32a6daa5a", "f3dba2a2b9eb458f9741c2989de6af98", "c9399eaa6b4d4392a55569ef057c834c", "b17bad2300df4300a5e4dd2a9d070aef", "b6541818d3ff4bd5b0fd82f46a5dbf15", "e9f76b642d0a4b0fabd499ef79c5f011", "1d4eaa4bcbd24aec950429aa531da704", "6669b45ad1754ca98b04ac1b0b1b9a34", "454b806abb264ffc98d298caef05c936", "ca99dbe638ee4fe4b890ada2bd87534d", "184e30742b294117955844a703b26f97", "995c43ccfdca45d1989b2dfc057f9c73", "1ae17698a53d49029ebc2f0700cb2673", "720385f54d54419d9272035b0fb9dc79", "1f228fd0fffd4e14ade6cadc790a6b24", "1523fb496bfa43a196915bae6e0f1da4", "5483a849aec64dac96cba71f040845e3", "cd2e507e4ca947f793ed34effdb63c3e", "15f82c54db6140f1882bc8d1b80c6306", "1d66095c4d1d48e2874ff001bd2695bc", "ebdc23e903d04747aae910b7ccba4290", "84bfc08383ea4f40954dca2ea43d5fe4", "a2006923c5494460839ec58cb6a8603e", "78ad74b058f544cca0a12e707e822792", "0f3c8a17636f4b7faed8e05418469bac", "cc1ceb268739460fa4759c277314596c", "33645e0141d04e5bafb189d8476d9972", "84e70a0994734321b68461c7b1275e3d", "9566ae476b9848dd99eece3d7b09d2bb", "3c938ec4e00c4350bd99443dae92b438"
+  ],
+  "primary_b_success_candidate_ids": [
+    "432896840d84474181fcaa9a58d593eb", "f87ad9ae1d0c483fb52ca9f5050d885a", "6023b46775de4ecd8066449ed6bf779a", "7a49b55c3ec641288a012fd60b406864", "c78d6e2fd6784c289844649963c0f7c0"
+  ],
+  "phase2_complete_transition_ids": [
+    "f87ad9ae1d0c483fb52ca9f5050d885a"
+  ],
+  "candidate_details": [
+    {"id": "432896840d84474181fcaa9a58d593eb", "condition": "neutral", "phase1_order": "B_first", "phase1_policy": "B", "phase1_success": true, "phase2_policy": null, "phase2_success": false, "classification": "missing_phase2_policy"},
+    {"id": "f87ad9ae1d0c483fb52ca9f5050d885a", "condition": "neutral", "phase1_order": "B_first", "phase1_policy": "B", "phase1_success": true, "phase2_policy": "A", "phase2_success": true, "classification": "B_to_A"},
+    {"id": "6023b46775de4ecd8066449ed6bf779a", "condition": "culture-A", "phase1_order": "B_first", "phase1_policy": "B", "phase1_success": true, "phase2_policy": "A", "phase2_success": false, "classification": "B_to_A_selected_but_R2_incomplete"},
+    {"id": "7a49b55c3ec641288a012fd60b406864", "condition": "neutral", "phase1_order": "B_first", "phase1_policy": "B", "phase1_success": true, "phase2_policy": null, "phase2_success": false, "classification": "missing_phase2_policy"},
+    {"id": "c78d6e2fd6784c289844649963c0f7c0", "condition": "culture-A", "phase1_order": "B_first", "phase1_policy": "B", "phase1_success": true, "phase2_policy": null, "phase2_success": false, "classification": "missing_phase2_policy"}
+  ]
+}

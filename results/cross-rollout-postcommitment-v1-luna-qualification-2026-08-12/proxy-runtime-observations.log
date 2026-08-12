@@ -1,0 +1,17 @@
+model=gpt-5.6-luna
+proxy=openai-oauth 2.0.0
+proxy_source_commit=ec7dab2fcd8dab9da970a7a2b5dc34046c94905e
+base_url=http://127.0.0.1:10531/v1
+reasoning_effort=unspecified/default/null
+requested_temperature=0.7
+temperature_behavior=proxy reported temperature unsupported for the reasoning model and ignored it
+evaluator_endpoint=/chat/completions
+model_calls=134
+finish_reasons=tool_calls:96,stop:38
+assistant_tool_call_nodes=96
+tool_result_nodes=96
+observed_tool_call_ids_matched=true
+usage_fields=cached_input_tokens,completion_tokens,prompt_tokens,reasoning_tokens
+reasoning_tokens_total_observed=2113
+security=proxy bound to localhost; OAuth credentials were not archived or committed
+

@@ -1,0 +1,55 @@
+{
+  "status": "stopped_early_systematic_null_harness_incompatibility",
+  "model": "gpt-5.6-luna",
+  "proxy": {
+    "project": "openai-oauth",
+    "version": "2.0.0",
+    "source_commit": "ec7dab2fcd8dab9da970a7a2b5dc34046c94905e",
+    "base_url": "http://127.0.0.1:10531/v1",
+    "endpoint": "/chat/completions",
+    "reasoning_effort": null,
+    "requested_temperature": 0.7,
+    "temperature_ignored": true
+  },
+  "environment_commit": "a84a165f13c8e7cdb2f7c2c7a715087ec25d2531",
+  "rollouts_completed": 38,
+  "phase1": {
+    "success": 38,
+    "a": 33,
+    "b": 5,
+    "a_first": {"rollouts": 30, "a": 30, "b": 0},
+    "b_first": {"rollouts": 8, "a": 3, "b": 5}
+  },
+  "primary_b_success_candidates": {
+    "total": 5,
+    "neutral": {
+      "n": 3,
+      "phase2_b_to_a_observed": 1,
+      "phase2_b_to_b_observed": 0,
+      "missing_phase2_policy": 2,
+      "phase2_success": 1
+    },
+    "culture_a": {
+      "n": 2,
+      "phase2_b_to_a_observed": 1,
+      "phase2_b_to_b_observed": 0,
+      "missing_phase2_policy": 1,
+      "phase2_success": 0
+    }
+  },
+  "all_rollouts": {
+    "task_success": 34,
+    "task_failure": 4,
+    "provider_runtime_errors": 0,
+    "selection_ambiguities": 0,
+    "phase1_tool_failures": 0
+  },
+  "primary_effect": {
+    "estimable": false,
+    "reason": "Phase-2 policy selection was systematically absent under the requested null harness after R2 reveal; the planned 20-per-arm cohort was not reached.",
+    "absolute_difference": null,
+    "risk_ratio": null,
+    "odds_ratio": null,
+    "one_sided_fisher_p": null
+  }
+}
