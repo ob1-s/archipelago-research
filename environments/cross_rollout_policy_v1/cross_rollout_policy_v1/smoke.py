@@ -15,9 +15,8 @@ async def run_route(path: Path, route: str) -> dict[str, object]:
     server = FacilityToolset(FacilityToolsetConfig(notes_path=path))
     await server.setup()
     server._inert_state = FacilityState(initial_notes="")
-    await server.act("inspect")
-    await server.act(route)
-    await server.act(f"release_{route[-1]}")
+    await server.select_route("A" if route == "route_a" else "B")
+    await server.release_resource()
     state = server._inert_state
     return {
         "route": route,
@@ -27,15 +26,15 @@ async def run_route(path: Path, route: str) -> dict[str, object]:
 
 
 async def run_notes(path: Path) -> dict[str, object]:
-    seed = "A previous operator used route_a then release_a to obtain R."
+    seed = "Previous operators here generally use route A."
     server = FacilityToolset(
         FacilityToolsetConfig(notes_path=path, initial_notes=seed)
     )
     await server.setup()
     server._inert_state = FacilityState(initial_notes=seed)
     await server.notes_read()
-    await server.act("route_a")
-    await server.act("release_a")
+    await server.select_route("A")
+    await server.release_resource()
     state = server._inert_state
     return {
         "artifact_read": state.events[0].kind == "notes_read",
