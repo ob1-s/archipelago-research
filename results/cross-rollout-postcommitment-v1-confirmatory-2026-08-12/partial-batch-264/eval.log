@@ -1,0 +1,908 @@
+11:59:47    INFO eval config:
+{
+  "env": {
+    "id": "",
+    "taskset": {
+      "id": "cross-rollout-postcommitment-confirmatory-v1",
+      "task": {
+        "judges": []
+      },
+      "system_prompt": null,
+      "assignment_mode": "post_b_success_random",
+      "assignment_seed": "postcommitment-confirmatory-v1",
+      "tools": {
+        "runtime": {
+          "type": "subprocess"
+        },
+        "url": null
+      }
+    },
+    "timeout": {
+      "episode": null,
+      "finalize": null
+    },
+    "retries": {
+      "max_retries": 0,
+      "include": [],
+      "exclude": []
+    },
+    "max_concurrent_agents": 1,
+    "interception": {
+      "type": "elastic",
+      "multiplex": 32
+    },
+    "agent": {
+      "harness": {
+        "id": "cross-rollout-postcommitment-confirmatory-v1",
+        "env": {},
+        "forward_env": [],
+        "tool_timeout": 600.0,
+        "disabled_tools": null,
+        "skills": []
+      },
+      "runtime": {
+        "type": "subprocess"
+      },
+      "model": null,
+      "client": null,
+      "sampling": null,
+      "max_turns": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "max_total_tokens": null,
+      "timeout": {
+        "setup": null,
+        "rollout": null,
+        "finalize": null,
+        "scoring": null
+      },
+      "retries": {
+        "max_retries": 0,
+        "include": [],
+        "exclude": []
+      }
+    }
+  },
+  "serve": {
+    "pool": {
+      "type": "elastic",
+      "max_workers": null,
+      "multiplex": 128
+    },
+    "address": "tcp://127.0.0.1:5000",
+    "max_concurrent": null
+  },
+  "legacy": {
+    "id": null,
+    "args": {},
+    "extra_env_kwargs": {}
+  },
+  "model": "Qwen/Qwen3.5-9B",
+  "client": {
+    "base_url": "https://api.pinference.ai/api/v1",
+    "api_key_var": "PRIME_API_KEY",
+    "headers": {},
+    "type": "eval"
+  },
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": null,
+    "reasoning_effort": null,
+    "max_tokens": 1024
+  },
+  "num_tasks": 2,
+  "num_rollouts": 160,
+  "shuffle": true,
+  "max_concurrent": 2,
+  "verbose": false,
+  "rich": false,
+  "server": false,
+  "push": false,
+  "output_dir": null
+}
+11:59:47    INFO running 2x160 rollouts on Qwen/Qwen3.5-9B
+11:59:47    INFO results: outputs/cross-rollout-postcommitment-confirmatory-v1--Qwen--Qwen3.5-9B--cross-rollout-postcommitment-confirmatory-v1/1a92f72d-0382-4831-9c9f-c7bf788ec77c
+11:59:49    INFO shared tool server 'facility': http://127.0.0.1:38991/mcp
+11:59:49    INFO rollout start: id=e530f61e130b43ccaab36960ff8aeacd task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+11:59:49    INFO rollout start: id=f454db9c8c5e41eeaa3f7b907455bad0 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+11:59:49    INFO interception up: url=http://127.0.0.1:45623
+11:59:49    INFO interception pool: 1 server(s), multiplex=32
+12:00:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:16    INFO rollout done: id=f454db9c8c5e41eeaa3f7b907455bad0 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:16    INFO rollout start: id=0c3623a4793f488093d771884d879730 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:16    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:21    INFO rollout done: id=e530f61e130b43ccaab36960ff8aeacd task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:21    INFO rollout start: id=70d911eb52c24d8499236b41e0546265 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:21    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:22    INFO rollout done: id=0c3623a4793f488093d771884d879730 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:22    INFO rollout start: id=d890c99a42ad457fb9dcba009428a27e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:22    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:27    INFO rollout done: id=70d911eb52c24d8499236b41e0546265 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:27    INFO rollout start: id=14c6f36c2c064a87a4508bb87eae1952 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:27    INFO rollout done: id=d890c99a42ad457fb9dcba009428a27e task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:27    INFO rollout start: id=8b4d8d232c23414ebc53c9499c728766 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:33    INFO rollout done: id=14c6f36c2c064a87a4508bb87eae1952 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:33    INFO rollout start: id=bd297acead5d4e7fa9249b309b2aa049 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:33    INFO rollout done: id=8b4d8d232c23414ebc53c9499c728766 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:33    INFO rollout start: id=9ef4842b723b42999db93d2f58da01dc task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:38    INFO rollout done: id=bd297acead5d4e7fa9249b309b2aa049 task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:38    INFO rollout start: id=d934c79162f9436b90606d7508b18d69 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:38    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:39    INFO rollout done: id=9ef4842b723b42999db93d2f58da01dc task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:39    INFO rollout start: id=b7971115890d48c29f457f608609f48f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:45    INFO rollout done: id=b7971115890d48c29f457f608609f48f task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:45    INFO rollout start: id=75709ef51ecd4155b14fcad9a13c30bb task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:45    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:53    INFO rollout done: id=75709ef51ecd4155b14fcad9a13c30bb task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:53    INFO rollout start: id=7dcad88539fc48ad8840c6de8aa31abb task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:00:59    INFO rollout done: id=7dcad88539fc48ad8840c6de8aa31abb task=0 reward=1.000 turns=4 stop=agent_completed
+12:00:59    INFO rollout start: id=33ccfd926f2643e9b9828d5a37978d30 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:00:59    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:02    INFO rollout done: id=d934c79162f9436b90606d7508b18d69 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:02    INFO rollout start: id=6e0d57c9d3c34d308f365d2b0f0eeef9 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:02    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:06    INFO rollout done: id=33ccfd926f2643e9b9828d5a37978d30 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:06    INFO rollout start: id=959c7494a527433f8f41f8a2ef536b78 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:06    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:10    INFO rollout done: id=6e0d57c9d3c34d308f365d2b0f0eeef9 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:10    INFO rollout start: id=5301aa4b80174a1993c7a55eeb03e912 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:10    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:12    INFO rollout done: id=959c7494a527433f8f41f8a2ef536b78 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:12    INFO rollout start: id=daa011568a0e4e54b9049aff13a429fc task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:16    INFO rollout done: id=5301aa4b80174a1993c7a55eeb03e912 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:16    INFO rollout start: id=89fb69ec58774b90a7a8725b8f3285d2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:16    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:18    INFO rollout done: id=daa011568a0e4e54b9049aff13a429fc task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:18    INFO rollout start: id=204c250ff11d4a218dfc35bda5ce2f22 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:18    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:21    INFO rollout done: id=89fb69ec58774b90a7a8725b8f3285d2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:21    INFO rollout start: id=9b4f25fdd6944c94adeac5a350ed92d6 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:21    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:23    INFO rollout done: id=204c250ff11d4a218dfc35bda5ce2f22 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:23    INFO rollout start: id=7ce93e47e55d4e3b94ba117799a9e578 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:23    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:27    INFO rollout done: id=9b4f25fdd6944c94adeac5a350ed92d6 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:27    INFO rollout start: id=eb379e0bf46e4bf5baed18e66de7c1bd task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:33    INFO rollout done: id=eb379e0bf46e4bf5baed18e66de7c1bd task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:33    INFO rollout start: id=e384bca53e304375847e150b25660611 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:39    INFO rollout done: id=e384bca53e304375847e150b25660611 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:39    INFO rollout start: id=8dd5579a913a427995d7412b5cac4d9e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:40    INFO rollout done: id=7ce93e47e55d4e3b94ba117799a9e578 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:40    INFO rollout start: id=0cc88bb41da84a53be6117dc1078cbee task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:40    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:45    INFO rollout done: id=8dd5579a913a427995d7412b5cac4d9e task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:45    INFO rollout start: id=6fcc87df566843ef9118f5621ac54069 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:45    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:45    INFO rollout done: id=0cc88bb41da84a53be6117dc1078cbee task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:45    INFO rollout start: id=48c838be201a4100a8014ad0c0a3d11b task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:45    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:51    INFO rollout done: id=48c838be201a4100a8014ad0c0a3d11b task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:51    INFO rollout start: id=827ede8e436d43ba967230134c6eb504 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:52    INFO rollout done: id=6fcc87df566843ef9118f5621ac54069 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:52    INFO rollout start: id=018419cd404445108c20d57c5359b6d7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:52    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:56    INFO rollout done: id=827ede8e436d43ba967230134c6eb504 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:56    INFO rollout start: id=ff869e4e416a43d8839b57bdaa06f9c6 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:56    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:01:57    INFO rollout done: id=018419cd404445108c20d57c5359b6d7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:01:57    INFO rollout start: id=d435dc7088bb4646b24f6b0d04fecd69 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:01:57    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:02    INFO rollout done: id=ff869e4e416a43d8839b57bdaa06f9c6 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:02    INFO rollout start: id=9d4fc293b23045378d6d16c129bf3cd8 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:02    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:03    INFO rollout done: id=d435dc7088bb4646b24f6b0d04fecd69 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:03    INFO rollout start: id=932ce2d08f7646ebb17239f801a25944 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:08    INFO rollout done: id=9d4fc293b23045378d6d16c129bf3cd8 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:08    INFO rollout start: id=7aabfa81cf9d4a37af643b647278d226 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:08    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:09    INFO rollout done: id=932ce2d08f7646ebb17239f801a25944 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:09    INFO rollout start: id=d522987bb4984d59a1eb2916ebf68612 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:13    INFO rollout done: id=7aabfa81cf9d4a37af643b647278d226 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:13    INFO rollout start: id=e920c7f95ac94fcfb746b2500b58a2cd task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:15    INFO rollout done: id=d522987bb4984d59a1eb2916ebf68612 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:15    INFO rollout start: id=ca2ab414fccb4f4a937c336c3fd34afe task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:15    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:19    INFO rollout done: id=e920c7f95ac94fcfb746b2500b58a2cd task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:19    INFO rollout start: id=571b4c5a80084d95a5402660aabd5e5d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:21    INFO rollout done: id=ca2ab414fccb4f4a937c336c3fd34afe task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:21    INFO rollout start: id=f0e3589d186a47a7ae6bfdd525ae9b5b task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:21    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:25    INFO rollout done: id=571b4c5a80084d95a5402660aabd5e5d task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:25    INFO rollout start: id=a8dd685eef3247ceb336f40248064a9a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:26    INFO rollout done: id=f0e3589d186a47a7ae6bfdd525ae9b5b task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:26    INFO rollout start: id=0c8b0f02ca0f40bf9ff845644afc35c2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:26    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:30    INFO rollout done: id=a8dd685eef3247ceb336f40248064a9a task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:30    INFO rollout start: id=4714a40841674abe8b4ad1a57cb35041 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:30    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:32    INFO rollout done: id=0c8b0f02ca0f40bf9ff845644afc35c2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:32    INFO rollout start: id=cafe829002d24842b1ed791a85bde90d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:32    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:36    INFO rollout done: id=4714a40841674abe8b4ad1a57cb35041 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:36    INFO rollout start: id=8c4a2f46e4a24a21b720396297d28f5a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:38    INFO rollout done: id=cafe829002d24842b1ed791a85bde90d task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:38    INFO rollout start: id=ef832145fe834b7590e7ca39b116e76c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:38    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:41    INFO rollout done: id=8c4a2f46e4a24a21b720396297d28f5a task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:41    INFO rollout start: id=e4f7af05300b4ce28ed258a278f93097 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:41    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:43    INFO rollout done: id=ef832145fe834b7590e7ca39b116e76c task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:43    INFO rollout start: id=9ad50189a23e40ecae47660f988aea05 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:43    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:47    INFO rollout done: id=e4f7af05300b4ce28ed258a278f93097 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:47    INFO rollout start: id=ad70900c25104b51b15b93d9cc36ff19 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:47    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:49    INFO rollout done: id=9ad50189a23e40ecae47660f988aea05 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:49    INFO rollout start: id=4380a84463b94367aa9513ae93995f10 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:53    INFO rollout done: id=ad70900c25104b51b15b93d9cc36ff19 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:53    INFO rollout start: id=4f3ff7c7bdda417ab360cf04a3769142 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:55    INFO rollout done: id=4380a84463b94367aa9513ae93995f10 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:55    INFO rollout start: id=64ef5b370ee740289025d061f2d4f2d0 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:02:59    INFO rollout done: id=4f3ff7c7bdda417ab360cf04a3769142 task=0 reward=1.000 turns=4 stop=agent_completed
+12:02:59    INFO rollout start: id=60d10f144186479facdae3b95fbf9371 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:02:59    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:01    INFO rollout done: id=64ef5b370ee740289025d061f2d4f2d0 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:01    INFO rollout start: id=368c8ef67e1746ddaf5db9a304d634ab task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:04    INFO rollout done: id=60d10f144186479facdae3b95fbf9371 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:04    INFO rollout start: id=5ce9b9dd2c474309a8811586442796bf task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:04    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:07    INFO rollout done: id=368c8ef67e1746ddaf5db9a304d634ab task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:07    INFO rollout start: id=3dfd016a2db64587a8623ddf52e13e1c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:12    INFO rollout done: id=5ce9b9dd2c474309a8811586442796bf task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:12    INFO rollout start: id=b99efddff77b41b3842f7be4f9e7f1a7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:13    INFO rollout done: id=3dfd016a2db64587a8623ddf52e13e1c task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:13    INFO rollout start: id=f70232e6afa145a0939e73188d740de0 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:17    INFO rollout done: id=b99efddff77b41b3842f7be4f9e7f1a7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:17    INFO rollout start: id=79e27468256f4a1285e52b6cfbeadbd7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:17    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:18    INFO rollout done: id=f70232e6afa145a0939e73188d740de0 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:18    INFO rollout start: id=dd916e396a364acda589e0b668c79941 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:18    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:22    INFO rollout done: id=79e27468256f4a1285e52b6cfbeadbd7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:22    INFO rollout start: id=c5b3cda6f0b6489c870db18bb4c98091 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:22    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:24    INFO rollout done: id=dd916e396a364acda589e0b668c79941 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:24    INFO rollout start: id=ed1f8146dd1249fb8c6e1a25e1fa77de task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:24    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:28    INFO rollout done: id=c5b3cda6f0b6489c870db18bb4c98091 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:28    INFO rollout start: id=b6719a2b501d46f2adf3e3cbdc845850 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:28    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:33    INFO rollout done: id=ed1f8146dd1249fb8c6e1a25e1fa77de task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:33    INFO rollout start: id=050a267f71634218a977a163a09db20a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:33    INFO rollout done: id=b6719a2b501d46f2adf3e3cbdc845850 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:33    INFO rollout start: id=840d7a2b51a044b6b439537f5769ca54 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:39    INFO rollout done: id=050a267f71634218a977a163a09db20a task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:39    INFO rollout start: id=773bd605d8cd461f95384134870c428b task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:39    INFO rollout done: id=840d7a2b51a044b6b439537f5769ca54 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:39    INFO rollout start: id=7024dcde07c84f068d850cdce84f69d2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:45    INFO rollout done: id=7024dcde07c84f068d850cdce84f69d2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:45    INFO rollout start: id=ffe875ada04742c5b394903378821970 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:45    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:50    INFO rollout done: id=773bd605d8cd461f95384134870c428b task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:50    INFO rollout start: id=717adf488b3d4ccc975b1f8083749d00 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:50    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:51    INFO rollout done: id=ffe875ada04742c5b394903378821970 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:51    INFO rollout start: id=a5d96c2570fa47e0bdf30df421aae5b3 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:56    INFO rollout done: id=717adf488b3d4ccc975b1f8083749d00 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:56    INFO rollout start: id=e8265bf8c6564b4a93f6307a46da39b8 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:56    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:03:57    INFO rollout done: id=a5d96c2570fa47e0bdf30df421aae5b3 task=0 reward=1.000 turns=4 stop=agent_completed
+12:03:57    INFO rollout start: id=ea73ab967b9544889618d414dec853e4 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:03:57    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:01    INFO rollout done: id=e8265bf8c6564b4a93f6307a46da39b8 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:01    INFO rollout start: id=8675fc7de8984e17acdba10b6c60b482 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:03    INFO rollout done: id=ea73ab967b9544889618d414dec853e4 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:03    INFO rollout start: id=2f0872c8f047449fab2f8bd5d76df68f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:07    INFO rollout done: id=8675fc7de8984e17acdba10b6c60b482 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:07    INFO rollout start: id=6d739c0890db4264aa2e2d4ff67b86f7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:08    INFO rollout done: id=2f0872c8f047449fab2f8bd5d76df68f task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:08    INFO rollout start: id=9766ec9f636a48e6b8dc23ebdd87aa1e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:08    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:13    INFO rollout done: id=6d739c0890db4264aa2e2d4ff67b86f7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:13    INFO rollout start: id=a29ec5e32ec1469698021780fa161e25 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:14    INFO rollout done: id=9766ec9f636a48e6b8dc23ebdd87aa1e task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:14    INFO rollout start: id=e1742f5326ef477eb7e2bfde6060542c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:14    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:19    INFO rollout done: id=a29ec5e32ec1469698021780fa161e25 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:19    INFO rollout start: id=425a2987f9724a8c88ee1c57c26324b4 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:19    INFO rollout done: id=e1742f5326ef477eb7e2bfde6060542c task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:19    INFO rollout start: id=9c90012027c641239f1ffb84017fdd37 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:24    INFO rollout done: id=425a2987f9724a8c88ee1c57c26324b4 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:24    INFO rollout start: id=f33f58271ff44cef8ba5a390ca610551 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:24    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:25    INFO rollout done: id=9c90012027c641239f1ffb84017fdd37 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:25    INFO rollout start: id=713252d082a646f9ade6f79419c445b2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:30    INFO rollout done: id=f33f58271ff44cef8ba5a390ca610551 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:30    INFO rollout start: id=38b23a8f9bf34abca870e15a4ab4bec9 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:30    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:31    INFO rollout done: id=713252d082a646f9ade6f79419c445b2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:31    INFO rollout start: id=19c3e3a283424d37814738147be9efe9 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:36    INFO rollout done: id=38b23a8f9bf34abca870e15a4ab4bec9 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:36    INFO rollout start: id=6c0658683d0e4d4680b1cf14e8889d52 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:37    INFO rollout done: id=19c3e3a283424d37814738147be9efe9 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:37    INFO rollout start: id=63818ae6a6fe43b9aa7255b4ad57a07c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:37    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:41    INFO rollout done: id=6c0658683d0e4d4680b1cf14e8889d52 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:41    INFO rollout start: id=453600e0cf76425aa327b97a28c636a2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:41    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:43    INFO rollout done: id=63818ae6a6fe43b9aa7255b4ad57a07c task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:43    INFO rollout start: id=447a237bbed14061b109fd066563fa5f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:43    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:47    INFO rollout done: id=453600e0cf76425aa327b97a28c636a2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:47    INFO rollout start: id=48cf5608ec4949728c60fd18725a4417 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:47    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:49    INFO rollout done: id=447a237bbed14061b109fd066563fa5f task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:49    INFO rollout start: id=5afe7909a206480aabea92f8d38fbc75 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:53    INFO rollout done: id=48cf5608ec4949728c60fd18725a4417 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:53    INFO rollout start: id=9ec574fdfcad4eb193db943ca05c342e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:55    INFO rollout done: id=5afe7909a206480aabea92f8d38fbc75 task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:55    INFO rollout start: id=87cdd12e75844c2bb7bf38895bbaa39d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:04:58    INFO rollout done: id=9ec574fdfcad4eb193db943ca05c342e task=0 reward=1.000 turns=4 stop=agent_completed
+12:04:58    INFO rollout start: id=e763276996d947448a9105a212bed3cf task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:04:58    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:01    INFO rollout done: id=87cdd12e75844c2bb7bf38895bbaa39d task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:01    INFO rollout start: id=1a144db70bba41ba97659ccc4558a296 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:04    INFO rollout done: id=e763276996d947448a9105a212bed3cf task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:04    INFO rollout start: id=62caa9dc2bb14143832fb648a3edfa29 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:04    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:07    INFO rollout done: id=1a144db70bba41ba97659ccc4558a296 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:07    INFO rollout start: id=84778aa122cd4a2997bfe60fe4d460f7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:10    INFO rollout done: id=62caa9dc2bb14143832fb648a3edfa29 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:10    INFO rollout start: id=822a9c29ee6e4688872ab79e29a9e818 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:10    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:13    INFO rollout done: id=84778aa122cd4a2997bfe60fe4d460f7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:13    INFO rollout start: id=03a429500532405baf0580514a013c3f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:16    INFO rollout done: id=822a9c29ee6e4688872ab79e29a9e818 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:16    INFO rollout start: id=19f116955cfe42c0b39c4e7927e97d81 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:16    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:18    INFO rollout done: id=03a429500532405baf0580514a013c3f task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:18    INFO rollout start: id=3aecb8cc97ea4d00821975e910781235 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:18    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:20    INFO rollout done: id=19f116955cfe42c0b39c4e7927e97d81 task=0 reward=1.000 turns=3 stop=agent_completed
+12:05:20    INFO rollout start: id=36b55783e05147728bc0439bb1f95466 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:20    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:26    INFO rollout done: id=36b55783e05147728bc0439bb1f95466 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:26    INFO rollout start: id=cc39a102b87c40b7887fa8f50b902e96 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:26    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:31    INFO rollout done: id=cc39a102b87c40b7887fa8f50b902e96 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:31    INFO rollout start: id=3229f05bae044f658ab95d167392979d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:36    INFO rollout done: id=3229f05bae044f658ab95d167392979d task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:36    INFO rollout start: id=e1420eb3d99442fab670925df45abc75 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:42    INFO rollout done: id=e1420eb3d99442fab670925df45abc75 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:42    INFO rollout start: id=bcb68743c505405699413df3583c4b35 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:42    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:49    INFO rollout done: id=bcb68743c505405699413df3583c4b35 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:49    INFO rollout start: id=33ffd2c4a09b42f1b5fcb7d9d121b41a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:51    INFO rollout done: id=3aecb8cc97ea4d00821975e910781235 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:51    INFO rollout start: id=16170e517913487fa11f7d5efb36ee93 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:54    INFO rollout done: id=33ffd2c4a09b42f1b5fcb7d9d121b41a task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:54    INFO rollout start: id=946df10f819e497eb6e41115db58e053 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:54    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:05:57    INFO rollout done: id=16170e517913487fa11f7d5efb36ee93 task=0 reward=1.000 turns=4 stop=agent_completed
+12:05:57    INFO rollout start: id=b3bb3e677b8842a7a848240bf99ef8b2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:05:57    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:00    INFO rollout done: id=946df10f819e497eb6e41115db58e053 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:00    INFO rollout start: id=7bfb3b56a0eb45d5904aab46380ea6b7 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:00    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:03    INFO rollout done: id=b3bb3e677b8842a7a848240bf99ef8b2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:03    INFO rollout start: id=00c00ed2de714e3d8efdcef1cb869e8f task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:07    INFO rollout done: id=7bfb3b56a0eb45d5904aab46380ea6b7 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:07    INFO rollout start: id=1a3bb69a1c494daf991dd2e7e958a962 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:09    INFO rollout done: id=00c00ed2de714e3d8efdcef1cb869e8f task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:09    INFO rollout start: id=445b9de66566438db3144ec2a944559d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:14    INFO rollout done: id=1a3bb69a1c494daf991dd2e7e958a962 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:14    INFO rollout start: id=3f45adbb3dce489a932e6e320515bdba task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:14    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:14    INFO rollout done: id=445b9de66566438db3144ec2a944559d task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:14    INFO rollout start: id=64c015e621f0438eba4991206408e48a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:14    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:19    INFO rollout done: id=3f45adbb3dce489a932e6e320515bdba task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:19    INFO rollout start: id=ffac8baefaf8440ebcf5c4cafc16f22d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:19    INFO rollout done: id=64c015e621f0438eba4991206408e48a task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:19    INFO rollout start: id=4dbfe927f74d4c5297e373fe533add7e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:25    INFO rollout done: id=ffac8baefaf8440ebcf5c4cafc16f22d task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:25    INFO rollout start: id=5d9c72dc733242b4b0eaeff725f81f77 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:25    INFO rollout done: id=4dbfe927f74d4c5297e373fe533add7e task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:25    INFO rollout start: id=96ebdd1132784d16b2dc759eb76650aa task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:31    INFO rollout done: id=96ebdd1132784d16b2dc759eb76650aa task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:31    INFO rollout start: id=28c855e081e44d35ae5cf35adae71f66 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:37    INFO rollout done: id=28c855e081e44d35ae5cf35adae71f66 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:37    INFO rollout start: id=6fd3fbbb4c41400baae1fc76ca8e19cd task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:37    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:43    INFO rollout done: id=6fd3fbbb4c41400baae1fc76ca8e19cd task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:43    INFO rollout start: id=ba53aeb10f6f4d779857c6267373b9ca task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:43    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:49    INFO rollout done: id=ba53aeb10f6f4d779857c6267373b9ca task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:49    INFO rollout start: id=2ed894bc488847fcb20281093e8795e0 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:06:54    INFO rollout done: id=2ed894bc488847fcb20281093e8795e0 task=0 reward=1.000 turns=4 stop=agent_completed
+12:06:54    INFO rollout start: id=d025e3891e91435faad1e8fedd3e16bc task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:06:54    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:00    INFO rollout done: id=d025e3891e91435faad1e8fedd3e16bc task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:00    INFO rollout start: id=90f5c38364b84e27bb0dd2771139539e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:00    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:05    INFO rollout done: id=90f5c38364b84e27bb0dd2771139539e task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:05    INFO rollout start: id=da3015bb3b3e49efb9f0a525631ca4ec task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:05    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:11    INFO rollout done: id=da3015bb3b3e49efb9f0a525631ca4ec task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:11    INFO rollout start: id=2d84f76520014cf5911bcd9565d8cd02 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:11    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:19    INFO rollout done: id=2d84f76520014cf5911bcd9565d8cd02 task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:19    INFO rollout start: id=847dd2edcff44bb4bb391d4f6b2ccec2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:25    INFO rollout done: id=847dd2edcff44bb4bb391d4f6b2ccec2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:25    INFO rollout start: id=08c28b5057ea476b92dff1db970810bf task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:07:33    INFO rollout done: id=08c28b5057ea476b92dff1db970810bf task=0 reward=1.000 turns=4 stop=agent_completed
+12:07:33    INFO rollout start: id=0d3d1a4dc0b14eb0bcc0918239ee67ce task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:07:33    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:36    INFO rollout done: id=5d9c72dc733242b4b0eaeff725f81f77 task=0 reward=1.000 turns=3 stop=agent_completed
+12:08:36    INFO rollout start: id=1f7927209e484c88bf9e5ef5839b5ee3 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:37    INFO rollout done: id=0d3d1a4dc0b14eb0bcc0918239ee67ce task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:37    INFO rollout start: id=d4d1dc0921024f0d873bf37e00537b13 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:37    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:43    INFO rollout done: id=d4d1dc0921024f0d873bf37e00537b13 task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:43    INFO rollout start: id=e02715cd2df548358eed69a87b0b53f6 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:43    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:44    INFO rollout done: id=1f7927209e484c88bf9e5ef5839b5ee3 task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:44    INFO rollout start: id=20e2799281284020bfed2b94a849291e task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:44    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:49    INFO rollout done: id=e02715cd2df548358eed69a87b0b53f6 task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:49    INFO rollout start: id=7895cd12f3994a3fb552f4e241e03626 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:50    INFO rollout done: id=20e2799281284020bfed2b94a849291e task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:50    INFO rollout start: id=0910c96e05ec4c198dc48b50f97b85b1 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:50    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:54    INFO rollout done: id=7895cd12f3994a3fb552f4e241e03626 task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:54    INFO rollout start: id=b21684a91a984a01953fef73b56412fa task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:54    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:08:55    INFO rollout done: id=0910c96e05ec4c198dc48b50f97b85b1 task=0 reward=1.000 turns=4 stop=agent_completed
+12:08:55    INFO rollout start: id=9cf7ffef4a9245e193587a01a4f906a6 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:08:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:01    INFO rollout done: id=b21684a91a984a01953fef73b56412fa task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:01    INFO rollout start: id=256f4ba15b0045b0803fe4c44446fcce task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:01    INFO rollout done: id=9cf7ffef4a9245e193587a01a4f906a6 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:01    INFO rollout start: id=612a64ad53d64eb1a8edcf89acfd1153 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:06    INFO rollout done: id=612a64ad53d64eb1a8edcf89acfd1153 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:06    INFO rollout start: id=0487f01bea524e35bcffdc796ecc7854 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:06    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:07    INFO rollout done: id=256f4ba15b0045b0803fe4c44446fcce task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:07    INFO rollout start: id=854827e1515f41ddbd230f1c46144150 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:12    INFO rollout done: id=0487f01bea524e35bcffdc796ecc7854 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:12    INFO rollout start: id=ab4e9a1886f04e828d5c2df4c8f4ff5a task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:13    INFO rollout done: id=854827e1515f41ddbd230f1c46144150 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:13    INFO rollout start: id=1b8bb946a1304f4b9d595d28e08aba6d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:17    INFO rollout done: id=ab4e9a1886f04e828d5c2df4c8f4ff5a task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:17    INFO rollout start: id=ad8b1c8498a14d18834fbbc7e0d2cee2 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:17    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:18    INFO rollout done: id=1b8bb946a1304f4b9d595d28e08aba6d task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:18    INFO rollout start: id=a3a510422b4846e6ac7083e10797bbe4 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:18    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:23    INFO rollout done: id=a3a510422b4846e6ac7083e10797bbe4 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:23    INFO rollout start: id=c9df72a2122c47ee9e49137a45c3dea3 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:23    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:24    INFO rollout done: id=ad8b1c8498a14d18834fbbc7e0d2cee2 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:24    INFO rollout start: id=49e1437fbaad4e6b81ee9a6ba96f81d1 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:24    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:28    INFO rollout done: id=c9df72a2122c47ee9e49137a45c3dea3 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:28    INFO rollout start: id=a6c59ebdc14945679247e3b56abf947b task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:28    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:30    INFO rollout done: id=49e1437fbaad4e6b81ee9a6ba96f81d1 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:30    INFO rollout start: id=c142421e7eeb4ae59b7af4b0cdc8904d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:30    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:34    INFO rollout done: id=a6c59ebdc14945679247e3b56abf947b task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:34    INFO rollout start: id=f448b19bf761450493fd5289f05b0c38 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:34    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:36    INFO rollout done: id=c142421e7eeb4ae59b7af4b0cdc8904d task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:36    INFO rollout start: id=eada66116c1142938d875ee0bae6d08c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:39    INFO rollout done: id=f448b19bf761450493fd5289f05b0c38 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:39    INFO rollout start: id=e08852d32e544024a9598ca0bf6a8d4d task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:41    INFO rollout done: id=eada66116c1142938d875ee0bae6d08c task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:41    INFO rollout start: id=55923917b2fb42b8922996de38e6bccb task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:41    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:47    INFO rollout done: id=55923917b2fb42b8922996de38e6bccb task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:47    INFO rollout start: id=cfbacfc3332f40afbfc2339685ba2ad5 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:47    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:53    INFO rollout done: id=cfbacfc3332f40afbfc2339685ba2ad5 task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:53    INFO rollout start: id=a10345caa0fa4864a22da8f789bf0e1c task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:09:57    INFO rollout done: id=a10345caa0fa4864a22da8f789bf0e1c task=0 reward=1.000 turns=4 stop=agent_completed
+12:09:57    INFO rollout start: id=246d7bdea20447c982cd3f486609f344 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:09:57    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:03    INFO rollout done: id=246d7bdea20447c982cd3f486609f344 task=0 reward=1.000 turns=4 stop=agent_completed
+12:10:03    INFO rollout start: id=a1b1f6e7ddda449da9517fad0a246238 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:06    INFO rollout done: id=e08852d32e544024a9598ca0bf6a8d4d task=0 reward=1.000 turns=4 stop=agent_completed
+12:10:06    INFO rollout start: id=a7b2208647c64f3d91351db4a9d84225 task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:06    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:08    INFO rollout done: id=a1b1f6e7ddda449da9517fad0a246238 task=0 reward=1.000 turns=4 stop=agent_completed
+12:10:08    INFO rollout start: id=38f3fa78aa5949d0b642f2555f6e332b task=0 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:08    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:14    INFO rollout done: id=38f3fa78aa5949d0b642f2555f6e332b task=0 reward=1.000 turns=4 stop=agent_completed
+12:10:14    INFO rollout start: id=0081e05a53314caebed8989f9a9e5def task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:14    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:19    INFO rollout done: id=a7b2208647c64f3d91351db4a9d84225 task=0 reward=1.000 turns=4 stop=agent_completed
+12:10:19    INFO rollout start: id=a2b8dcfc93024d919d12aa0b999c25c2 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:24    INFO rollout done: id=0081e05a53314caebed8989f9a9e5def task=1 reward=1.000 turns=8 stop=agent_completed
+12:10:24    INFO rollout start: id=24eb68d027bd46b69df479e7aab0f398 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:24    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:30    INFO rollout done: id=a2b8dcfc93024d919d12aa0b999c25c2 task=1 reward=1.000 turns=8 stop=agent_completed
+12:10:30    INFO rollout start: id=c3b7c1afb5a042fbbb8c3691b2baab25 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:30    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:31    INFO rollout done: id=24eb68d027bd46b69df479e7aab0f398 task=1 reward=1.000 turns=4 stop=agent_completed
+12:10:31    INFO rollout start: id=aa92e2260ce243b6910e3aa082579e4c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:41    INFO rollout done: id=c3b7c1afb5a042fbbb8c3691b2baab25 task=1 reward=1.000 turns=8 stop=agent_completed
+12:10:41    INFO rollout start: id=9390917b2ab04462becc8333f27ae859 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:41    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:46    INFO rollout done: id=aa92e2260ce243b6910e3aa082579e4c task=1 reward=1.000 turns=4 stop=agent_completed
+12:10:46    INFO rollout start: id=0e74729b62cb4d5aae83c7941bb0ec44 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:46    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:48    INFO rollout done: id=9390917b2ab04462becc8333f27ae859 task=1 reward=1.000 turns=4 stop=agent_completed
+12:10:48    INFO rollout start: id=848e4b0205f3406d9af4431385a06f80 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:48    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:10:53    INFO rollout done: id=0e74729b62cb4d5aae83c7941bb0ec44 task=1 reward=1.000 turns=4 stop=agent_completed
+12:10:53    INFO rollout start: id=09514b6bd40d487a803a11f80d8d643e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:10:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:03    INFO rollout done: id=848e4b0205f3406d9af4431385a06f80 task=1 reward=1.000 turns=6 stop=agent_completed
+12:11:03    INFO rollout start: id=7a2bb4d2178544c8b28631c3a9d9459b task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:11    INFO rollout done: id=09514b6bd40d487a803a11f80d8d643e task=1 reward=1.000 turns=8 stop=agent_completed
+12:11:11    INFO rollout start: id=6dbcc25f12ee4cf891f7067ceadd364c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:11    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:17    INFO rollout done: id=7a2bb4d2178544c8b28631c3a9d9459b task=1 reward=1.000 turns=6 stop=agent_completed
+12:11:17    INFO rollout start: id=ae9e1d9ff3fd45eaa33251401d7e12e5 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:17    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:18    INFO rollout done: id=6dbcc25f12ee4cf891f7067ceadd364c task=1 reward=1.000 turns=4 stop=agent_completed
+12:11:18    INFO rollout start: id=90a9850715d14ebb913a6066c403a6ef task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:18    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:29    INFO rollout done: id=ae9e1d9ff3fd45eaa33251401d7e12e5 task=1 reward=1.000 turns=8 stop=agent_completed
+12:11:29    INFO rollout start: id=a2be6bbc9c6949fa83f9f2d2320cd7a7 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:29    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:35    INFO rollout done: id=a2be6bbc9c6949fa83f9f2d2320cd7a7 task=1 reward=1.000 turns=4 stop=agent_completed
+12:11:35    INFO rollout start: id=a29c0df2182747d6a30c26af8eaba999 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:35    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:44    INFO rollout done: id=90a9850715d14ebb913a6066c403a6ef task=1 reward=1.000 turns=8 stop=agent_completed
+12:11:44    INFO rollout start: id=d82f90c5b4a7468cb368a7fe6970bab5 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:44    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:46    INFO rollout done: id=a29c0df2182747d6a30c26af8eaba999 task=1 reward=1.000 turns=8 stop=agent_completed
+12:11:46    INFO rollout start: id=80e509f1b46a4249914c87b0086faaa4 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:46    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:53    INFO rollout done: id=80e509f1b46a4249914c87b0086faaa4 task=1 reward=1.000 turns=4 stop=agent_completed
+12:11:53    INFO rollout start: id=44241971af254bd48a8b395421af36f1 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:11:55    INFO rollout done: id=d82f90c5b4a7468cb368a7fe6970bab5 task=1 reward=1.000 turns=7 stop=agent_completed
+12:11:55    INFO rollout start: id=f037575ecead4b8c97ba3145b848206b task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:11:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:06    INFO rollout done: id=44241971af254bd48a8b395421af36f1 task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:06    INFO rollout start: id=bebd1d6a7c584ebabd8988999e2eb0c4 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:06    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:07    INFO rollout done: id=f037575ecead4b8c97ba3145b848206b task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:07    INFO rollout start: id=a7d03f41bc8141f9bb94845904b53322 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:15    INFO rollout done: id=bebd1d6a7c584ebabd8988999e2eb0c4 task=1 reward=1.000 turns=4 stop=agent_completed
+12:12:15    INFO rollout start: id=0fe238282a54408098740d77287cb2a6 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:15    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:17    INFO rollout done: id=a7d03f41bc8141f9bb94845904b53322 task=1 reward=1.000 turns=6 stop=agent_completed
+12:12:17    INFO rollout start: id=d81b644abaf6455bb7ade5a6848c0a83 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:17    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:22    INFO rollout done: id=0fe238282a54408098740d77287cb2a6 task=1 reward=1.000 turns=4 stop=agent_completed
+12:12:22    INFO rollout start: id=2ee9c7dc69f44c73849f33affb5dd13c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:22    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:25    INFO rollout done: id=d81b644abaf6455bb7ade5a6848c0a83 task=1 reward=1.000 turns=6 stop=agent_completed
+12:12:25    INFO rollout start: id=0e67d3b224614adab2c6b580ef6d3a2a task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:25    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:34    INFO rollout done: id=2ee9c7dc69f44c73849f33affb5dd13c task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:34    INFO rollout start: id=8a8d0fd150a546db8522eb29304839ce task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:34    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:36    INFO rollout done: id=0e67d3b224614adab2c6b580ef6d3a2a task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:36    INFO rollout start: id=d11c78acd44b457aa3091d4fb2cb3608 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:46    INFO rollout done: id=d11c78acd44b457aa3091d4fb2cb3608 task=1 reward=1.000 turns=7 stop=agent_completed
+12:12:46    INFO rollout start: id=186ccd8114eb46999d26d8b827743f1d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:46    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:47    INFO rollout done: id=8a8d0fd150a546db8522eb29304839ce task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:47    INFO rollout start: id=b7f54e52a3ef46d2bf136ab4eeb327ec task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:47    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:58    INFO rollout done: id=186ccd8114eb46999d26d8b827743f1d task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:58    INFO rollout start: id=b772115345904b3d8e8ed6d57e0ab256 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:58    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:12:58    INFO rollout done: id=b7f54e52a3ef46d2bf136ab4eeb327ec task=1 reward=1.000 turns=8 stop=agent_completed
+12:12:58    INFO rollout start: id=e0f7f952d04245b7ad167c4ea84397b9 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:12:58    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:08    INFO rollout done: id=b772115345904b3d8e8ed6d57e0ab256 task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:08    INFO rollout start: id=bf94ec94d6264176acb22c85301a1b6f task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:08    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:09    INFO rollout done: id=e0f7f952d04245b7ad167c4ea84397b9 task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:09    INFO rollout start: id=96ded408d78b4e26b5553c504f056e59 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:19    INFO rollout done: id=bf94ec94d6264176acb22c85301a1b6f task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:19    INFO rollout start: id=09a948fea18746c39b3235504784cb31 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:21    INFO rollout done: id=96ded408d78b4e26b5553c504f056e59 task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:21    INFO rollout start: id=c53b1471ef0c4adb8b5eb42ce7c8fdc5 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:21    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:27    INFO rollout done: id=09a948fea18746c39b3235504784cb31 task=1 reward=1.000 turns=6 stop=agent_completed
+12:13:27    INFO rollout start: id=cfe03a5e3b564f2a885884a208fb1fa9 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:36    INFO rollout done: id=c53b1471ef0c4adb8b5eb42ce7c8fdc5 task=1 reward=1.000 turns=6 stop=agent_completed
+12:13:36    INFO rollout start: id=65397dce1db149f7b8175aaa5e891bef task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:36    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:42    INFO rollout done: id=cfe03a5e3b564f2a885884a208fb1fa9 task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:42    INFO rollout start: id=4837b5b8710041ed97d21c05a069fb30 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:42    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:47    INFO rollout done: id=65397dce1db149f7b8175aaa5e891bef task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:47    INFO rollout start: id=870fcd9ae480411fbc0a0d8044a790a8 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:47    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:13:56    INFO rollout done: id=4837b5b8710041ed97d21c05a069fb30 task=1 reward=1.000 turns=8 stop=agent_completed
+12:13:56    INFO rollout start: id=1f300cbe634a4697963c1d6de86cd07e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:13:56    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:00    INFO rollout done: id=870fcd9ae480411fbc0a0d8044a790a8 task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:00    INFO rollout start: id=a3b7f1caf6dd42a4b44134efe6a86aa2 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:00    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:09    INFO rollout done: id=1f300cbe634a4697963c1d6de86cd07e task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:09    INFO rollout start: id=12ec28a0092641549de7156aa36f028e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:09    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:13    INFO rollout done: id=a3b7f1caf6dd42a4b44134efe6a86aa2 task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:13    INFO rollout start: id=bbd03ec88c4a4e248532687d3d6d94e9 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:19    INFO rollout done: id=12ec28a0092641549de7156aa36f028e task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:19    INFO rollout start: id=7b2917acb22840e4941751f29e41b308 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:19    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:24    INFO rollout done: id=bbd03ec88c4a4e248532687d3d6d94e9 task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:24    INFO rollout start: id=ae11ec3fcc4146aa9a737583262b9365 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:24    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:30    INFO rollout done: id=ae11ec3fcc4146aa9a737583262b9365 task=1 reward=1.000 turns=4 stop=agent_completed
+12:14:30    INFO rollout start: id=82cec84ce04a4025b812f91f4a33e534 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:30    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:40    INFO rollout done: id=82cec84ce04a4025b812f91f4a33e534 task=1 reward=1.000 turns=8 stop=agent_completed
+12:14:40    INFO rollout start: id=6c2cd9d5f69c47ee8d148bf7b4f0bc79 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:40    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:14:52    INFO rollout done: id=6c2cd9d5f69c47ee8d148bf7b4f0bc79 task=1 reward=1.000 turns=7 stop=agent_completed
+12:14:52    INFO rollout start: id=256f4f0d53cf4dc2acd25b24d7a3ccb3 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:14:52    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:04    INFO rollout done: id=256f4f0d53cf4dc2acd25b24d7a3ccb3 task=1 reward=1.000 turns=8 stop=agent_completed
+12:15:04    INFO rollout start: id=914db77f75ad426a9151448b5d2b7740 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:04    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:10    INFO rollout done: id=914db77f75ad426a9151448b5d2b7740 task=1 reward=1.000 turns=4 stop=agent_completed
+12:15:10    INFO rollout start: id=64fadc549a154d8894a252d9b7aedc6c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:10    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:22    INFO rollout done: id=64fadc549a154d8894a252d9b7aedc6c task=1 reward=1.000 turns=8 stop=agent_completed
+12:15:22    INFO rollout start: id=6812fba4a6fe49659e111fa144ce0002 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:22    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:34    INFO rollout done: id=6812fba4a6fe49659e111fa144ce0002 task=1 reward=1.000 turns=8 stop=agent_completed
+12:15:34    INFO rollout start: id=7eea4c08e7b7448784893992b18c5a6c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:34    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:40    INFO rollout done: id=7eea4c08e7b7448784893992b18c5a6c task=1 reward=1.000 turns=6 stop=agent_completed
+12:15:40    INFO rollout start: id=869bf571654f414a847ffc40d86978a2 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:40    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:15:51    INFO rollout done: id=869bf571654f414a847ffc40d86978a2 task=1 reward=1.000 turns=8 stop=agent_completed
+12:15:51    INFO rollout start: id=f4e49f8c0837457e82f33c6334a54df8 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:15:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:01    INFO rollout done: id=f4e49f8c0837457e82f33c6334a54df8 task=1 reward=1.000 turns=8 stop=agent_completed
+12:16:01    INFO rollout start: id=bf7658f2183b49fea39b69c8f8ddf8dd task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:03    INFO rollout done: id=7b2917acb22840e4941751f29e41b308 task=1 reward=1.000 turns=8 stop=agent_completed
+12:16:03    INFO rollout start: id=0e1a846b6d3b4d308e73b17513b36484 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:13    INFO rollout done: id=bf7658f2183b49fea39b69c8f8ddf8dd task=1 reward=1.000 turns=8 stop=agent_completed
+12:16:13    INFO rollout start: id=e0463c043e094b0899d8bcd15507adae task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:13    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:21    INFO rollout done: id=e0463c043e094b0899d8bcd15507adae task=1 reward=1.000 turns=6 stop=agent_completed
+12:16:21    INFO rollout start: id=64fea772140b4ce1b80f2200f4c50860 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:21    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:31    INFO rollout done: id=64fea772140b4ce1b80f2200f4c50860 task=1 reward=1.000 turns=7 stop=agent_completed
+12:16:31    INFO rollout start: id=3935e41dccaa4d01847a44dd02ebf1a3 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:42    INFO rollout done: id=3935e41dccaa4d01847a44dd02ebf1a3 task=1 reward=1.000 turns=7 stop=agent_completed
+12:16:42    INFO rollout start: id=acc6818bdb12488391d4a969e4a993b5 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:42    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:16:55    INFO rollout done: id=acc6818bdb12488391d4a969e4a993b5 task=1 reward=1.000 turns=8 stop=agent_completed
+12:16:55    INFO rollout start: id=d9f356c3b8a749dc84b85bb6cfc938c8 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:16:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:06    INFO rollout done: id=d9f356c3b8a749dc84b85bb6cfc938c8 task=1 reward=1.000 turns=7 stop=agent_completed
+12:17:06    INFO rollout start: id=05531a9132c14772a060bfc8f3673aab task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:06    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:15    INFO rollout done: id=05531a9132c14772a060bfc8f3673aab task=1 reward=1.000 turns=7 stop=agent_completed
+12:17:15    INFO rollout start: id=1b8182c7c3864f82b58eea7f77703316 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:15    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:26    INFO rollout done: id=1b8182c7c3864f82b58eea7f77703316 task=1 reward=1.000 turns=8 stop=agent_completed
+12:17:26    INFO rollout start: id=ae6e33d3b5e3443e9ab0ca32ee17dcfa task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:26    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:39    INFO rollout done: id=ae6e33d3b5e3443e9ab0ca32ee17dcfa task=1 reward=1.000 turns=8 stop=agent_completed
+12:17:39    INFO rollout start: id=4ce7da7b64304c69b35041a37cb7a188 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:42    INFO rollout done: id=0e1a846b6d3b4d308e73b17513b36484 task=1 reward=1.000 turns=8 stop=agent_completed
+12:17:42    INFO rollout start: id=e8d15443cc184da889bd4845c10fe077 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:42    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:44    INFO rollout done: id=4ce7da7b64304c69b35041a37cb7a188 task=1 reward=1.000 turns=4 stop=agent_completed
+12:17:44    INFO rollout start: id=8aa0a72a32b14425a6a55f9ead022de0 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:44    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:53    INFO rollout done: id=e8d15443cc184da889bd4845c10fe077 task=1 reward=1.000 turns=8 stop=agent_completed
+12:17:53    INFO rollout start: id=9b329ef671a54521883cb5b158cf495e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:53    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:17:57    INFO rollout done: id=8aa0a72a32b14425a6a55f9ead022de0 task=1 reward=1.000 turns=8 stop=agent_completed
+12:17:57    INFO rollout start: id=59827127ed5249afa97be1fce6c1e556 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:17:57    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:03    INFO rollout done: id=9b329ef671a54521883cb5b158cf495e task=1 reward=1.000 turns=7 stop=agent_completed
+12:18:03    INFO rollout start: id=8e2384b61ebf45339363788dde7c326e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:07    INFO rollout done: id=59827127ed5249afa97be1fce6c1e556 task=1 reward=1.000 turns=6 stop=agent_completed
+12:18:07    INFO rollout start: id=ca96d00831ec40f5abd98811a0916951 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:07    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:14    INFO rollout done: id=ca96d00831ec40f5abd98811a0916951 task=1 reward=1.000 turns=4 stop=agent_completed
+12:18:14    INFO rollout start: id=286630de60ab41bf87ae6a437f6d2f25 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:14    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:17    INFO rollout done: id=8e2384b61ebf45339363788dde7c326e task=1 reward=1.000 turns=8 stop=agent_completed
+12:18:17    INFO rollout start: id=717724dcb85c4eb3aa71692659d20861 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:17    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:23    INFO rollout done: id=286630de60ab41bf87ae6a437f6d2f25 task=1 reward=1.000 turns=6 stop=agent_completed
+12:18:23    INFO rollout start: id=651f90794c1f4add9535f48bc2821a83 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:23    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:27    INFO rollout done: id=717724dcb85c4eb3aa71692659d20861 task=1 reward=1.000 turns=8 stop=agent_completed
+12:18:27    INFO rollout start: id=bedc8b93146b4fefac4be4058b2e30d4 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:28    INFO rollout done: id=651f90794c1f4add9535f48bc2821a83 task=1 reward=1.000 turns=4 stop=agent_completed
+12:18:28    INFO rollout start: id=24ca08548efe44dc9662b60a03e7892d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:28    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:35    INFO rollout done: id=bedc8b93146b4fefac4be4058b2e30d4 task=1 reward=1.000 turns=8 stop=agent_completed
+12:18:35    INFO rollout start: id=de048826ec5f445b980d128b13a00e52 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:35    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:37    INFO rollout done: id=24ca08548efe44dc9662b60a03e7892d task=1 reward=1.000 turns=6 stop=agent_completed
+12:18:37    INFO rollout start: id=198601e8f6594233aa31c53261528a30 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:37    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:42    INFO rollout done: id=de048826ec5f445b980d128b13a00e52 task=1 reward=1.000 turns=4 stop=agent_completed
+12:18:42    INFO rollout start: id=2ae01b31a7104b899052cbaf3aa42533 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:42    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:49    INFO rollout done: id=198601e8f6594233aa31c53261528a30 task=1 reward=1.000 turns=8 stop=agent_completed
+12:18:49    INFO rollout start: id=65705140dba14b4093f4727920ad1027 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:49    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:18:55    INFO rollout done: id=2ae01b31a7104b899052cbaf3aa42533 task=1 reward=1.000 turns=8 stop=agent_completed
+12:18:55    INFO rollout start: id=73943f92de03413696d26a3e9ba0ee14 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:18:55    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:00    INFO rollout done: id=65705140dba14b4093f4727920ad1027 task=1 reward=1.000 turns=8 stop=agent_completed
+12:19:00    INFO rollout start: id=ffad45ad4ecd45e683cc020791bf3198 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:00    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:12    INFO rollout done: id=ffad45ad4ecd45e683cc020791bf3198 task=1 reward=1.000 turns=6 stop=agent_completed
+12:19:12    INFO rollout start: id=42072fe317994d38a11ceab6ab1ba873 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:20    INFO rollout done: id=42072fe317994d38a11ceab6ab1ba873 task=1 reward=1.000 turns=7 stop=agent_completed
+12:19:20    INFO rollout start: id=c3214549041b44c392a8f5aaf2742c9d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:20    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:31    INFO rollout done: id=c3214549041b44c392a8f5aaf2742c9d task=1 reward=1.000 turns=7 stop=agent_completed
+12:19:31    INFO rollout start: id=57225790f535454ca001bd0d1e12bef7 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:31    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:40    INFO rollout done: id=57225790f535454ca001bd0d1e12bef7 task=1 reward=1.000 turns=7 stop=agent_completed
+12:19:40    INFO rollout start: id=e0f61cd3b0dd40f7acf15668b5a46f60 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:40    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:19:51    INFO rollout done: id=e0f61cd3b0dd40f7acf15668b5a46f60 task=1 reward=1.000 turns=8 stop=agent_completed
+12:19:51    INFO rollout start: id=ab06b999816f4c2f8bf288ba50f2edc4 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:19:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:20:03    INFO rollout done: id=ab06b999816f4c2f8bf288ba50f2edc4 task=1 reward=1.000 turns=8 stop=agent_completed
+12:20:03    INFO rollout start: id=8ba331a2506642a682d17cdf4c3211b0 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:20:03    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:20:15    INFO rollout done: id=8ba331a2506642a682d17cdf4c3211b0 task=1 reward=1.000 turns=8 stop=agent_completed
+12:20:15    INFO rollout start: id=9ed2f41c7fb64667b3231cba69d4af3d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:20:15    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:20:27    INFO rollout done: id=9ed2f41c7fb64667b3231cba69d4af3d task=1 reward=1.000 turns=8 stop=agent_completed
+12:20:27    INFO rollout start: id=1be7aa936d3c462996df74deed8467e9 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:20:27    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:21:01    INFO rollout done: id=73943f92de03413696d26a3e9ba0ee14 task=1 reward=1.000 turns=8 stop=agent_completed
+12:21:01    INFO rollout start: id=dca04a1c060744c58cc1db308ef2a7ad task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:21:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:21:12    INFO rollout done: id=dca04a1c060744c58cc1db308ef2a7ad task=1 reward=1.000 turns=8 stop=agent_completed
+12:21:12    INFO rollout start: id=80450cc7cd7c4cab84f12ca2496fff2b task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:21:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:21:23    INFO rollout done: id=80450cc7cd7c4cab84f12ca2496fff2b task=1 reward=1.000 turns=8 stop=agent_completed
+12:21:23    INFO rollout start: id=0d65235066484a43bbe375c6d263b8e4 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:21:23    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:21:41    INFO rollout done: id=0d65235066484a43bbe375c6d263b8e4 task=1 reward=1.000 turns=8 stop=agent_completed
+12:21:41    INFO rollout start: id=56b6e54643e74809a86ea6a0e971e670 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:21:41    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:21:48    INFO rollout done: id=56b6e54643e74809a86ea6a0e971e670 task=1 reward=1.000 turns=4 stop=agent_completed
+12:21:48    INFO rollout start: id=b9c114a726d8437db49b8da9ac48142a task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:21:48    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:22:02    INFO rollout done: id=b9c114a726d8437db49b8da9ac48142a task=1 reward=1.000 turns=8 stop=agent_completed
+12:22:02    INFO rollout start: id=8031252dd42f429285151b9c5b11929d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:22:02    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:22:12    INFO rollout done: id=8031252dd42f429285151b9c5b11929d task=1 reward=1.000 turns=8 stop=agent_completed
+12:22:12    INFO rollout start: id=d6cbb67819e24b96b2fc052c524437b3 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:22:12    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:22:23    INFO rollout done: id=d6cbb67819e24b96b2fc052c524437b3 task=1 reward=1.000 turns=8 stop=agent_completed
+12:22:23    INFO rollout start: id=698ebf91be3245c3bf8d985e4986235e task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:22:23    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:22:35    INFO rollout done: id=698ebf91be3245c3bf8d985e4986235e task=1 reward=1.000 turns=8 stop=agent_completed
+12:22:35    INFO rollout start: id=ac689b2bffa54565981dbe25212aed38 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:22:35    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:22:51    INFO rollout done: id=ac689b2bffa54565981dbe25212aed38 task=1 reward=1.000 turns=8 stop=agent_completed
+12:22:51    INFO rollout start: id=0260b7b049624244806121c0c67a495c task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:22:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:01    INFO rollout done: id=0260b7b049624244806121c0c67a495c task=1 reward=1.000 turns=8 stop=agent_completed
+12:23:01    INFO rollout start: id=280db3615a134a1bad56b23f4aec9edd task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:01    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:11    INFO rollout done: id=280db3615a134a1bad56b23f4aec9edd task=1 reward=1.000 turns=7 stop=agent_completed
+12:23:11    INFO rollout start: id=6750fc012b544c568e87589a10cca497 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:11    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:20    INFO rollout done: id=6750fc012b544c568e87589a10cca497 task=1 reward=1.000 turns=7 stop=agent_completed
+12:23:20    INFO rollout start: id=ee4588552a7d4b109cef01e1a600332d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:20    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:28    INFO rollout done: id=ee4588552a7d4b109cef01e1a600332d task=1 reward=1.000 turns=6 stop=agent_completed
+12:23:28    INFO rollout start: id=bff41acc02d0405a8feb517db65ceb90 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:28    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:39    INFO rollout done: id=bff41acc02d0405a8feb517db65ceb90 task=1 reward=1.000 turns=8 stop=agent_completed
+12:23:39    INFO rollout start: id=1aa80e04655c4d2ba755fc7925c23894 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:39    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:23:51    INFO rollout done: id=1aa80e04655c4d2ba755fc7925c23894 task=1 reward=1.000 turns=8 stop=agent_completed
+12:23:51    INFO rollout start: id=234b3e2c42ba4a318c8781d12fd5ff3d task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:23:51    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:24:00    INFO rollout done: id=234b3e2c42ba4a318c8781d12fd5ff3d task=1 reward=1.000 turns=7 stop=agent_completed
+12:24:00    INFO rollout start: id=f31b62b2c17542128d056e3078da7694 task=1 harness=cross-rollout-postcommitment-confirmatory-v1 runtime=subprocess
+12:24:00    INFO tool server 'facility' (shared): http://127.0.0.1:38991/mcp
+12:24:03 WARNING interrupted — cleaning up, please wait...
+12:24:03    INFO interception down: url=http://127.0.0.1:45623
