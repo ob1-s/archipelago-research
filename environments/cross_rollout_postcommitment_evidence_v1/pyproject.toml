@@ -1,0 +1,20 @@
+[project]
+name = "cross-rollout-postcommitment-evidence-v1"
+description = "Native two-turn post-commitment environment with shared latent batch evidence."
+tags = ["cross-rollout", "post-commitment", "evidence", "eval"]
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "verifiers>=0.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cross_rollout_postcommitment_evidence_v1"]
+
+[tool.verifiers.eval]
+num_examples = 2
+rollouts_per_example = 1

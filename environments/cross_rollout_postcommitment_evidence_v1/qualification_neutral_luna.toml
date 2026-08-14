@@ -1,0 +1,82 @@
+model = "gpt-5.6-luna"
+num_tasks = 2
+num_rollouts = 24
+shuffle = false
+max_concurrent = 1
+verbose = false
+rich = false
+server = false
+push = false
+output_dir = "/tmp/archipelago-cross-rollout-postcommitment-evidence-v1-neutral-luna-2026-08-13"
+
+[env]
+id = ""
+max_concurrent_agents = 1
+
+[env.taskset]
+id = "cross-rollout-postcommitment-evidence-v1"
+assignment_mode = "fixed_neutral"
+random_seed = "cross-rollout-postcommitment-evidence-v1-neutral-qualification-2026-08-13"
+
+[env.taskset.task]
+judges = []
+
+[env.taskset.task.tools]
+colocated = false
+
+[env.taskset.task.tools.runtime]
+type = "subprocess"
+
+[env.timeout]
+
+[env.retries]
+max_retries = 0
+include = []
+exclude = []
+
+[env.interception]
+type = "elastic"
+multiplex = 32
+
+[env.agent]
+max_turns = 14
+
+[env.agent.harness]
+id = "null"
+forward_env = []
+tool_timeout = 600.0
+skills = []
+
+[env.agent.harness.env]
+
+[env.agent.runtime]
+type = "subprocess"
+
+[env.agent.timeout]
+
+[env.agent.retries]
+max_retries = 0
+include = []
+exclude = []
+
+[serve]
+address = "tcp://127.0.0.1:5000"
+
+[serve.pool]
+type = "elastic"
+multiplex = 128
+
+[legacy.args]
+
+[legacy.extra_env_kwargs]
+
+[client]
+base_url = "http://127.0.0.1:10531/v1"
+api_key_var = "PRIME_API_KEY"
+type = "eval"
+
+[client.headers]
+
+[sampling]
+temperature = 0.7
+max_tokens = 1024
