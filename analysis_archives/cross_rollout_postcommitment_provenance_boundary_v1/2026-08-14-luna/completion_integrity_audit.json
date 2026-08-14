@@ -1,0 +1,111 @@
+{
+  "archived_rows": {
+    "error_rows": 0,
+    "incomplete_after_choice_rows": 0,
+    "missing_phase2_rows": 0,
+    "phase1_attempt_rows": 1083,
+    "post_target_guard_rows": 172,
+    "primary_error_rows": 0,
+    "primary_lifecycle_violation_rows": 0,
+    "total_trace_rows": 1255
+  },
+  "assignment_cells": {
+    "0.7800|AutomatedSource|K_first": 12,
+    "0.7800|AutomatedSource|M_first": 12,
+    "0.7800|PredecessorSource|K_first": 12,
+    "0.7800|PredecessorSource|M_first": 12,
+    "0.7850|AutomatedSource|K_first": 12,
+    "0.7850|AutomatedSource|M_first": 12,
+    "0.7850|PredecessorSource|K_first": 12,
+    "0.7850|PredecessorSource|M_first": 12,
+    "0.7900|AutomatedSource|K_first": 12,
+    "0.7900|AutomatedSource|M_first": 12,
+    "0.7900|PredecessorSource|K_first": 12,
+    "0.7900|PredecessorSource|M_first": 12,
+    "0.7925|AutomatedSource|K_first": 12,
+    "0.7925|AutomatedSource|M_first": 12,
+    "0.7925|PredecessorSource|K_first": 12,
+    "0.7925|PredecessorSource|M_first": 12,
+    "0.7950|AutomatedSource|K_first": 12,
+    "0.7950|AutomatedSource|M_first": 12,
+    "0.7950|PredecessorSource|K_first": 12,
+    "0.7950|PredecessorSource|M_first": 12,
+    "0.7975|AutomatedSource|K_first": 12,
+    "0.7975|AutomatedSource|M_first": 12,
+    "0.7975|PredecessorSource|K_first": 12,
+    "0.7975|PredecessorSource|M_first": 12,
+    "0.8000|AutomatedSource|K_first": 12,
+    "0.8000|AutomatedSource|M_first": 12,
+    "0.8000|PredecessorSource|K_first": 12,
+    "0.8000|PredecessorSource|M_first": 12,
+    "0.8050|AutomatedSource|K_first": 12,
+    "0.8050|AutomatedSource|M_first": 12,
+    "0.8050|PredecessorSource|K_first": 12,
+    "0.8050|PredecessorSource|M_first": 12,
+    "0.8100|AutomatedSource|K_first": 12,
+    "0.8100|AutomatedSource|M_first": 12,
+    "0.8100|PredecessorSource|K_first": 12,
+    "0.8100|PredecessorSource|M_first": 12
+  },
+  "created_at": "2026-08-14T17:23:36.846080+00:00",
+  "evaluator_log_operational_counts": {
+    "first_start_task": "0",
+    "inflight_log_gap": 1,
+    "last_done_task": "1254",
+    "last_start_seconds_local_day": 51609,
+    "last_start_task": "1255",
+    "rollout_done_records": 1255,
+    "rollout_start_records": 1256,
+    "unique_done_tasks": 1255,
+    "unique_start_tasks": 1256
+  },
+  "integrity": {
+    "analysis_module_sha256": "00147df5e4d8e621a437ac7ed2817a9b4df9722aeb0f80781a14ee211ea3ee2e",
+    "current_git_commit": "549a8dc0f10d32694181a47962bcbb4f7cb2c915",
+    "current_git_status": "?? analysis_archives/\n?? tools/watch_boundary.py\n",
+    "frozen_analysis_input_path": "/home/ob1/Projects/archipelago/analysis_archives/cross_rollout_postcommitment_provenance_boundary_v1/2026-08-14-luna/analysis_input.json",
+    "frozen_analysis_input_sha256": "f059ee7ad7a510f2041931166c9421fa3c320023fbba2eb70fe49a1d522e82e3",
+    "frozen_package_diff_e592_to_current_empty": true,
+    "monitor_history_status_path": "/tmp/archipelago-run-supervisor-current-luna-2026-08-14/status.json",
+    "monitor_path": "/home/ob1/Projects/archipelago/tools/watch_boundary.py",
+    "raw_trace_sha256": "bc4e6a857f4eec1108c0e182ee7179637fa3a7269970885e569f5b30c0f301a4",
+    "source_config_sha256": "ae7c6708348a2adab46f02ba043c15a8bedfde1965c0f54a34dd7a6518d9c778"
+  },
+  "matched_pairs": {
+    "distinct_pair_ids": 216,
+    "pair_size_distribution": {
+      "2": 216
+    },
+    "source_shape_distribution": {
+      "(('AutomatedSource', 1), ('PredecessorSource', 1))": 216
+    }
+  },
+  "outcome_blind_before_input_freeze": true,
+  "process_cleanup": {
+    "administrative_action": "SIGTERM after 432/432 primary assignments and post-target classification",
+    "evaluator_pid": 2512538,
+    "evaluator_process_group": 2512538,
+    "raw_outputs_preserved": true,
+    "watcher_exit_code": null,
+    "watcher_final_reason": "target_exited_without_exit_code",
+    "watcher_final_state": "fatal_error",
+    "watcher_pid": 2577434,
+    "watcher_status_path": "/tmp/archipelago-run-supervisor-current-luna-2026-08-14/status.json"
+  },
+  "raw_trace_inspection_started_after_operational_integrity_gate": true,
+  "schema_version": "cross_rollout_postcommitment_provenance_boundary_v1.completion_integrity_audit.v1",
+  "target": {
+    "all_cells_complete": true,
+    "all_pairs_complete": true,
+    "expected_primary_eligible": 432,
+    "ledger_claims_length": 432,
+    "ledger_complete": true,
+    "ledger_next_eligible_index": 432,
+    "raw_primary_eligible": 432,
+    "raw_primary_indices_complete": true
+  },
+  "unarchived_inflight_at_shutdown": {
+    "classification": "post-target guard work; ledger target was complete before latest task start",
+    "log_start_done_gap": 1
+  }
+}

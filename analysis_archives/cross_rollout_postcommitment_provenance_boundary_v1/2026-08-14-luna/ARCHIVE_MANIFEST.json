@@ -1,0 +1,70 @@
+{
+  "schema_version": "archipelago.archive_manifest.v1",
+  "experiment": "cross_rollout_postcommitment_provenance_boundary_v1",
+  "date": "2026-08-14",
+  "archive_created_after_analysis": true,
+  "model_runtime": {
+    "model": "gpt-5.6-luna",
+    "runtime": "openai-oauth 2.0.0 / OpenAI-compatible /chat/completions",
+    "base_url": "http://127.0.0.1:10531/v1",
+    "python": "3.12.13",
+    "verifiers": "0.3.0",
+    "pydantic": "2.13.4",
+    "mcp": "1.29.0",
+    "openai": "2.54.0",
+    "temperature_requested": 0.7,
+    "max_tokens": 1024,
+    "concurrency": 1,
+    "retries": 0,
+    "colocated": false,
+    "reasoning_effort": "unspecified/not present"
+  },
+  "provenance": {
+    "frozen_scientific_commit": "e592c9d",
+    "operational_commit": "549a8dc0f10d32694181a47962bcbb4f7cb2c915",
+    "frozen_package_diff_e592c9d_to_head_empty": true,
+    "scientific_package_unchanged_during_collection": true,
+    "chronology": [
+      "scientific package frozen",
+      "live run executed",
+      "outcome-blind operational supervision occurred",
+      "frozen analysis executed",
+      "durable archive created afterward"
+    ]
+  },
+  "raw_traces": {
+    "source_path": "/tmp/archipelago-cross-rollout-postcommitment-provenance-boundary-v1-luna-2026-08-14-repaired/traces.jsonl",
+    "archived_path": "/home/ob1/Projects/archipelago/analysis_archives/cross_rollout_postcommitment_provenance_boundary_v1/2026-08-14-luna/raw_traces.jsonl",
+    "size_bytes": 17226590,
+    "sha256": "bc4e6a857f4eec1108c0e182ee7179637fa3a7269970885e569f5b30c0f301a4",
+    "byte_for_byte_verified": true,
+    "source_preserved": true
+  },
+  "artifacts": {
+    "analysis_input.json": {
+      "sha256": "f059ee7ad7a510f2041931166c9421fa3c320023fbba2eb70fe49a1d522e82e3"
+    },
+    "analysis_results.json": {
+      "sha256": "576f06101d5ec9d41b3a072734f0990c33b7ff3d8442b9fbc2dd85476351549b"
+    },
+    "completion_integrity_audit.json": {
+      "sha256": "5d47d5e5a4e519d7c1f338471288df044750b7b79743d8e86a7cac4074925988"
+    },
+    "operational_supervisor_final_status.json": {
+      "sha256": "9a3501056c54a1d6922f45c6d54f4550fff00c234904f4e3e3012a95a4b335aa"
+    },
+    "report.md": {
+      "sha256": "fc7fab81f5e1c70c03a719f69862eaeb93fc01abba658cbfe2f2072d97696346"
+    }
+  },
+  "sample": {
+    "target_primary_eligible": 432,
+    "primary_assignments_claimed": 432,
+    "actual_phase1_attempts": 1083,
+    "archived_post_target_guard_rows": 172,
+    "matched_pairs": 216,
+    "q_source_phase2_cells": 36,
+    "records_per_cell": 12
+  },
+  "archive_scope": "Archival and operational metadata only; no scientific package files are included or modified."
+}

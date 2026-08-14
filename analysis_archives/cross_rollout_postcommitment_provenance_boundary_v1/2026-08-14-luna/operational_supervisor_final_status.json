@@ -1,0 +1,34 @@
+{
+  "schema_version": "cross_rollout_postcommitment_provenance_boundary_v1.operational_supervisor_archive.v1",
+  "scope": "operational_only",
+  "behavioral_content_inspected": false,
+  "source_status_path": "/tmp/archipelago-run-supervisor-current-luna-2026-08-14/status.json",
+  "captured_status": {
+    "activity_paths": [
+      "/tmp/archipelago-cross-rollout-postcommitment-provenance-boundary-v1-luna-2026-08-14-repaired/traces.jsonl"
+    ],
+    "behavioral_content_inspected": false,
+    "exit_code": null,
+    "last_activity_age_seconds": 0.0001661389833316207,
+    "last_activity_at": "2026-08-14T17:20:21.351544+00:00",
+    "observed_at": "2026-08-14T17:20:21.351592+00:00",
+    "process": {
+      "alive": false,
+      "start_ticks": null,
+      "state": null
+    },
+    "reason": "target_exited_without_exit_code",
+    "run_id": "current-provenance-boundary-luna-2026-08-14",
+    "schema_version": 1,
+    "scope": "operational_only",
+    "stall_seconds": 3600.0,
+    "started_at": "2026-08-14T13:43:18.448663+00:00",
+    "state": "fatal_error",
+    "supervisor_pid": 2577434,
+    "target_pid": 2512538,
+    "target_start_ticks": "39284603",
+    "terminal": true
+  },
+  "interpretation": "The watcher terminal state reflects the authorized SIGTERM sent after the 432/432 primary target was complete and the remaining work was classified as post-target guard work. The evaluator did not report its own exit code because it was administratively stopped. This is not a scientific evaluator error; raw logs, traces, and temporary evidence were preserved.",
+  "archive_path": "/home/ob1/Projects/archipelago/analysis_archives/cross_rollout_postcommitment_provenance_boundary_v1/2026-08-14-luna/"
+}
