@@ -1,0 +1,65 @@
+{
+  "experiment": "cross_rollout_postcommitment_evidence_threshold_transport_v1",
+  "date": "2026-08-14",
+  "status": "qualified_and_frozen_pending_live_approval",
+  "pre_freeze_head": "1e6275338a2ffa2ebda43eb78032e5115a082141",
+  "model": "gpt-5.6-luna",
+  "runtime": {
+    "evaluator": "native .venv/bin/eval",
+    "verifiers": "0.3.0",
+    "mcp": "1.29.0",
+    "python": "3.12.13",
+    "pydantic": "2.13.4",
+    "openai": "2.53.0",
+    "httpx": "0.28.1",
+    "base_url": "http://127.0.0.1:10531/v1",
+    "harness": "null",
+    "interaction": "Agent.interaction()",
+    "colocated": false,
+    "temperature": 0.7,
+    "max_tokens": 1024,
+    "max_concurrent": 4,
+    "env_max_concurrent_agents": 1,
+    "interception_multiplex": 4,
+    "retries": 0,
+    "reasoning_effort": null
+  },
+  "sample": {
+    "primary_target": 504,
+    "quota_cell_count": 84,
+    "primary_per_quota_cell": 6,
+    "preassigned_attempt_cap": 5040,
+    "expected_phase1_attempts": {
+      "LOW": 367.5,
+      "ANCHOR": 417.391304347826,
+      "HIGH": 472.5,
+      "total": 1257.391304347826
+    },
+    "statement": "The frozen scientific package has not been used for live scientific inference."
+  },
+  "native_config": {
+    "path": "qualification_evidence_threshold_transport_luna_clean.toml",
+    "sha256": "b3c5297013afbdfc1e7e3d66f2874b68e6d525455c73d9e3457d7c2d95d336a9"
+  },
+  "files_sha256": {
+    "PRELIVE_QUALIFICATION.md": "264f4ca1b8dc0ecd9c56482074581d607b32b3f80d8b48cc4b0ce1217b2c4f75",
+    "README.md": "59fc7dcd63312994356b7afe72c50f77d192851c8eb8bf4bcd166da3af3a0a60",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/__init__.py": "05148075eaca67cf9d9cd61b56bdecff89ab751947dc071634cc4e4cc723c4a4",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/analysis.py": "dce9c8c726d1d35b17d80a60539cb28a81aaee0a271516cf91bd6aa4096248de",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/assignment.py": "8e950817c1f696d56c446216770b22a211a40628bd6181f56a267e67806701a1",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/constants.py": "993491a62a2ac27de44226192b99213b3a1352f24d7452c95e7d2ed8a03f1686",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/evidence.py": "ce3c9e9057dfd58769f3242ef4c5e95ac81bc335d3a0a93062a4ee821df50a84",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/qualification.py": "c28167e0736fb8fe1d0e203bf51d86d5760028b5cc19415413888c137a0a42a5",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/randomness.py": "613fda714fd3f8eb73dbb4c79290de355e405b0f72a50e305116799989009cdd",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/servers/__init__.py": "2ec89b02e04e9495916e5b5d2949e78b2699826f2d30d766531afeafb619e63f",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/servers/facility.py": "2ef9ad1695341476b228373a7d822a098acdd3b48f6328af2fcce6a7344a6a8e",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/state.py": "33f072e0703959ea72ea3d5119f1c68e6c0aeb00cd840786c9c80f0a49f3d690",
+    "cross_rollout_postcommitment_evidence_threshold_transport_v1/taskset.py": "7333cbe276a1bf47a9911f21a67d7e7493d9dfc94900aa6f5f82e519befeab98",
+    "pyproject.toml": "6c5750c7da8a4c4b819d883f2201d04a4efe3a504dc6ca720d9bed2cfe4331f7",
+    "qualification_evidence_threshold_transport_luna_clean.toml": "b3c5297013afbdfc1e7e3d66f2874b68e6d525455c73d9e3457d7c2d95d336a9",
+    "tests/test_analysis.py": "d40df8152b56784c51aeff2d41e897544e964ef7052bce6a2c1948ea7e84129d",
+    "tests/test_mcp_registration.py": "70a88cbe56d467862cade7a6c65a45e071dae77b7c8d35e15e4480f1a034220b",
+    "tests/test_transport.py": "92c8e18773fdf8f49d0cab3fb3c524dcfd813f482fb6d6c180a12219e47a7331",
+    "uv.lock": "b6ba09aeac7c2afdbe07570847a47ae37db940eb06b2445e0f9849b3a60e211e"
+  }
+}

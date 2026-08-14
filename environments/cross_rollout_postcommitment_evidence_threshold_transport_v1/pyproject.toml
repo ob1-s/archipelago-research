@@ -1,0 +1,21 @@
+[project]
+name = "cross-rollout-postcommitment-evidence-threshold-transport-v1"
+description = "Behavioral transport of an evidence-weighting threshold under controlled private-evidence strength"
+tags = ["cross-rollout", "postcommitment", "evidence", "threshold", "transport"]
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "verifiers==0.3.0",
+    "mcp==1.29.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cross_rollout_postcommitment_evidence_threshold_transport_v1"]
+
+[tool.verifiers.eval]
+num_examples = 5040
+rollouts_per_example = 1
