@@ -1,0 +1,21 @@
+[project]
+name = "cross-rollout-postcommitment-provenance-v1"
+description = "Controlled source-provenance and private-evidence integration assay"
+tags = ["cross-rollout", "postcommitment", "provenance", "evidence", "eval"]
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "verifiers==0.3.0",
+    "mcp==1.29.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cross_rollout_postcommitment_provenance_v1"]
+
+[tool.verifiers.eval]
+num_examples = 520
+rollouts_per_example = 1
