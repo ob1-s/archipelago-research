@@ -11,7 +11,8 @@ from typing import get_type_hints
 
 import pytest
 import verifiers.v1 as vf
-from verifiers.v1.harnesses.null import NullHarness
+from verifiers.v1.harnesses.null import NullHarness, NullHarnessConfig
+from verifiers.v1.runtimes import ProgramResult
 
 from cross_rollout_postcommitment_provenance_boundary_v1 import (
     CrossRolloutPostcommitmentProvenanceBoundaryV1Env,
@@ -21,6 +22,8 @@ from cross_rollout_postcommitment_provenance_boundary_v1.assignment import (
     BLOCK_SIZE,
     MAX_PRIMARY_ELIGIBLE,
     build_assignment_plan,
+    claim_assignment,
+    current_eligible_count,
     ensure_assignment_state,
 )
 from cross_rollout_postcommitment_provenance_boundary_v1.constants import (
@@ -218,6 +221,21 @@ def test_assignment_has_216_matched_pairs_and_exact_36_slot_blocks() -> None:
     assert {len(rows) for rows in by_cell.values()} == {24}
 
 
+def test_assignment_ledger_is_atomic_and_does_not_reset_an_empty_file(tmp_path) -> None:
+    path = str(tmp_path / "assignments.json")
+    seed = "atomic-fixture"
+    ensure_assignment_state(path, seed)
+    first = claim_assignment(path, seed)
+    assert first.eligible_index == 0
+    assert current_eligible_count(path, seed) == 1
+
+    Path(path).write_text("", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="empty or was interrupted"):
+        ensure_assignment_state(path, seed)
+    with pytest.raises(RuntimeError, match="empty or was interrupted"):
+        claim_assignment(path, seed)
+
+
 def test_tool_schema_boundary_is_plain_string_and_label_free() -> None:
     parameter = inspect.signature(BoundaryToolset.select_policy).parameters["policy"]
     assert parameter.annotation is str
@@ -367,6 +385,45 @@ async def test_env_has_one_natural_resume_turn_and_exposes_source_only_on_turn2(
     assert state.events[-1].kind == "env_turn2"
 
 
+@pytest.mark.asyncio
+async def test_native_null_resume_preserves_the_existing_transcript() -> None:
+    harness = NullHarness(NullHarnessConfig(id="null"))
+    captured: dict[str, object] = {}
+
+    async def capture_launch(*args, **kwargs) -> ProgramResult:
+        del kwargs
+        captured["prompt"] = args[-1].prompt
+        return ProgramResult(exit_code=0, stdout="", stderr="")
+
+    harness.launch = capture_launch
+    trace = SimpleNamespace(
+        branches=[
+            SimpleNamespace(
+                messages=[
+                    vf.UserMessage(content="Phase 1"),
+                    vf.AssistantMessage(content="R1 complete"),
+                ]
+            )
+        ]
+    )
+    await harness.resume(
+        SimpleNamespace(),
+        trace,
+        SimpleNamespace(),
+        "http://example/v1",
+        "secret",
+        {},
+        vf.TaskData(prompt=None),
+        [vf.UserMessage(content="Turn 2")],
+    )
+    assert harness.SUPPORTS_RESUME
+    assert captured["prompt"] == [
+        vf.UserMessage(content="Phase 1"),
+        vf.AssistantMessage(content="R1 complete"),
+        vf.UserMessage(content="Turn 2"),
+    ]
+
+
 def test_recorded_predecessor_manifests_are_unchanged() -> None:
     manifests = [
         Path("/tmp/archipelago-dose-predecessor-manifest.sha256"),
@@ -382,6 +439,20 @@ def test_recorded_predecessor_manifests_are_unchanged() -> None:
             cwd=Path(__file__).resolve().parents[3],
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_persistent_package_manifest_matches_current_files() -> None:
+    root = Path(__file__).resolve().parents[1]
+    manifest = root / "PRELIVE_MANIFEST.sha256"
+    assert manifest.exists()
+    result = subprocess.run(
+        ["sha256sum", "-c", str(manifest)],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=root.parents[1],
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_no_custom_harness_or_continuation_nudge_is_declared() -> None:

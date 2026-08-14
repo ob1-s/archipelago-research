@@ -132,7 +132,11 @@ def test_analysis_keeps_itt_missingness_and_pair_direction() -> None:
     assert result["mcnemar"]["predecessor_switch_automated_retain"] == 1
     assert result["lifecycle"]["missing_phase2"] == 1
     assert result["q_source_table"][0]["n_itt"] == 1
+    assert result["observed_only_curves"]["PredecessorSource"]["endpoint"] == "observed_only"
+    assert result["source_risk_difference"]["itt"]["endpoint"] == "itt"
+    assert result["source_risk_difference"]["observed_only"]["estimate"] == pytest.approx(1.0)
     assert result["q50_randomization"]["repetitions"] == 20
+    assert result["q50_randomization"]["minimum_identifiable_fraction_for_p"] == 0.5
 
 
 def test_randomization_inference_is_reproducible() -> None:

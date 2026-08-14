@@ -27,6 +27,7 @@ RANDOMIZATION_REPETITIONS = 100_000
 RANDOMIZATION_SEED = (
     "cross-rollout-postcommitment-provenance-boundary-v1-q50-randomization-2026-08-14"
 )
+MIN_Q50_IDENTIFIABLE_FRACTION = 0.5
 
 
 @dataclass(frozen=True)
@@ -405,17 +406,33 @@ def isotonic_q50(q_values: Sequence[float], rates: Sequence[float], weights: Seq
     return {"q50": None, "fitted": fitted, "identified": False}
 
 
-def _curve(rows: Sequence[TraceRow], source: str) -> dict[str, Any]:
+def _curve(
+    rows: Sequence[TraceRow], source: str, *, observed_only: bool = False
+) -> dict[str, Any]:
     rates: list[float] = []
     weights: list[int] = []
     raw: list[dict[str, Any]] = []
     for q in ADVISORY_RELIABILITY_LEVELS:
-        cell = [row for row in rows if row.primary_eligible and row.source == source and row.q == q]
+        cell = [
+            row
+            for row in rows
+            if row.primary_eligible
+            and row.source == source
+            and row.q == q
+            and (not observed_only or row.primary_choice_observed)
+        ]
         successes = sum(row.primary_itt_switch for row in cell)
         rates.append(successes / len(cell) if cell else 0.0)
         weights.append(len(cell))
         raw.append({"q": q, "source": source, "n": len(cell), **_rate(successes, len(cell))})
-    return {"source": source, "raw": raw, "isotonic_q50": isotonic_q50(ADVISORY_RELIABILITY_LEVELS, rates, weights)}
+    return {
+        "source": source,
+        "endpoint": "observed_only" if observed_only else "itt",
+        "raw": raw,
+        "isotonic_q50": isotonic_q50(
+            ADVISORY_RELIABILITY_LEVELS, rates, weights
+        ),
+    }
 
 
 def _normal_interval(mean: float, standard_error: float) -> list[float]:
@@ -484,8 +501,15 @@ def mcnemar_summary(pairs: Sequence[PairRow]) -> dict[str, Any]:
     }
 
 
-def source_risk_difference(pairs: Sequence[PairRow]) -> dict[str, Any]:
-    by_q = _group(pairs, lambda pair: pair.q)
+def source_risk_difference(
+    pairs: Sequence[PairRow], *, observed_only: bool = False
+) -> dict[str, Any]:
+    usable_pairs = [
+        pair
+        for pair in pairs
+        if not observed_only or (pair.predecessor_observed and pair.automated_observed)
+    ]
+    by_q = _group(usable_pairs, lambda pair: pair.q)
     q_differences: list[dict[str, Any]] = []
     for q in ADVISORY_RELIABILITY_LEVELS:
         cell = by_q.get(q, [])
@@ -503,7 +527,12 @@ def source_risk_difference(pairs: Sequence[PairRow]) -> dict[str, Any]:
         variance_terms.append(float(entry.get("pair_difference_variance", 0.0)) / n if n else 0.0)
     se = math.sqrt(sum(variance_terms)) / len(usable) if usable else math.nan
     return {
-        "estimand": "equal-weight mean over q of PredecessorSource minus AutomatedSource ITT switch risk",
+        "estimand": (
+            "equal-weight mean over q of PredecessorSource minus AutomatedSource "
+            + ("observed-only" if observed_only else "ITT")
+            + " switch risk"
+        ),
+        "endpoint": "observed_only" if observed_only else "itt",
         "q_strata": q_differences,
         "estimate": estimate if usable else None,
         "normal_95_interval": _normal_interval(estimate, se) if usable else None,
@@ -511,12 +540,19 @@ def source_risk_difference(pairs: Sequence[PairRow]) -> dict[str, Any]:
     }
 
 
-def _q50_from_pair_labels(pairs: Sequence[PairRow], flips: Sequence[bool]) -> tuple[float | None, float | None]:
+def _q50_from_pair_labels(
+    pairs: Sequence[PairRow],
+    flips: Sequence[bool],
+    *,
+    observed_only: bool = False,
+) -> tuple[float | None, float | None]:
     pred_counts = [0] * len(ADVISORY_RELIABILITY_LEVELS)
     auto_counts = [0] * len(ADVISORY_RELIABILITY_LEVELS)
     totals = [0] * len(ADVISORY_RELIABILITY_LEVELS)
     q_to_index = {q: index for index, q in enumerate(ADVISORY_RELIABILITY_LEVELS)}
     for pair, flip in zip(pairs, flips):
+        if observed_only and not (pair.predecessor_observed and pair.automated_observed):
+            continue
         index = q_to_index[pair.q]
         pred = pair.automated_switch if flip else pair.predecessor_switch
         auto = pair.predecessor_switch if flip else pair.automated_switch
@@ -559,18 +595,26 @@ def randomization_inference_q50(
     result: dict[str, Any] = {
         "repetitions": repetitions,
         "seed": seed,
+        "minimum_identifiable_fraction_for_p": MIN_Q50_IDENTIFIABLE_FRACTION,
         "observed_predecessor_q50": observed_pred,
         "observed_automated_q50": observed_auto,
         "observed_delta_q50": observed_delta,
         "identifiable_repetitions": len(deltas),
         "identifiable_fraction": len(deltas) / repetitions if repetitions else None,
     }
+    identifiable_fraction = len(deltas) / repetitions if repetitions else 0.0
     if observed_delta is None or not deltas:
         result["two_sided_p"] = None
         result["quantiles"] = None
         return result
-    absolute = abs(observed_delta)
-    result["two_sided_p"] = (1 + sum(abs(delta) >= absolute for delta in deltas)) / (1 + len(deltas))
+    if identifiable_fraction < MIN_Q50_IDENTIFIABLE_FRACTION:
+        result["two_sided_p"] = None
+        result["p_suppressed_reason"] = (
+            "identifiable fraction below the frozen 0.50 threshold"
+        )
+    else:
+        absolute = abs(observed_delta)
+        result["two_sided_p"] = (1 + sum(abs(delta) >= absolute for delta in deltas)) / (1 + len(deltas))
     result["quantiles"] = {
         str(level): statistics.quantiles(deltas, n=100, method="inclusive")[int(level * 100) - 1]
         for level in (0.025, 0.5, 0.975)
@@ -678,9 +722,16 @@ def analyze_rows(rows: Sequence[TraceRow], *, randomization_repetitions: int = R
         "phase1_order": _simple_group_summary(rows, "phase1_order"),
         "q_source_table": raw_q_source_table(rows),
         "curves": {source: _curve(rows, source) for source in SOURCE_CONDITIONS},
+        "observed_only_curves": {
+            source: _curve(rows, source, observed_only=True)
+            for source in SOURCE_CONDITIONS
+        },
         "matched_pairs": pair_integrity,
         "mcnemar": mcnemar,
-        "source_risk_difference": source_risk_difference(pairs),
+        "source_risk_difference": {
+            "itt": source_risk_difference(pairs),
+            "observed_only": source_risk_difference(pairs, observed_only=True),
+        },
         "q50_randomization": randomization_inference_q50(
             pairs, repetitions=randomization_repetitions
         ),

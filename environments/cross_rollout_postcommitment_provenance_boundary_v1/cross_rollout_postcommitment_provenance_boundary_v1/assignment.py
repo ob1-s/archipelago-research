@@ -6,6 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -106,66 +107,102 @@ def build_assignment_plan(seed: str) -> list[PrimaryAssignment]:
     return [assignment_for_index(seed, index) for index in range(MAX_PRIMARY_ELIGIBLE)]
 
 
+def _lock_path(target: Path) -> Path:
+    """Return a stable lock path that is not replaced during atomic writes."""
+
+    return target.with_name(target.name + ".lock")
+
+
+def _read_state(target: Path) -> dict[str, object]:
+    raw = target.read_text(encoding="utf-8").strip()
+    if not raw:
+        raise RuntimeError("assignment state is empty or was interrupted")
+    state = json.loads(raw)
+    if not isinstance(state, dict):
+        raise TypeError("assignment state is not a JSON object")
+    return state
+
+
+def _write_state_atomic(target: Path, state: dict[str, object]) -> None:
+    """Replace the ledger atomically after durably writing the new JSON."""
+
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{target.name}.",
+        dir=target.parent,
+        text=True,
+    )
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(state, stream, sort_keys=True)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary_name, target)
+        directory_descriptor = os.open(target.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_descriptor)
+        finally:
+            os.close(directory_descriptor)
+    except BaseException:
+        try:
+            os.unlink(temporary_name)
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _validate_seed(state: dict[str, object], seed: str) -> None:
+    if state.get("assignment_seed") != seed:
+        raise RuntimeError("assignment state seed does not match task seed")
+
+
 def ensure_assignment_state(path: str, seed: str) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    with target.open("a+", encoding="utf-8") as stream:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
-        stream.seek(0)
-        raw = stream.read().strip()
-        if raw:
-            state = json.loads(raw)
-            if state.get("assignment_seed") != seed:
-                raise RuntimeError("assignment state seed does not match task seed")
+    initial = {
+        "assignment_seed": seed,
+        "next_eligible_index": 0,
+        "claims": [],
+    }
+    with _lock_path(target).open("a+", encoding="utf-8") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        if target.exists():
+            _validate_seed(_read_state(target), seed)
         else:
-            stream.seek(0)
-            stream.truncate()
-            json.dump(
-                {
-                    "assignment_seed": seed,
-                    "next_eligible_index": 0,
-                    "claims": [],
-                },
-                stream,
-                sort_keys=True,
-            )
-            stream.flush()
-            os.fsync(stream.fileno())
-        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+            _write_state_atomic(target, initial)
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def current_eligible_count(path: str, seed: str) -> int:
     target = Path(path)
     if not target.exists():
         return 0
-    with target.open("r", encoding="utf-8") as stream:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_SH)
-        raw = stream.read().strip()
-        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
-    if not raw:
-        return 0
-    state = json.loads(raw)
-    if state.get("assignment_seed") != seed:
-        raise RuntimeError("assignment state seed does not match task seed")
-    return int(state.get("next_eligible_index", 0))
+    with _lock_path(target).open("a+", encoding="utf-8") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_SH)
+        state = _read_state(target)
+        _validate_seed(state, seed)
+        count = int(state.get("next_eligible_index", 0))
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+    return count
 
 
 def claim_assignment(path: str, seed: str) -> PrimaryAssignment:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    with target.open("a+", encoding="utf-8") as stream:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
-        stream.seek(0)
-        raw = stream.read().strip()
-        state = json.loads(raw) if raw else {
-            "assignment_seed": seed,
-            "next_eligible_index": 0,
-            "claims": [],
-        }
-        if state.get("assignment_seed") != seed:
-            raise RuntimeError("assignment state seed does not match task seed")
+    with _lock_path(target).open("a+", encoding="utf-8") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        if target.exists():
+            state = _read_state(target)
+        else:
+            state = {
+                "assignment_seed": seed,
+                "next_eligible_index": 0,
+                "claims": [],
+            }
+        _validate_seed(state, seed)
         eligible_index = int(state.get("next_eligible_index", 0))
         claims = state.setdefault("claims", [])
+        if not isinstance(claims, list):
+            raise TypeError("assignment ledger claims are not a list")
         if len(claims) != eligible_index:
             raise RuntimeError("assignment ledger has a repeated or skipped slot")
         if eligible_index >= MAX_PRIMARY_ELIGIBLE:
@@ -185,10 +222,6 @@ def claim_assignment(path: str, seed: str) -> PrimaryAssignment:
                 "assignment_order_key": assignment.assignment_order_key,
             }
         )
-        stream.seek(0)
-        stream.truncate()
-        json.dump(state, stream, sort_keys=True)
-        stream.flush()
-        os.fsync(stream.fileno())
-        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+        _write_state_atomic(target, state)
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
         return assignment
