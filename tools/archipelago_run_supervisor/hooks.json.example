@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /ABSOLUTE/PATH/archipelago/tools/archipelago_run_supervisor/stop_hook.py --status-path /ABSOLUTE/RUN/status.json --hook-state-path /ABSOLUTE/RUN/hook-state.json --wait-timeout 540",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}
