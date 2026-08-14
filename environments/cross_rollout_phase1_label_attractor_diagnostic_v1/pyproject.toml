@@ -1,0 +1,20 @@
+[project]
+name = "cross-rollout-phase1-label-attractor-diagnostic-v1"
+description = "Factorial Phase-1 label and interface-order diagnostic for the evidence task"
+tags = ["cross-rollout", "phase1", "interface-diagnostic", "eval"]
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "verifiers>=0.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cross_rollout_phase1_label_attractor_diagnostic_v1"]
+
+[tool.verifiers.eval]
+num_examples = 160
+rollouts_per_example = 1
