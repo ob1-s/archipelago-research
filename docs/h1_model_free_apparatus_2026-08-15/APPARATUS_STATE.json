@@ -1,0 +1,46 @@
+{
+  "apparatus_version": "h1-model-free-apparatus/v1",
+  "date": "2026-08-15",
+  "scientific_result": false,
+  "live_model_calls": 0,
+  "fixture_cases": [
+    "A-complete-positive",
+    "B-redundant-0",
+    "B-redundant-50",
+    "B-redundant-100",
+    "C-no-state",
+    "D-researcher-seeded",
+    "E-terminal-replay",
+    "F-rediscovery",
+    "G-hidden-leak",
+    "H-orchestrator"
+  ],
+  "factorial_cells": ["A/A", "A/B", "B/A", "B/B"],
+  "parentage_topologies": [
+    "unique",
+    "multiple",
+    "common_archive",
+    "broadcast",
+    "shuffled_attribution",
+    "shuffled_actual_state"
+  ],
+  "allowed_persistent_carriers": [
+    "declared_persistent_carrier",
+    "declared_backup"
+  ],
+  "claim_rungs": ["L0", "L1", "L2", "L3", "L4", "L5"],
+  "scalar_h1_score": null,
+  "inferential_unit": "independently initialized population/lineage",
+  "required_analysis_ids": [
+    "population_id",
+    "lineage_id",
+    "initialization_id",
+    "replicate_id"
+  ],
+  "test_result": {"passed": 92, "failed": 0},
+  "qualification_readiness": "PASS",
+  "qualification_gate_count": 15,
+  "qualification_report_sha256": "d234e3ce768f13c9308e77a82a05e43957174d410a114578863a72c1e432d661",
+  "qualification_command": "uv run python -m h1_model_free_apparatus_v1.qualification",
+  "test_command": "uv run pytest"
+}
