@@ -160,15 +160,49 @@
     "fresh_rollout_shared_state_topology": "UNRESOLVED",
     "culture": "SPECULATIVE AND NOT SUPPORTED",
     "organization_or_polity": "SPECULATIVE AND NOT SUPPORTED",
-    "archival_correction": "The directly inspected 2026-08-03 oversight document is a 15-state-attorneys-general letter, not a congressional request; preserve history and propose a later patch.",
+    "oversight_provenance": {
+      "archival_rule": "Keep the three oversight actions separate; the initial literature audit overcorrected by treating the state-AG letter as a possible replacement for the congressional-request attribution.",
+      "actions": [
+        {
+          "date": "2026-08-03",
+          "actor": "15 state attorneys general",
+          "action": "preservation demand",
+          "status": "VERIFIED PRIMARY SOURCE"
+        },
+        {
+          "date": "2026-08-03",
+          "actor": "U.S. House cybersecurity panel",
+          "action": "briefing request to Sam Altman",
+          "status": "SUPPORTED BY REUTERS; PRIMARY COMMITTEE RECORD NOT YET ARCHIVED"
+        },
+        {
+          "date": "2026-08-10",
+          "actor": "House coalition led by Greg Casar and co-led by Doris Matsui",
+          "action": "request for logs and answers to 23 top-level numbered questions",
+          "status": "VERIFIED PRIMARY SOURCE"
+        }
+      ],
+      "question_15": {
+        "provenance": "2026-08-10 Casar-Matsui congressional letter",
+        "subject": "possible actions or artifacts affecting control or oversight of future models or future instances",
+        "underlying_allegation_status": "UNRESOLVED"
+      },
+      "signer_counts": {
+        "reuters_2026_08_10": 29,
+        "casar_press_release_wording": "Greg Casar led 31 members of Congress",
+        "current_official_pdf_named_signatures": 32,
+        "resolution": "Preserve as source- and version-qualified discrepancy; do not silently normalize.",
+        "official_pdf_sha256": "95fedaa7566e6b0917149649d1d17e7f1affce5e35653c5f6674b869551d7c75"
+      }
+    },
     "full_openai_technical_report_public_by_audit_date": false
   },
   "source_statistics": {
-    "important_sources_recorded": 75,
-    "directly_inspected_full_or_official": 74,
-    "directly_inspected_primary": 60,
+    "important_sources_recorded": 78,
+    "directly_inspected_full_or_official": 75,
+    "directly_inspected_primary": 61,
     "directly_inspected_secondary_or_synthetic": 14,
-    "official_incident_or_oversight_records_directly_inspected": 3,
+    "official_incident_or_oversight_records_directly_inspected": 4,
     "types": [
       "peer-reviewed primary empirical and theoretical research",
       "canonical technical papers",

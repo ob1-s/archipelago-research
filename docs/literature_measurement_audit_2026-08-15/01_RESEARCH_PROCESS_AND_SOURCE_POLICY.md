@@ -47,7 +47,7 @@ Priority order was:
 5. official incident disclosures and oversight records;
 6. institutional research where primary academic evidence was unavailable.
 
-Search snippets and secondary reporting were discovery aids, never load-bearing evidence. For the 2026 Hugging Face incident, official OpenAI and Hugging Face disclosures and the state-attorneys-general letter were separated from press reports. Claims without public raw evidence remain unresolved.
+Search snippets and secondary reporting were discovery aids, never load-bearing evidence. For the 2026 Hugging Face incident, official OpenAI and Hugging Face disclosures, the state-attorneys-general letter, and the Casar–Matsui congressional letter were separated from press reports. A Reuters report supports the existence of a separate August 3 House-panel briefing request, but that action remains secondary-source verified until its primary committee record is archived. Claims without public raw evidence remain unresolved.
 
 ## Direct-inspection rule
 

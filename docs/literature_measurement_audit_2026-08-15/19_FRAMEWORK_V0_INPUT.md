@@ -33,7 +33,7 @@ It must not treat research-agent reports, session metadata, temporary downloads,
 9. Federated human custody is a mandatory serious comparator and one of several governance designs. Comparison is vector/Pareto, not automatically scalar.
 10. Strategic legibility decomposes into attribution, signaling, survivability, targetability, intervention, and preventive incentives.
 11. The HF incident verifies recurrent technical execution across ephemeral sandboxes using external persistent state; culture, organization, fresh-rollout lineage, and independent reconvergence remain unsupported or unresolved.
-12. The August 3 oversight document directly inspected is a 15-state-attorneys-general letter; propose a later provenance-preserving correction to any “congressional request” attribution.
+12. Do not collapse the HF oversight record. August 3 includes a 15-state-attorneys-general preservation demand and, separately, a Reuters-reported House cybersecurity-panel briefing request. The August 10 Casar–Matsui House letter is the verified source of the detailed numbered questions, including question 15 about possible successor-facing instructions or artifacts. The current official PDF has 32 named signatures; preserve the Reuters 29 and official-release “led 31” counts as a versioned provenance discrepancy.
 
 ## Revised dependency it must inherit
 

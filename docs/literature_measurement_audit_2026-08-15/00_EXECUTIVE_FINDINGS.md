@@ -12,6 +12,10 @@ The conditional Archipelago governance thesis remains worth studying, but only a
 
 The canonical packet correctly treats current experiments as Layer-3 recipient/inheritance assays. They do not demonstrate organization, culture, endogenous selection, sovereignty, or governance superiority. The audit preserves that boundary.
 
+## Post-audit HF provenance repair
+
+The initial audit mistakenly treated the August 3 state-attorneys-general letter as a possible replacement for the canonical packet's congressional-request attribution. The corrected record contains three separate oversight actions: an August 3 preservation demand from 15 state attorneys general; a separate August 3 House cybersecurity-panel briefing request reported by Reuters; and an August 10 Casar–Matsui House letter containing 23 numbered questions. The last is the source of question 15 about possible successor-facing instructions or artifacts. The official letter verifies the question, not the allegation embedded in it. Signer counts remain source/version qualified: Reuters reported 29, Casar's release says he led 31 members, and the currently linked official PDF contains 32 named signatures. See `21_HF_OVERSIGHT_PROVENANCE_PATCH.md`.
+
 ## Construct decisions
 
 ### Redundant and recurrent
