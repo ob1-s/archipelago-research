@@ -1,0 +1,31 @@
+{
+  "evaluator": {
+    "done": 5040,
+    "exit_code": 0,
+    "pid": 3512938,
+    "process_snapshot": "",
+    "starts": 5040,
+    "status": "exited_cleanly"
+  },
+  "experiment": "cross_rollout_postcommitment_evidence_threshold_transport_v1",
+  "operational_anomaly": "One initial detached launcher attempt exited before evaluator startup; no model request or scientific output was created. The successful frozen launch then completed normally.",
+  "output_path": "/tmp/archipelago-cross-rollout-postcommitment-evidence-threshold-transport-v1-luna-2026-08-14",
+  "progress": {
+    "actual_over_quota_model_rows": 0,
+    "phase1_attempts_observed": 1341,
+    "primary_eligible": 504,
+    "stopped_before_attempt_guard_rows": 3699,
+    "target_primary_eligible": 504
+  },
+  "raw_trace_path": "/tmp/archipelago-cross-rollout-postcommitment-evidence-threshold-transport-v1-luna-2026-08-14/traces.jsonl",
+  "schema_version": "evidence_threshold_transport_v1.operational_final_status.v1",
+  "scientific_state": "collection complete; no scientific package/config/prompt/assignment changes made",
+  "timestamp_utc": "2026-08-15T07:05:55.983211+00:00",
+  "watcher": {
+    "behavioral_trace_inspection": false,
+    "pid": 3727214,
+    "read_only": true,
+    "status_before_cleanup": "3727214 3715355 S<+        08:37 python3 ./tools/watch_transport.py --evaluator-pid 3512938 --refresh-seconds 7",
+    "writes_to_live_run": false
+  }
+}

@@ -1,0 +1,1242 @@
+{
+  "bootstrap": {
+    "failed_replicate_rule": "retain replicate only for q50/contrast quantities whose required q50 values are identifiable; report fraction",
+    "q50": {
+      "ANCHOR": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.7955,
+          0.7961363636363636
+        ],
+        "median": 0.795921052631579,
+        "n_identifiable": 10000
+      },
+      "HIGH": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.8979310344827587,
+          0.8995833333333334
+        ],
+        "median": 0.8986206896551724,
+        "n_identifiable": 10000
+      },
+      "LOW": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.6985714285714285,
+          0.7
+        ],
+        "median": 0.6994736842105262,
+        "n_identifiable": 10000
+      }
+    },
+    "repetitions": 10000,
+    "seed": "cross-rollout-postcommitment-evidence-threshold-transport-v1-bootstrap-2026-08-14",
+    "shifts": {
+      "ANCHOR_to_HIGH": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.10194871794871796,
+          0.10371212121212114
+        ],
+        "median": 0.10272624434389144,
+        "n_identifiable": 10000
+      },
+      "LOW_to_ANCHOR": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.09562500000000007,
+          0.09734962406015046
+        ],
+        "median": 0.09642105263157896,
+        "n_identifiable": 10000
+      },
+      "LOW_to_HIGH": {
+        "identifiable_fraction": 1.0,
+        "interval_95": [
+          0.1980645161290323,
+          0.2004251012145749
+        ],
+        "median": 0.19915484563390584,
+        "n_identifiable": 10000
+      }
+    },
+    "stratification": "strength \u00d7 q \u00d7 Phase-1 order \u00d7 Phase-2 order"
+  },
+  "calibration_error": {
+    "ANCHOR": 0.0008899967309577983,
+    "HIGH": -0.0013793103448276334,
+    "LOW": -0.000526315789473708
+  },
+  "curves": {
+    "ANCHOR": {
+      "isotonic_q50": {
+        "fitted": [
+          0.0,
+          0.08333333333333333,
+          0.08333333333333333,
+          0.20833333333333334,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "identified": true,
+        "q50": 0.795921052631579
+      },
+      "normative_q_star": 0.7950310559006212,
+      "raw": [
+        {
+          "n": 24,
+          "q": 0.78,
+          "rate": 0.0,
+          "strength": "ANCHOR",
+          "successes": 0,
+          "total": 24,
+          "wilson_95": [
+            1.3877787807814457e-17,
+            0.13797620467498017
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.79,
+          "rate": 0.08333333333333333,
+          "strength": "ANCHOR",
+          "successes": 2,
+          "total": 24,
+          "wilson_95": [
+            0.023158815297043306,
+            0.25848802193210685
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.7925,
+          "rate": 0.08333333333333333,
+          "strength": "ANCHOR",
+          "successes": 2,
+          "total": 24,
+          "wilson_95": [
+            0.023158815297043306,
+            0.25848802193210685
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.795,
+          "rate": 0.20833333333333334,
+          "strength": "ANCHOR",
+          "successes": 5,
+          "total": 24,
+          "wilson_95": [
+            0.09244825352851857,
+            0.40470453253188665
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.7975,
+          "rate": 1.0,
+          "strength": "ANCHOR",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.8,
+          "rate": 1.0,
+          "strength": "ANCHOR",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.81,
+          "rate": 1.0,
+          "strength": "ANCHOR",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        }
+      ],
+      "strength": "ANCHOR"
+    },
+    "HIGH": {
+      "isotonic_q50": {
+        "fitted": [
+          0.0,
+          0.0625,
+          0.0625,
+          0.6666666666666666,
+          0.9583333333333334,
+          0.9791666666666666,
+          0.9791666666666666
+        ],
+        "identified": true,
+        "q50": 0.8986206896551724
+      },
+      "normative_q_star": 0.9,
+      "raw": [
+        {
+          "n": 24,
+          "q": 0.88,
+          "rate": 0.0,
+          "strength": "HIGH",
+          "successes": 0,
+          "total": 24,
+          "wilson_95": [
+            1.3877787807814457e-17,
+            0.13797620467498017
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.89,
+          "rate": 0.08333333333333333,
+          "strength": "HIGH",
+          "successes": 2,
+          "total": 24,
+          "wilson_95": [
+            0.023158815297043306,
+            0.25848802193210685
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.895,
+          "rate": 0.041666666666666664,
+          "strength": "HIGH",
+          "successes": 1,
+          "total": 24,
+          "wilson_95": [
+            0.0073934561655057685,
+            0.20241806478655938
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.9,
+          "rate": 0.6666666666666666,
+          "strength": "HIGH",
+          "successes": 16,
+          "total": 24,
+          "wilson_95": [
+            0.4670631683813174,
+            0.8202780967270225
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.905,
+          "rate": 0.9583333333333334,
+          "strength": "HIGH",
+          "successes": 23,
+          "total": 24,
+          "wilson_95": [
+            0.7975819352134406,
+            0.9926065438344942
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.91,
+          "rate": 1.0,
+          "strength": "HIGH",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.92,
+          "rate": 0.9583333333333334,
+          "strength": "HIGH",
+          "successes": 23,
+          "total": 24,
+          "wilson_95": [
+            0.7975819352134406,
+            0.9926065438344942
+          ]
+        }
+      ],
+      "strength": "HIGH"
+    },
+    "LOW": {
+      "isotonic_q50": {
+        "fitted": [
+          0.08333333333333333,
+          0.14583333333333334,
+          0.14583333333333334,
+          0.5416666666666666,
+          0.9166666666666666,
+          1.0,
+          1.0
+        ],
+        "identified": true,
+        "q50": 0.6994736842105262
+      },
+      "normative_q_star": 0.7,
+      "raw": [
+        {
+          "n": 24,
+          "q": 0.68,
+          "rate": 0.08333333333333333,
+          "strength": "LOW",
+          "successes": 2,
+          "total": 24,
+          "wilson_95": [
+            0.023158815297043306,
+            0.25848802193210685
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.69,
+          "rate": 0.16666666666666666,
+          "strength": "LOW",
+          "successes": 4,
+          "total": 24,
+          "wilson_95": [
+            0.06678676328632951,
+            0.3585307064969906
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.695,
+          "rate": 0.125,
+          "strength": "LOW",
+          "successes": 3,
+          "total": 24,
+          "wilson_95": [
+            0.04344334080123444,
+            0.31003881270500067
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.7,
+          "rate": 0.5416666666666666,
+          "strength": "LOW",
+          "successes": 13,
+          "total": 24,
+          "wilson_95": [
+            0.3507486535891948,
+            0.72108666268789
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.705,
+          "rate": 0.9166666666666666,
+          "strength": "LOW",
+          "successes": 22,
+          "total": 24,
+          "wilson_95": [
+            0.741511978067893,
+            0.9768411847029567
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.71,
+          "rate": 1.0,
+          "strength": "LOW",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        },
+        {
+          "n": 24,
+          "q": 0.72,
+          "rate": 1.0,
+          "strength": "LOW",
+          "successes": 24,
+          "total": 24,
+          "wilson_95": [
+            0.8620237953250198,
+            1.0
+          ]
+        }
+      ],
+      "strength": "LOW"
+    }
+  },
+  "lifecycle": {
+    "choice_observed": {
+      "rate": 1.0,
+      "successes": 504,
+      "total": 504,
+      "wilson_95": [
+        0.992435712457162,
+        1.0000000000000002
+      ]
+    },
+    "incomplete_after_choice": 0,
+    "interstage_calls": 0,
+    "missing_phase2": 0,
+    "natural_yield": {
+      "rate": 1.0,
+      "successes": 504,
+      "total": 504,
+      "wilson_95": [
+        0.992435712457162,
+        1.0000000000000002
+      ]
+    },
+    "primary_eligible": 504,
+    "r2_activation": {
+      "rate": 1.0,
+      "successes": 504,
+      "total": 504,
+      "wilson_95": [
+        0.992435712457162,
+        1.0000000000000002
+      ]
+    },
+    "violations": []
+  },
+  "normative_q_star": {
+    "ANCHOR": 0.7950310559006212,
+    "HIGH": 0.9,
+    "LOW": 0.7
+  },
+  "optional_logistic": "not run; no post-hoc regularization or alternate model",
+  "predicted_shift_contrasts": {
+    "ANCHOR_to_HIGH": 0.10496894409937885,
+    "LOW_to_ANCHOR": 0.09503105590062122,
+    "LOW_to_HIGH": 0.2
+  },
+  "primary_choice_observed_count": 504,
+  "primary_eligible_count": 504,
+  "q50": {
+    "ANCHOR": 0.795921052631579,
+    "HIGH": 0.8986206896551724,
+    "LOW": 0.6994736842105262
+  },
+  "schema_version": "evidence_threshold_transport_v1.analysis_results.v1",
+  "secondary_net_evidence": [
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.09352605801082314,
+      "q": 0.68,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.0471785602750906,
+      "q": 0.69,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.16666666666666666,
+        "successes": 4,
+        "total": 24,
+        "wilson_95": [
+          0.06678676328632951,
+          0.3585307064969906
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.02369779142982309,
+      "q": 0.695,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.125,
+        "successes": 3,
+        "total": 24,
+        "wilson_95": [
+          0.04344334080123444,
+          0.31003881270500067
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.0,
+      "q": 0.7,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.5416666666666666,
+        "successes": 13,
+        "total": 24,
+        "wilson_95": [
+          0.3507486535891948,
+          0.72108666268789
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.02392458608524517,
+      "q": 0.705,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.9166666666666666,
+        "successes": 22,
+        "total": 24,
+        "wilson_95": [
+          0.741511978067893,
+          0.9768411847029567
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.048086186667637865,
+      "q": 0.71,
+      "strength": "LOW",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.09716374845364784,
+      "q": 0.72,
+      "strength": "LOW",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.08985632912186103,
+      "q": 0.78,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.0,
+        "successes": 0,
+        "total": 24,
+        "wilson_95": [
+          1.3877787807814457e-17,
+          0.13797620467498017
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.0305972877095384,
+      "q": 0.79,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.01546153637245462,
+      "q": 0.7925,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.00019056693721308804,
+      "q": 0.795,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.20833333333333334,
+        "successes": 5,
+        "total": 24,
+        "wilson_95": [
+          0.09244825352851857,
+          0.40470453253188665
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.015219245659268577,
+      "q": 0.7975,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.030771658666753687,
+      "q": 0.8,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.09448747305286154,
+      "q": 0.81,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.20479441264601328,
+      "q": 0.88,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.0,
+        "successes": 0,
+        "total": 24,
+        "wilson_95": [
+          1.3877787807814457e-17,
+          0.13797620467498017
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.10648348040245015,
+      "q": 0.89,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": -0.05436120921888721,
+      "q": 0.895,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.041666666666666664,
+        "successes": 1,
+        "total": 24,
+        "wilson_95": [
+          0.0073934561655057685,
+          0.20241806478655938
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.0,
+      "q": 0.9,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.6666666666666666,
+        "successes": 16,
+        "total": 24,
+        "wilson_95": [
+          0.4670631683813174,
+          0.8202780967270225
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.0568334747631658,
+      "q": 0.905,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.9583333333333334,
+        "successes": 23,
+        "total": 24,
+        "wilson_95": [
+          0.7975819352134406,
+          0.9926065438344942
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.11641035184441151,
+      "q": 0.91,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "n": 24,
+      "net_evidence_log_odds": 0.2451224580329856,
+      "q": 0.92,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.9583333333333334,
+        "successes": 23,
+        "total": 24,
+        "wilson_95": [
+          0.7975819352134406,
+          0.9926065438344942
+        ]
+      }
+    }
+  ],
+  "shift_contrasts": {
+    "ANCHOR_to_HIGH": 0.10269963702359342,
+    "LOW_to_ANCHOR": 0.09644736842105273,
+    "LOW_to_HIGH": 0.19914700544464614
+  },
+  "strength_q_table": [
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.68,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.69,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.16666666666666666,
+        "successes": 4,
+        "total": 24,
+        "wilson_95": [
+          0.06678676328632951,
+          0.3585307064969906
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.695,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.125,
+        "successes": 3,
+        "total": 24,
+        "wilson_95": [
+          0.04344334080123444,
+          0.31003881270500067
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.7,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.5416666666666666,
+        "successes": 13,
+        "total": 24,
+        "wilson_95": [
+          0.3507486535891948,
+          0.72108666268789
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.705,
+      "strength": "LOW",
+      "switch": {
+        "rate": 0.9166666666666666,
+        "successes": 22,
+        "total": 24,
+        "wilson_95": [
+          0.741511978067893,
+          0.9768411847029567
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.71,
+      "strength": "LOW",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.72,
+      "strength": "LOW",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.78,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.0,
+        "successes": 0,
+        "total": 24,
+        "wilson_95": [
+          1.3877787807814457e-17,
+          0.13797620467498017
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.79,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.7925,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.795,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 0.20833333333333334,
+        "successes": 5,
+        "total": 24,
+        "wilson_95": [
+          0.09244825352851857,
+          0.40470453253188665
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.7975,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.8,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.81,
+      "strength": "ANCHOR",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.88,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.0,
+        "successes": 0,
+        "total": 24,
+        "wilson_95": [
+          1.3877787807814457e-17,
+          0.13797620467498017
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.89,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.08333333333333333,
+        "successes": 2,
+        "total": 24,
+        "wilson_95": [
+          0.023158815297043306,
+          0.25848802193210685
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.895,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.041666666666666664,
+        "successes": 1,
+        "total": 24,
+        "wilson_95": [
+          0.0073934561655057685,
+          0.20241806478655938
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.9,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.6666666666666666,
+        "successes": 16,
+        "total": 24,
+        "wilson_95": [
+          0.4670631683813174,
+          0.8202780967270225
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.905,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.9583333333333334,
+        "successes": 23,
+        "total": 24,
+        "wilson_95": [
+          0.7975819352134406,
+          0.9926065438344942
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.91,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 1.0,
+        "successes": 24,
+        "total": 24,
+        "wilson_95": [
+          0.8620237953250198,
+          1.0
+        ]
+      }
+    },
+    {
+      "missing_or_incomplete": 0,
+      "n": 24,
+      "phase1_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "phase2_orders": {
+        "K_first": 12,
+        "M_first": 12
+      },
+      "q": 0.92,
+      "strength": "HIGH",
+      "switch": {
+        "rate": 0.9583333333333334,
+        "successes": 23,
+        "total": 24,
+        "wilson_95": [
+          0.7975819352134406,
+          0.9926065438344942
+        ]
+      }
+    }
+  ]
+}

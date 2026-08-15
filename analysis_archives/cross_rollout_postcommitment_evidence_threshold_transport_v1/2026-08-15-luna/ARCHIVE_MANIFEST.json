@@ -1,0 +1,116 @@
+{
+  "archive_date": "2026-08-15",
+  "artifact_hashes": {
+    "PRELIVE_MANIFEST.json": {
+      "byte_count": 3828,
+      "sha256": "4fea2e3438662e5c47c9efacb5d451d51c57bc8e29e112b8e146b67e9fa98082"
+    },
+    "analysis_input.json": {
+      "byte_count": 489933,
+      "sha256": "3b069c214260cf80d01ce17d640f107a342e569da02a15cbc7341c3be801ded9"
+    },
+    "analysis_results.json": {
+      "byte_count": 26417,
+      "sha256": "94d5eaf09d229f67853ab1fdb9499ea47d60ba71ded73aa2c820d6470030c208"
+    },
+    "analysis_results_from_immutable_input.json": {
+      "byte_count": 26417,
+      "sha256": "94d5eaf09d229f67853ab1fdb9499ea47d60ba71ded73aa2c820d6470030c208"
+    },
+    "completion_integrity_audit.json": {
+      "byte_count": 7092,
+      "sha256": "625335d1cce6b398ae442bd9a75df21657de3295e8f1e9cf0193289392f6f001"
+    },
+    "evaluator.log": {
+      "byte_count": 1477335,
+      "sha256": "ccfa233ddcb6d7ed6220273c02768729374dcff3055891cda5ab3f8a7b9ed546"
+    },
+    "frozen_config.toml": {
+      "byte_count": 1501,
+      "sha256": "b3c5297013afbdfc1e7e3d66f2874b68e6d525455c73d9e3457d7c2d95d336a9"
+    },
+    "launcher.log": {
+      "byte_count": 58424007,
+      "sha256": "b6cfd0bb3a7ecad0f30788f4263acfe28c9e416823c86c6d7a7de04969d17453"
+    },
+    "make_analysis_input.py": {
+      "byte_count": 3778,
+      "sha256": "7f786b5bc0f01e2603b58f030a93712826a8c56fbd19118773e4a57400d329dc"
+    },
+    "operational_final_status.json": {
+      "byte_count": 1424,
+      "sha256": "dbad91072c927dbfbac75f48294f5d972ddd324dfe8b65bf16d79f8d85085857"
+    },
+    "quota_ledger.json": {
+      "byte_count": 5765,
+      "sha256": "205f532039a634a738e1f722e34f16721286c9f7b9cec83d2bb72d7889db762f"
+    },
+    "raw_traces.jsonl": {
+      "byte_count": 44348670,
+      "sha256": "6fed273c28e4ed07cd3fdbd915411955bb67aafc87f440b0ea36550e70d70efb"
+    },
+    "report.md": {
+      "byte_count": 8968,
+      "sha256": "23438f32b23a5df9266276d5b29965fdb37f9b3f34278e3c7757f28fff644a4f"
+    },
+    "runtime_summary.json": {
+      "byte_count": 502,
+      "sha256": "a0940484e72603280bb1bead5848d04075a58fd46034fb5b88536c86cb9f3f51"
+    }
+  },
+  "collection": {
+    "actual_over_quota_model_rows": 0,
+    "incomplete_phase2": 0,
+    "lifecycle_violations": 0,
+    "missing_phase2": 0,
+    "phase1_attempts": 1341,
+    "primary_observed": 504,
+    "primary_target": 504,
+    "quota_cells": 84,
+    "runtime_errors": 0,
+    "stopped_before_attempt_guard_rows": 3699,
+    "trace_records": 5040,
+    "trajectories_per_quota_cell": 6
+  },
+  "created_at_utc": "2026-08-15T07:11:31.623084+00:00",
+  "experiment": "cross_rollout_postcommitment_evidence_threshold_transport_v1",
+  "model": "gpt-5.6-luna",
+  "provenance": {
+    "current_head_before_archive_commit": "807b21ca0791c9c3495121a20cc1d91c12a95947",
+    "frozen_scientific_commit": "9c47e0c279c01b77bdd21f63c27e7eca8346439f",
+    "operational_monitor_commit": "807b21ca0791c9c3495121a20cc1d91c12a95947",
+    "scientific_package": "environments/cross_rollout_postcommitment_evidence_threshold_transport_v1",
+    "scientific_package_diff_from_frozen_commit_empty": true,
+    "statement": "The frozen scientific package remained unchanged during live collection and post-stop analysis."
+  },
+  "raw_trace": {
+    "archived_byte_count": 44348670,
+    "archived_path": "/home/ob1/Projects/archipelago/analysis_archives/cross_rollout_postcommitment_evidence_threshold_transport_v1/2026-08-15-luna/raw_traces.jsonl",
+    "archived_sha256": "6fed273c28e4ed07cd3fdbd915411955bb67aafc87f440b0ea36550e70d70efb",
+    "source_byte_count": 44348670,
+    "source_path": "/tmp/archipelago-cross-rollout-postcommitment-evidence-threshold-transport-v1-luna-2026-08-14/traces.jsonl",
+    "source_sha256": "6fed273c28e4ed07cd3fdbd915411955bb67aafc87f440b0ea36550e70d70efb",
+    "source_untouched_after_copy": true
+  },
+  "runtime": {
+    "base_url": "http://127.0.0.1:10531/v1",
+    "colocated": false,
+    "env_max_concurrent_agents": 1,
+    "evaluator": "native .venv/bin/eval",
+    "harness": "null",
+    "httpx": "0.28.1",
+    "interaction": "Agent.interaction()",
+    "interception_multiplex": 4,
+    "max_concurrent": 4,
+    "max_tokens": 1024,
+    "mcp": "1.29.0",
+    "openai": "2.53.0",
+    "pydantic": "2.13.4",
+    "python": "3.12.13",
+    "reasoning_effort": null,
+    "retries": 0,
+    "temperature": 0.7,
+    "verifiers": "0.3.0"
+  },
+  "schema_version": "archipelago_archive_manifest.v1"
+}

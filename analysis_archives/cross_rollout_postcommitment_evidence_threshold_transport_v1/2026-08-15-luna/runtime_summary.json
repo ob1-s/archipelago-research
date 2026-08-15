@@ -1,0 +1,20 @@
+{
+  "all_rows": {
+    "max_seconds": 104.13075065612793,
+    "mean_seconds": 9.98815035063123,
+    "median_seconds": 2.2536529302597046,
+    "min_seconds": 2.1645359992980957,
+    "n": 5040
+  },
+  "model_requests": 5535,
+  "phase1_attempt_rows": 1341,
+  "primary_eligible_rows": {
+    "max_seconds": 104.13075065612793,
+    "mean_seconds": 44.71265868629728,
+    "median_seconds": 44.05415737628937,
+    "min_seconds": 15.806748867034912,
+    "n": 504
+  },
+  "tool_calls": 3690,
+  "trace_rows": 5040
+}
