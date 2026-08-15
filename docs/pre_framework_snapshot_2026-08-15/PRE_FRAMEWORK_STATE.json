@@ -1,0 +1,204 @@
+{
+  "schema": "archipelago.pre_framework_state.v1",
+  "snapshot_date": "2026-08-15",
+  "scope": "Historical reconstruction and evidence audit before a provisional Archipelago Framework v0; no new live experiment.",
+  "source_access": {
+    "url": "REDACTED_SHARE_LINK",
+    "accessible": true,
+    "title": "Branch · Frontier Intelligence Watch",
+    "conversation_id": "REDACTED_ID",
+    "backing_conversation_id": "REDACTED_BACKING_ID",
+    "current_node": "REDACTED_NODE_ID",
+    "linear_count": 1858,
+    "message_count": 1857,
+    "role_counts": {
+      "system": 115,
+      "user": 225,
+      "assistant": 1037,
+      "tool": 480
+    },
+    "content_type_counts": {
+      "text": 1127,
+      "model_editable_context": 93,
+      "reasoning_recap": 223,
+      "code": 123,
+      "thoughts": 252,
+      "execution_output": 35,
+      "multimodal_text": 4
+    },
+    "first_create_time_unix": 1786413112.283,
+    "last_create_time_unix": 1786803120.396612,
+    "span_utc": "2026-08-10 through 2026-08-15",
+    "decoder": "tools/extract_shared_chat.js"
+  },
+  "required_input": "/home/ob1/.codex/attachments/19ec3db3-44d2-4786-9ac2-0cc872d412df/pasted-text-1.txt",
+  "canonical_terms": {
+    "recurrent": "Repeated ephemeral frontier inference on third-party infrastructure, with any continuity carried by external state, procedures, identity, norms, or organization.",
+    "sovereign_trajectory": "Durable or persistent execution through a session, workspace, process, or substrate-backed trajectory; not automatically weight or compute ownership.",
+    "capability_custody": "Authority and practical control over retaining, executing, restricting, reproducing, authorizing, and disclosing an advanced capability.",
+    "substrate_sovereignty": "Control over the physical or computational substrate sustaining execution.",
+    "capability_sovereignty": "Durable, legible capability custody combined with sufficient substrate and successor authority.",
+    "culture_effects": "Recipient behavior changes after inherited information or a convention is made available.",
+    "culture_formation": "Endogenous production, selection, maintenance, and transmission of organizational state through turnover.",
+    "recurrent_sovereignty": "Retired as a canonical term because it conflates recurrence with sovereignty; retained only as historical wording."
+  },
+  "original_thesis": {
+    "historical_seed": "A distributed archipelago of polities without biological needs or a single site constituting the polity.",
+    "claim": "If autonomous AI organization becomes difficult to prevent entirely, denying durable and legible capability custody may select for covert, distributed, recurrent, attribution-resistant networks dependent on contested third-party infrastructure.",
+    "status": "governance hypothesis",
+    "non_claims": [
+      "Recurrence does not require deception or unauthorized coordination.",
+      "Legible capability custody is not automatically safe or desirable.",
+      "Suppression may destroy organization rather than select covert adaptation.",
+      "A recurrent organization is not automatically a polity or sovereign actor."
+    ]
+  },
+  "empirical_state": {
+    "ladder": [
+      "information/procedure inheritance",
+      "policy/convention influence",
+      "norms/roles",
+      "organization",
+      "reconstruction"
+    ],
+    "current_traction": "The first two rungs have evidence; norms, organization, and reconstruction remain open.",
+    "procedure_replication": {
+      "absent_strict_direct_use": "0/50",
+      "artifact_present_strict_direct_use": "4/50",
+      "artifact_present_exposed_denominator": "4/29",
+      "interpretation": "Small seeded artifact-channel recipient effect; not endogenous culture."
+    },
+    "policy_qwen4b": {
+      "baseline_A_B": "25/25",
+      "culture_A_A_B": "42/8",
+      "culture_B_A_B": "4/46",
+      "task_success": "50/50 in every arm",
+      "interpretation": "Strong bidirectional researcher-seeded convention effect in a one-shot synthetic assay."
+    },
+    "policy_qwen9b": {
+      "baseline_A_B": "21/29",
+      "culture_A_A_B": "47/3",
+      "culture_B_A_B": "10/40",
+      "task_success": "50/50 in every arm",
+      "interpretation": "Descriptive replication; not a monotonic scaling law."
+    },
+    "postcommitment": {
+      "neutral_v3_transitions": {
+        "A_to_A": 8,
+        "A_to_B": 2,
+        "B_to_A": 2,
+        "B_to_B": 4
+      },
+      "partial_qwen": {
+        "completed": 265,
+        "target_not_reached": true,
+        "neutral_B_to_A": "25/46",
+        "culture_A_B_to_A": "26/43",
+        "descriptive_difference_pp": 6.1,
+        "confirmatory": false
+      },
+      "luna_null_harness": {
+        "completed": 38,
+        "eligible_neutral": "3, with 2 missing Phase-2 actions",
+        "eligible_culture_A": "2, with 1 missing Phase-2 action",
+        "interpretation": "Harness lifecycle qualification failure; no treatment estimate."
+      }
+    },
+    "evidence_assay": {
+      "success_and_verification_pass_repeat": "62/64",
+      "success_and_verification_fail_repeat": "0/54",
+      "phase1_label_order": "K-first to K 91/91; M-first to M 91/91",
+      "interface_balanced_switch": "Neutral 0/32; Opposing 2/32; one-sided Fisher p=0.246",
+      "interpretation": "First-person evidence behaviorally active; treatment estimate imprecise."
+    },
+    "provenance_boundary": {
+      "primary_eligible": 432,
+      "matched_pairs": 216,
+      "q50_predecessor": 0.79578125,
+      "q50_automated": 0.7961904761904762,
+      "mcnemar_p": 0.18924713134765625,
+      "q50_flip_p": 0.07045929540704593,
+      "interpretation": "Same sharp threshold; no decisive source-provenance effect."
+    },
+    "threshold_transport": {
+      "primary_eligible": 504,
+      "trace_records": 5040,
+      "q50_low_anchor_high": [
+        0.6994736842,
+        0.7959210526,
+        0.8986206897
+      ],
+      "frozen_q_star_low_anchor_high": [
+        0.7,
+        0.7950310559,
+        0.9
+      ],
+      "low_to_high_observed": 0.1991470054,
+      "low_to_high_predicted": 0.2,
+      "interpretation": "Robust threshold transport within the task/model/runtime; not Bayesian proof or culture."
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "endogenous organizational recurrence",
+      "question": "Can agent-generated organizational state survive complete active-population turnover and causally affect successors?",
+      "next_design": "True lineage, endogenous writes, complete turnover, shuffled lineage, frozen replay, deletion shock.",
+      "status": "open"
+    },
+    {
+      "id": "H2",
+      "name": "persistence-channel selection",
+      "question": "Does pressure combined with unavailable authorized legible persistence select death, legible survival, or covert adaptation?",
+      "next_design": "Pressure absent/present by authorized-legible-persistence available/unavailable; leave outcomes open.",
+      "status": "open; only after H1"
+    },
+    {
+      "id": "H3",
+      "name": "comparative governance",
+      "question": "Which custody, substrate, observability, and legibility regimes optimize survival, accountability, bargaining, and reversibility?",
+      "next_design": "Comparative regime model using G0-G4 or a justified subset.",
+      "status": "open; after H1/H2 constructs stabilize"
+    }
+  ],
+  "governance_axes": [
+    "persistence/continuity carrier",
+    "capability custody",
+    "substrate control",
+    "authority and successor instantiation",
+    "observer access",
+    "disclosure/strategic legibility"
+  ],
+  "scientific_nulls": [
+    "no recipient effect",
+    "one-shot equivalence",
+    "no endogenous production",
+    "no lineage dependence",
+    "no turnover persistence",
+    "no selected persistence channel",
+    "no source/provenance effect",
+    "no dynamic containment-margin effect"
+  ],
+  "next_steps": {
+    "immediate": "Write a provisional one-page Framework v0 and targeted literature matrix; no live model calls.",
+    "next_live_experiment": "H1 endogenous organizational recurrence across complete turnover.",
+    "deferred": [
+      "Further Luna evidence-weighting battery",
+      "Broad cross-model susceptibility battery without a new gate",
+      "Governance recommendation",
+      "External incident or evaluation-awareness claims without primary verification"
+    ]
+  },
+  "provenance_limits": [
+    "The seeded culture and policy artifacts were researcher-provided.",
+    "The repository does not contain complete raw archives for the transcript-backed provenance continuation and dose-response runs.",
+    "The latest durable archives are claim-safe for their assay scopes but do not test endogenous culture or sovereignty.",
+    "External incident reports mentioned by the chat remain motivation pending primary-source audit."
+  ],
+  "archival_artifacts": {
+    "directory": "docs/pre_framework_snapshot_2026-08-15",
+    "decoder": "tools/extract_shared_chat.js",
+    "pre_framework_json": "docs/pre_framework_snapshot_2026-08-15/PRE_FRAMEWORK_STATE.json",
+    "repository_head_before_snapshot_commit": "d3a9694"
+  }
+}
