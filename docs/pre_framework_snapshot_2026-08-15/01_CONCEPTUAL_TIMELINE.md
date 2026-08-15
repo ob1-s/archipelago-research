@@ -20,10 +20,23 @@ scenarios:
    the potentially persistent object is information or culture rather than a
    running process.
 
-The early language included “recurrent sovereignty.” It was a useful image but
-not a stable definition. The phrase “sovereign trajectory” is not established
-as an early exact label in this cluster; its durable-execution meaning is a
-later refinement of this contrast.
+The exact early heading was **“Redundant sovereignty vs. recurrent
+sovereignty.”** It was assistant-authored, and the user did not visibly repeat
+that exact phrase. Its substantive distinction was more important than its
+authorship status: the message maps survivability to **redundancy** for the
+sovereign-compute pole (“copies remain alive”) and to **recurrence** for the
+third-party pole (“the pattern can recur”). The recurrent pole is not defined
+by H1, deception, or capability custody. “Sovereign trajectory” is not an
+early exact label; its durable-execution meaning is a later refinement.
+
+The surrounding user uptake matters. Index 28 engages the two scenarios and
+the capability implications; index 36 explicitly adopts capability custody;
+index 42 distinguishes survivability from deterrence; and index 52 identifies
+the custody-denial/least-governable recurrent form as “our thesis.” This gives
+the redundant/recurrent architecture contrast a strong, but not explicitly
+causal, lineage into the later selection-pressure thesis. The evidence and
+limits are recorded in
+[17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md](17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md).
 
 ## 2026-08-11 02:12–03:00 — custody and the first thesis
 

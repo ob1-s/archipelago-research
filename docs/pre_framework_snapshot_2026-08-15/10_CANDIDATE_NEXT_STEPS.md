@@ -19,8 +19,10 @@ roadmap.
 ## Recommended ordering
 
 1. Finish and audit this pre-framework snapshot; keep recurrent execution,
-   durable execution, carrier, custody, substrate, observability, and
-   disclosure distinct.
+   redundant/recurrent architecture, durable execution, carrier, custody,
+   substrate, observability, and disclosure distinct. The exact historical
+   contrast is documented separately from the later “sovereign trajectory”
+   label.
 2. Perform targeted literature and measurement work, especially on H1 units,
    social transmission, organizational memory, lineage dependence, and
    observer topology.
@@ -70,3 +72,5 @@ Do not proceed if:
 - outcome monitoring can influence collection;
 - a governance profile changes several dimensions without recording them;
 - the result would be summarized as “culture” from a single recipient response.
+- the architecture contrast is silently rewritten as recurrent versus
+  sovereign trajectory, or redundancy is treated as capability sovereignty.

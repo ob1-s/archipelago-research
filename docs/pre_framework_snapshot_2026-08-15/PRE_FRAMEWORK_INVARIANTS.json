@@ -19,6 +19,16 @@
     "conceptual_rule": "Hidden/internal/tool content cannot establish conceptual adoption. Tool/operational records may support operational facts only."
   },
   "invariants": {
+    "historical_recurrent_opposite_is_sovereign": false,
+    "redundant_vs_recurrent_is_load_bearing_architecture_distinction": true,
+    "exact_recurrent_sovereignty_phrase_was_user_authored": false,
+    "assistant_authorship_makes_redundant_recurrent_distinction_unimportant": false,
+    "redundant_implies_capability_sovereignty": false,
+    "recurrent_implies_borrowed_capability": false,
+    "recurrent_implies_covert_behavior": false,
+    "redundant_and_recurrent_are_exhaustive_architecture_categories": false,
+    "sovereign_trajectory_is_original_historical_opposite_of_recurrent": false,
+    "cross_turnover_continuity_is_definition_of_recurrent": false,
     "recurrent_is_generic_persistence": false,
     "recurrent_execution_requires_endogenous_organizational_continuity": false,
     "cross_turnover_organizational_continuity_is_currently_established": false,
@@ -45,6 +55,7 @@
     "current_model_is_claimed_to_have_crossed_containment_boundary": false
   },
   "expected_readings": {
+    "redundant": "Early architecture pole: survivability through multiple continuing copies, machines, or state; the source does not define a formal concurrency protocol and redundancy does not imply capability sovereignty.",
     "recurrent": "Repeated ephemeral frontier inference on third-party infrastructure; any continuity across terminating rollouts is an empirical carrier/organization question.",
     "sovereign_trajectory": "Durable/persistent execution through a process, session, workspace, or substrate-backed trajectory; exact label is a late refinement and does not imply ownership.",
     "capability_custody": "Authority and practical control over retaining, executing, restricting, reproducing, authorizing, transferring, and disclosing capability.",
@@ -64,7 +75,10 @@
     "observability_topology": "Directed relationships among evidence collection, provenance, access, interpretation, verification, disclosure, challenge, and failure/capture."
   },
   "historical_status": {
-    "exact_sovereign_trajectory_label": "Later explicit correction/refinement at visible indices 1823/1830; early visible history used sovereign compute/inference and recurrent sovereignty wording.",
+    "redundant_recurrent_architecture": "Exact assistant-authored heading at visible index 27; substantive contrast is copies remaining alive versus a pattern recurring through third-party ephemeral instances.",
+    "exact_sovereign_trajectory_label": "Later explicit correction/refinement at visible indices 1823/1830; early visible history used sovereign compute/inference plus one assistant-authored recurrent-sovereignty heading.",
+    "selection_linkage": "Strongly suggested by the visible sequence and explicit uptake from indices 27 through 56; no direct causal genealogy sentence is present.",
+    "user_recollection_of_salience": "Compatible with explicit uptake and later recurrence of the framing, but subjective importance is not directly measurable from the visible corpus.",
     "recurrence_not_deception": "Required analytical separation; exact slogan not historically attested in visible corpus.",
     "dynamic_containment": "Late threat-model candidate; M(t)=barrier_strength-system_capability is not canonical notation.",
     "governance_profiles": "G0-G4 are non-settled candidate profiles, not a final taxonomy."

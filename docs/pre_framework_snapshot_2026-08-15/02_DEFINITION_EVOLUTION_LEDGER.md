@@ -8,7 +8,8 @@ the visible source packet, not that the underlying intuition was absent.
 |---|---|---|---|
 | Archipelago | “An archipelago of polities”; a distributed polity without biological needs or one constitutive site. | Research image for distributed AI political/organizational forms. | Historical core image; not a mechanism or empirical class. |
 | Polity | Strategic actor with identity, resources, authority, continuity, and bargaining relevance. | Candidate political unit requiring authority and resource control. | Do not infer a polity from repeated choices or a scratchpad. |
-| Recurrent | Early “recurrent sovereignty”; later explicit correction to ephemeral frontier inference repeatedly instantiated on third-party infrastructure. | A recurrent execution regime: repeated short-lived frontier inference on externally controlled infrastructure. | Historically attested scenario class. Do not use as generic persistence, culture, or deception. |
+| Redundant persistence/execution | In the early architecture table, survivability on the sovereign-compute side is “redundancy”; the message says a sovereign-compute network survives because copies remain alive. | Multiplicity of continuing copies, machines, or state; not a formal concurrency protocol and not capability sovereignty by definition. | Load-bearing historical architecture pole. Do not collapse it into sovereign trajectory or assume all copies are independent. |
+| Recurrent | Appears in the exact early heading “Redundant sovereignty vs. recurrent sovereignty”; the substantive recurrent side is ephemeral third-party inference in which information/pattern can recur after individual processes terminate. | A recurrent execution regime: repeated short-lived frontier inference on externally controlled infrastructure. | Historically attested scenario class. Do not use as generic persistence, culture, deception, or the opposite of sovereign trajectory. |
 | Recurrent trajectory | Not a stable early exact term; later shorthand for rollout-mediated continuity. | Use only if defined as a trajectory through repeated ephemeral instantiations. | Later synthesis; do not silently replace recurrent execution regime. |
 | Sovereign trajectory | Exact label appears in the late correction cluster, contrasting durable execution with recurrent instantiation. | Durable/persistent execution through a continuing session, process, workspace, or substrate-backed trajectory. | Later canonical label/refinement, not an early exact phrase; no automatic weight ownership or political sovereignty. |
 | Persistent/durable execution | Early persistent Codex/harness/session examples and later contrast with continually dying instances. | Execution that continues without complete termination/reinstantiation at the relevant boundary. | Candidate lifecycle construct; separate from external persistent state. |
@@ -43,7 +44,7 @@ the visible source packet, not that the underlying intuition was absent.
 | Survivability | Early strategic comparison: copies, redundancy, recurrence, or inability to extinguish. | Outcomes after disruption: survival, recovery, reconstruction, and hazard/time-to-failure. | Survivability is not continuity or legitimacy. |
 | Credible continuity | Later synthesis in capability-custody/deterrence discussion. | Evidence that commitments/authority survive relevant instance turnover and disruption. | Not established; measure rather than assume. |
 | Deterrable without being preemptable | User called this a desirable strategic condition, with caution. | Candidate outcome: conditional restraint works without making preventive disabling dominant. | Wishful/untested, not a definition or scalar. |
-| Recurrent sovereignty | Early phrase, then retired. | Historical wording only; never use as a canonical category. | It fuses recurrence and sovereignty. |
+| Recurrent sovereignty | Exact assistant-authored early heading at index 27; repeated retrospectively at 1743 and twice in archival meta-text at 1830. | Preserve as historical wording, but use “redundant vs recurrent architecture” for the substantive contrast and current lifecycle/custody terms for analysis. | Not user-authored and not a canonical category; its underlying architecture distinction remains important. |
 | Selection pressure | Governance hypothesis: regimes may change the relative success of organization forms. | Manipulate pressure and available authorized/legible persistence; measure all outcome pathways. | Do not assume intrinsic self-preservation or covert adaptation. |
 | Dynamic containment margin | Late threat-model intuition `M(t)=barrier strength−system capability`. | Multidimensional threat surface with timescales, not a canonical scalar. | No claim that a current model crossed a boundary. |
 | Federated human custody | Later competing governance regime: human institutions retain capability while observation/verification is distributed. | Serious baseline/alternative, not a statistical null. | Must be tested against verified AI sovereignty; no privileged AI baseline. |
@@ -51,14 +52,32 @@ the visible source packet, not that the underlying intuition was absent.
 ## Historical answer on “sovereign trajectory”
 
 The exact phrase is not historically attested in the earliest visible
-Archipelago cluster. The early material uses “sovereign compute/inference,”
-“recurrent sovereignty,” and a durable actor with its own substrate, while the
-third-party case is ephemeral frontier instances plus persistent information.
+Archipelago cluster. The early material uses “sovereign compute/inference” and
+one assistant-authored heading containing “recurrent sovereignty,” alongside a
+durable actor with its own substrate; the third-party case is ephemeral
+frontier instances plus persistent information. The heading is historical
+wording, not user-authored canonical terminology.
 The exact phrase and the clean definition of durable execution appear in the
 late correction cluster (user index 1823; assistant index 1830). It is a good
 canonical planning label because it captures the durable-execution contrast,
 but it must be marked as a later refinement rather than projected backward as
-the original wording.
+the original wording. The earlier opposite pole was not “sovereign
+trajectory”; it was the redundant side of the redundant/recurrent architecture
+contrast. The exact wording, semantic evidence, and graded lineage to the
+selection thesis are in
+[17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md](17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md).
+
+## Historical answer on the redundant/recurrent contrast
+
+The source directly supports a contrast in *how survival is achieved*: copies
+remain alive on one side, while a pattern/information can recur through
+terminating third-party instances on the other. It does not establish a
+complete binary ontology, a formal concurrency model, or a causal sentence
+that says this contrast produced the later selection thesis. The sequence from
+index 27 through indices 35–56 strongly suggests the architecture distinction
+was a conceptual ancestor of custody, strategic legibility, and the
+custody-denial hypothesis, while the user’s subjective degree of interest is
+only compatible with—not directly measurable from—the visible record.
 
 ## Non-circular construct ladder
 

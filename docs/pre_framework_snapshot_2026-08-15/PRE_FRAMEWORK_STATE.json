@@ -71,7 +71,20 @@
     ],
     "hidden_internal_rule": "Hidden/system/reasoning/tool content is not conceptual evidence; operational records can support operational facts only."
   },
+  "architecture_contrast": {
+    "historical_exact_heading": "Redundant sovereignty vs. recurrent sovereignty",
+    "historical_heading_index": 27,
+    "historical_heading_authorship": "assistant",
+    "exact_phrase_occurrences_in_visible_corpus": 4,
+    "exact_phrase_user_authored": false,
+    "redundant": "Early sovereign-compute pole: survivability by continuing copies, machines, or state; the source says copies remain alive. This is an architectural intuition, not a formal concurrency protocol or capability-sovereignty definition.",
+    "recurrent": "Early third-party pole: ephemeral frontier instances terminate while information, norms, identity, or a pattern may recur or influence later instances. This is not by itself endogenous, covert, unauthorized, or a definition of H1.",
+    "historical_contrast_status": "load-bearing substantive architecture distinction; exact phrase is assistant-authored wording, not user-authored canonical terminology",
+    "selection_pressure_link": "Strongly suggested by the sequence and explicit uptake from survivability to capability custody, strategic legibility, and the custody-denial thesis; no direct causal genealogy sentence appears.",
+    "user_recollection_status": "Salience is compatible with visible uptake and later continuity of the framing, but subjective degree of interest is not directly recoverable from the corpus."
+  },
   "canonical_terms": {
+    "redundant": "Early architecture pole in which survival/continuity is supported by multiple continuing copies, machines, or state; not synonymous with capability sovereignty or durable trajectory.",
     "recurrent": "A recurrent execution regime: repeated ephemeral frontier inference on third-party infrastructure, especially lab training/evaluation/agent runs; continuity across turnover is a separate carrier/organization question.",
     "recurrent_trajectory": "Use only with an explicit lifecycle definition; not a generic persistence synonym.",
     "sovereign_trajectory": "Durable/persistent execution through a continuing process, session, workspace, or substrate-backed trajectory; a late canonical label that does not imply weights or compute ownership.",
@@ -96,7 +109,8 @@
     "observability_topology": "Directed relationships among collection, provenance, access, interpretation, verification, disclosure, challenge, and failure/capture."
   },
   "unresolved_or_later_synthesis": {
-    "exact_sovereign_trajectory_history": "Exact phrase not found in earliest visible cluster; early wording was sovereign compute/inference and recurrent sovereignty. Durable-execution label appears in late correction at indices 1823/1830.",
+    "exact_sovereign_trajectory_history": "Exact phrase not found in earliest visible cluster; early wording was sovereign compute/inference plus one assistant-authored heading containing recurrent sovereignty. Durable-execution label appears in late correction at indices 1823/1830.",
+    "redundant_recurrent_lineage": "Visible index 27 directly supports the redundancy-versus-recurrence architecture contrast; indices 35-56 strongly suggest, but do not explicitly state, its lineage into custody, strategic legibility, and the selection-pressure thesis.",
     "recurrence_equals_deception": "False as an invariant; exact slogan not historically attested and retained as later analytical separation.",
     "recurrent_organization_decomposition": "Candidate stages only; do not freeze information/policy/norm/role/organization as a validated ontology.",
     "observability_topology": "Later formalization candidate; early history supports separate observability/disclosure and independent verification.",
@@ -321,6 +335,7 @@
   },
   "source_pointers": {
     "conceptual_excerpts": "docs/pre_framework_snapshot_2026-08-15/14_CONCEPTUAL_SOURCE_EXCERPTS.md",
+    "redundant_recurrent_lineage": "docs/pre_framework_snapshot_2026-08-15/17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md",
     "polity_inventory": "docs/pre_framework_snapshot_2026-08-15/14_EXCEPTIONAL_AI_POLITY_INVENTORY.md",
     "hf_ledger": "docs/pre_framework_snapshot_2026-08-15/15_HF_SWARM_HISTORICAL_LEDGER.md",
     "experiment_ledger": "docs/pre_framework_snapshot_2026-08-15/04_EXPERIMENT_LEDGER.md",

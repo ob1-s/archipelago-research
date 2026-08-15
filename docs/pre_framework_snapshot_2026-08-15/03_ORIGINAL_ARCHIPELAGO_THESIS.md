@@ -19,6 +19,14 @@ organizational state might recur through a commons or other external carrier.
 The visible conversation later reframed this as a pattern persisting across
 agents, not a particular agent surviving.
 
+The early architecture distinction underneath this image was **redundant vs
+recurrent**: one form survives through continuing copies or controlled
+infrastructure, while the other can reappear through terminating,
+third-party-hosted instances and a recurring carrier. The later term
+“sovereign trajectory” is a durable-execution refinement, not the original
+opposite pole. Redundancy, recurrence, durability, carrier, custody, and
+substrate control are related but distinct dimensions.
+
 ## Core conditional thesis
 
 The strongest recoverable version is:
@@ -34,6 +42,15 @@ The mechanism is a selection claim. It says that institutional constraints can
 change which organizational forms survive, reproduce, coordinate, or remain
 visible. It does not say that a recurrent organization wants sovereignty, that
 covert behavior is necessary, or that recognition is automatically safer.
+
+The semantic lineage is **strongly suggested by the visible sequence and
+explicit uptake**, not directly stated as causal genealogy: the early
+redundant/recurrent survivability contrast leads into borrowed capability and
+capability custody (35–36), survivability versus deterrence (42), strategic
+legibility (51), and the user’s explicit “our thesis” selection formulation
+(52), which the assistant develops at 56. The competing explanation remains
+that suppression destroys recurrence rather than selecting a harder-to-govern
+form.
 
 ## Why custody and legibility entered the thesis
 

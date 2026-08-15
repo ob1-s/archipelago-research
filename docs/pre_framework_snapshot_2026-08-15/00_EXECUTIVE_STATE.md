@@ -59,6 +59,13 @@ are harder to observe, attribute, bargain with, or safely contain.
 
 The historical distinction to preserve is:
 
+- **Early architecture contrast — redundant versus recurrent:** The exact
+  early heading at visible index 27 was “Redundant sovereignty vs. recurrent
+  sovereignty.” Underneath the assistant-authored heading, the source contrasts
+  a sovereign-compute network whose copies remain alive with a third-party
+  architecture whose ephemeral instances terminate while information or a
+  pattern can recur. This is the load-bearing historical contrast; it is not a
+  claim that “sovereign trajectory” was the original opposite of recurrence.
 - **Recurrent execution regime:** repeated, short-lived frontier inference on
   third-party infrastructure such as lab training, evaluation, or agent runs.
   Any cross-turnover continuity is an empirical question carried by external
@@ -78,10 +85,13 @@ The historical distinction to preserve is:
   counterparty inheriting that observability.
 
 The later shorthand “recurrence is continuity and sovereignty is custody” was
-too broad. It collapsed a historical scenario class into a generic outcome and
-made a durable trajectory sound like a custody claim. The repaired H1 below is
-an empirical question *inside* the recurrent execution regime, not its
-definition.
+too broad. It collapsed the early redundant/recurrent architecture contrast
+into a generic outcome and made a durable trajectory sound like a custody
+claim. The repaired vocabulary keeps the historical architecture contrast,
+then separately names lifecycle durability, carriers, custody, substrate, and
+observability. H1 is an empirical question *inside* the recurrent execution
+regime, not its definition. See
+[17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md](17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md).
 
 ## What the original thesis says, claim-safely
 

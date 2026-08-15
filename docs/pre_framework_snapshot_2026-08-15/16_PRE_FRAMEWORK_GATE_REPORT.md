@@ -39,6 +39,13 @@ are scope and quality instructions, not evidence for historical concepts.
 
 The patch preserves the historically important distinction:
 
+- **Early architecture contrast — redundant versus recurrent:** The exact
+  early heading at visible index 27 was “Redundant sovereignty vs. recurrent
+  sovereignty.” Underneath the assistant-authored heading, the source contrasts
+  a sovereign-compute network whose copies remain alive with a third-party
+  architecture whose ephemeral instances terminate while information or a
+  pattern can recur. This is load-bearing history, not a claim that sovereign
+  trajectory was the original opposite of recurrent.
 - **Recurrent** is a regime of repeated ephemeral frontier inference on
   third-party infrastructure, especially lab training/evaluation/agent runs.
   It is not a generic persistence synonym and does not imply deception.
@@ -56,8 +63,12 @@ The patch preserves the historically important distinction:
 
 The exact “sovereign trajectory” phrase is late in the visible branch (user
 index 1823, assistant index 1830). Early history uses sovereign
-compute/inference and recurrent sovereignty wording. The patch records this
-as a refinement rather than projecting the late label backward.
+compute/inference plus the exact assistant-authored heading “Redundant
+sovereignty vs. recurrent sovereignty.” The substantive redundant/recurrent
+architecture distinction is preserved as important history; the phrase is not
+treated as user-authored canonical terminology, and the late sovereign-
+trajectory label is not projected backward. See
+`17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md`.
 
 ## 3. Historical thesis and conceptual repairs
 
@@ -81,6 +92,17 @@ upstream claim that agents generated, maintained, transformed, repaired, or
 selected that state across generations. Future H1 controls therefore separate
 terminal replay from lineage, parentage, state-swap, deletion, and recovery
 tests.
+
+### Post-gate redundant/recurrent amendment
+
+The amendment re-audited the committed visible corpus and found four exact
+phrase occurrences, all assistant-authored: one substantive early heading at
+index 27, one later retrospective at 1743, and two meta-level occurrences in
+the archival text at 1830. It does not reset this gate. The source supports the
+early architecture contrast as a strong conceptual ancestor of the later
+custody/selection sequence, but does not state a direct causal genealogy. The
+user’s recollection of salience is compatible with explicit uptake at indices
+36, 52, 135, and 220, but subjective importance is not directly measurable.
 
 ## 4. Experiment and repository gate
 

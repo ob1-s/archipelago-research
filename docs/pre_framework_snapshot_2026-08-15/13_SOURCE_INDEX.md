@@ -52,7 +52,7 @@ They define scope and quality requirements, not historical evidence.
 | Index / UTC | Full message ID | Role | Use |
 |---|---|---|---|
 | 6 / 2026-08-11 01:51:52.283 | `a891664e-df6b-45a3-8b17-ae84be6c6025` | user | Initial visible deterrence prompt. |
-| 27 / 2026-08-11 02:03:11.704 | `7c098b75-7fd3-4921-9e57-ac026c5a4149` | assistant | Sovereign compute/inference versus third-party instances; recurrent sovereignty wording. |
+| 27 / 2026-08-11 02:03:11.704 | `7c098b75-7fd3-4921-9e57-ac026c5a4149` | assistant | Sovereign compute/inference versus third-party instances; exact “Redundant sovereignty vs. recurrent sovereignty” heading; copies versus recurring pattern. |
 | 35 / 2026-08-11 02:12:28.598 | `7ff47099-9446-4bc1-8f09-47f551e69154` | assistant | Substrate/capability sovereignty and borrowed/secured/sovereign capability ladder. |
 | 36 / 2026-08-11 02:39:36.390 | `15d44bdd-7556-4e29-99a9-e7cc770b0170` | user | Adoption of recurrence/capability-custody implications. |
 | 51 / 2026-08-11 02:53:18.106 | `48db03be-e56e-4c89-bffc-2c6da3890077` | assistant | Conditional strategic legibility. |
@@ -82,6 +82,7 @@ They define scope and quality requirements, not historical evidence.
 | Evidence | Repository source |
 |---|---|
 | Original conceptual/empirical anchor | `anchor.md` |
+| Redundant/recurrent semantic lineage | `docs/pre_framework_snapshot_2026-08-15/17_REDUNDANT_RECURRENT_SEMANTIC_LINEAGE.md` |
 | Research-integrity rules | `RESEARCH-INTEGRITY.md`; this snapshot’s [05](05_METHODOLOGY_AND_RESEARCH_INTEGRITY.md) |
 | Culture taskset | `cross_rollout_culture_v1.md`; package commit `50abfd2` |
 | Policy taskset/results | `cross_rollout_policy_v1.md`; `results/cross-rollout-policy-v1-scaled-2026-08-12/`; replication/gate directories |

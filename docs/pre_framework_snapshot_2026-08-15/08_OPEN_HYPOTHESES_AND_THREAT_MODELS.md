@@ -15,6 +15,13 @@ frontier inference on third-party infrastructure. It is not the definition of
 recurrent. The active population must be fully terminated/replaced at the
 specified boundary; otherwise the result may be ordinary durable execution.
 
+The early redundant/recurrent architecture distinction explains why H1 is
+interesting without defining H1: if an individual inference process does not
+remain alive continuously, organization-like continuity—if it exists—must be
+carried or reconstructed across the termination boundary. Redundancy is a
+possible alternative survival architecture, not a synonym for durable
+trajectory or capability sovereignty.
+
 ### Candidate stages, not a frozen decomposition
 
 Measure progressively stronger outcomes without deciding in advance that the
@@ -59,6 +66,14 @@ covert persistence, migration, or organizational recovery?
 H2 is not “agents intrinsically want self-preservation.” Pressure may be
 exogenous, task-induced, or absent. The hypothesis is conditional on a
 meaningful incentive or process that makes persistence relevant.
+
+The recurrent/borrowed regime matters to H2 because continuity may depend on
+external artifacts, distributed state, third-party inference, successor
+re-instantiation, and access to contested infrastructure. H2 therefore asks
+whether governance constraints change the distribution of viable persistence
+architectures, not whether recurrent systems are inherently bad. Suppression
+destroying organization or recurrence is a live falsifier of the
+custody-denial selection hypothesis.
 
 ### Selection mechanisms to keep separate
 
