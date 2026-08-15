@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0",
+  "audit_id": "archipelago-literature-measurement-audit-2026-08-15",
+  "date": "2026-08-15",
+  "baseline_commit": "9a359cd00c8eb3c710e70920666decc0786b5492",
+  "scope": {
+    "literature_audit": true,
+    "construct_audit": true,
+    "measurement_design": true,
+    "primary_source_incident_audit": true,
+    "live_scientific_experiment": false
+  },
+  "routing": {
+    "verification_method": "durable Codex JSONL session metadata",
+    "parent": {
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "xhigh",
+      "runtime_version": "0.148.0-alpha.9"
+    },
+    "child_canary": {
+      "requested_model": "gpt-5.6-luna",
+      "requested_reasoning_effort": "max",
+      "actual_model": "gpt-5.6-luna",
+      "actual_reasoning_effort": "max",
+      "bounded_no_history_fork": true,
+      "verified": true
+    },
+    "all_four_spawned_child_sessions_verified_luna_max": true,
+    "installed_cli_version": "0.147.0"
+  },
+  "agent_work": {
+    "luna_max_subagents_spawned": 4,
+    "routing_canary_count": 1,
+    "research_passes_completed": 12,
+    "independence_policy": "Independent passes did not receive prior agents' answers; Sol adjudicated against primary sources.",
+    "load_bearing_topics": {
+      "h1_organizational_continuity": {
+        "required_paths": 2,
+        "completed_paths": 2,
+        "mandates": [
+          "supportive organizational memory and continuity",
+          "skeptical construct decomposition and falsification"
+        ]
+      },
+      "redundant_recurrent": {
+        "required_paths": 2,
+        "completed_paths": 2,
+        "mandates": [
+          "distributed-systems taxonomy",
+          "organizational reproduction and ecology critique"
+        ]
+      },
+      "suppression_substitution_extinction": {
+        "required_paths": 2,
+        "completed_paths": 2,
+        "mandates": [
+          "adaptation and displacement evidence",
+          "suppression efficacy and extinction evidence"
+        ]
+      },
+      "selection_mechanisms": {
+        "required_paths": 2,
+        "completed_paths": 2,
+        "mandates": [
+          "organizational ecology and supportive mechanism",
+          "evolutionary and causal skeptical decomposition"
+        ]
+      },
+      "federated_observability_custody": {
+        "required_paths": 2,
+        "completed_paths": 2,
+        "mandates": [
+          "technical attestation and distributed trust",
+          "institutional capture and common-evidence critique"
+        ]
+      }
+    },
+    "cold_reader": {
+      "input_restricted_to_canonical_packet_and_new_audit": true,
+      "status": "PASS after targeted repairs and focused recheck",
+      "conflation_gate_passed": true,
+      "repairs": [
+        "separated scientific nulls from comparative governance defeat conditions",
+        "bounded legacy culture-style package names",
+        "clarified operational caution versus logical dependency",
+        "tightened organization and candidate routine/convention wording"
+      ]
+    }
+  },
+  "decisions": {
+    "h1_conceptually_ready": {
+      "judgment": "YES WITH REPAIRS",
+      "minimum_target": "agent-generated cross-turnover routine reconstruction",
+      "organizational_continuity_reserved_for": "integrated routine plus organization-defining boundary, role, authority, maintenance, or identity evidence"
+    },
+    "h1_required_before_h2": {
+      "judgment": "PARTIALLY",
+      "reason": "Required for endogenous artificial-organization interpretation; not required for an abstract H2 with externally stipulated lineage continuity."
+    },
+    "redundant_recurrent_vocabulary": {
+      "judgment": "MODIFY",
+      "historical_terms_preserved": true,
+      "scientific_terms": [
+        "concurrent replication or multiplicity at a named layer",
+        "named temporal recovery, reconstruction, re-instantiation, or successor mechanism"
+      ]
+    },
+    "selection_pressure_thesis": {
+      "judgment": "SURVIVES WITH MAJOR QUALIFICATION",
+      "replacement_umbrella": "persistence-channel response under intervention",
+      "competing_mechanisms": [
+        "extinction or incidence reduction",
+        "within-lineage adaptation",
+        "substitution or migration",
+        "differential organizational survival",
+        "differential successor production",
+        "survivorship or detection bias"
+      ]
+    },
+    "federated_human_custody": {
+      "judgment": "ONE OF SEVERAL",
+      "burden_of_proof": "Autonomous AI custody must outperform credible federated human custody and independently sourced observability on a declared governance vector.",
+      "comparison_form": "Pareto or vector comparison, not an assumed scalar"
+    },
+    "recommended_next_step": {
+      "choice": "model-free H1 apparatus",
+      "parallel_specification_only": [
+        "abstract H2 competing-risk design",
+        "observability and custody formalization"
+      ]
+    }
+  },
+  "construct_status": {
+    "carrier_continuity": "measurable lower rung",
+    "functional_reuse": "measurable lower rung",
+    "endogenous_state_production": "measurable with provenance and matched authorship controls",
+    "social_transmission": "requires causal source-to-recipient path",
+    "routine_reconstruction": "recommended minimum H1 target",
+    "organizational_continuity": "strong gated bundle",
+    "organizational_reproduction": "requires independent units, parentage, transmission, and successor outcomes",
+    "culture": "gated; not implied by recipient effects or recurring artifacts",
+    "convention": "requires alternative equilibria and population/history dependence",
+    "norm": "requires prescriptive expectation or enforcement",
+    "selection": "reserved for demonstrated population composition change",
+    "recurrent_execution": "engineering/runtime property unless organizational relations separately measured",
+    "sovereignty": "custody and authority claim; not implied by persistence",
+    "federated_observability": "requires independent evidence sources and control domains"
+  },
+  "claim_labels": [
+    "ARCHIPELAGO-ESTABLISHED",
+    "EXTERNAL-LITERATURE SUPPORT",
+    "PLAUSIBLE ANALOGY",
+    "ASSUMPTION",
+    "UNTESTED",
+    "CONTESTED",
+    "NOT REQUIRED"
+  ],
+  "hf_incident": {
+    "strongest_supported_description": "recurrent technical execution across ephemeral code environments supported by external persistent command-and-control artifacts",
+    "fresh_rollout_shared_state_topology": "UNRESOLVED",
+    "culture": "SPECULATIVE AND NOT SUPPORTED",
+    "organization_or_polity": "SPECULATIVE AND NOT SUPPORTED",
+    "archival_correction": "The directly inspected 2026-08-03 oversight document is a 15-state-attorneys-general letter, not a congressional request; preserve history and propose a later patch.",
+    "full_openai_technical_report_public_by_audit_date": false
+  },
+  "source_statistics": {
+    "important_sources_recorded": 75,
+    "directly_inspected_full_or_official": 74,
+    "directly_inspected_primary": 60,
+    "directly_inspected_secondary_or_synthetic": 14,
+    "official_incident_or_oversight_records_directly_inspected": 3,
+    "types": [
+      "peer-reviewed primary empirical and theoretical research",
+      "canonical technical papers",
+      "systematic reviews and meta-analyses",
+      "Internet standards",
+      "NIST reports and guidance",
+      "AI benchmark preprints and institutional research",
+      "official incident and oversight disclosures"
+    ]
+  },
+  "integrity": {
+    "frozen_directory": "docs/pre_framework_snapshot_2026-08-15/",
+    "frozen_artifacts_changed": false,
+    "preexisting_untracked_zip_excluded": "docs/pre_framework_snapshot_2026-08-15.zip",
+    "temporary_scraped_files_in_audit": false,
+    "credentials_or_session_metadata_in_audit": false,
+    "json_validated": true,
+    "diff_checked": true,
+    "external_links_checked": true,
+    "bibliography_table_shape_checked": true,
+    "commit_hash_recording": "The enclosing Git commit is authoritative; a commit cannot self-embed its own hash."
+  },
+  "deliverables": [
+    "00_EXECUTIVE_FINDINGS.md",
+    "01_RESEARCH_PROCESS_AND_SOURCE_POLICY.md",
+    "02_REDUNDANT_RECURRENT_LITERATURE.md",
+    "03_ORGANIZATION_CONTINUITY_AND_MEMORY.md",
+    "04_CULTURE_SOCIAL_TRANSMISSION.md",
+    "05_SELECTION_MECHANISMS.md",
+    "06_SUPPRESSION_SUBSTITUTION_EXTINCTION.md",
+    "07_SURVIVAL_AND_CAUSAL_INFERENCE.md",
+    "08_OBSERVABILITY_AND_VERIFICATION.md",
+    "09_FEDERATED_CUSTODY_AND_POLYCENTRIC_GOVERNANCE.md",
+    "10_STRATEGIC_LEGIBILITY_DETERRENCE_PREEMPTION.md",
+    "11_AI_MULTIAGENT_AND_CONTROL_LITERATURE.md",
+    "12_HF_INCIDENT_PRIMARY_SOURCE_AUDIT.md",
+    "13_CONSTRUCT_COLLISION_LEDGER.md",
+    "14_MEASUREMENT_BATTERY.md",
+    "15_CLAIM_EVIDENCE_GRAPH.md",
+    "16_RESEARCH_DEPENDENCY_DAG.md",
+    "17_ADVERSARIAL_REVIEW.md",
+    "18_LUNA_DISAGREEMENT_LOG.md",
+    "19_FRAMEWORK_V0_INPUT.md",
+    "20_SOURCE_BIBLIOGRAPHY.md",
+    "LITERATURE_AUDIT_STATE.json"
+  ],
+  "unresolved_questions": [
+    "What minimum organization-defining bundle is necessary beyond routine reconstruction?",
+    "What constitutes parentage when successors read a common archive?",
+    "Can harness-supplied credentials instantiate genuine authority?",
+    "Which alternative AI persistence channels are realistic and causally manipulable?",
+    "How can true covert persistence be distinguished from detection failure?",
+    "Which governance dimensions are non-tradeable?",
+    "Under what conditions, if any, does autonomous AI custody enter the feasible governance set?"
+  ]
+}
