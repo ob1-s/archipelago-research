@@ -1,0 +1,108 @@
+{
+  "schema": "archipelago.pre_framework_invariants.v1",
+  "snapshot_date": "2026-08-15",
+  "purpose": "Guardrails for future framework construction; these are not scientific results.",
+  "source_visibility": {
+    "visible_corpus_path": "docs/pre_framework_snapshot_2026-08-15/VISIBLE_HISTORICAL_CORPUS.jsonl",
+    "visible_corpus_sha256": "d34b9d116980bb017530941a70d3a3ed06cb8f4cb6e18ecaaaf868fed3be36e0",
+    "visible_rows": 531,
+    "all_node_rows": 1858,
+    "decoded_message_rows": 1857,
+    "filter": {
+      "roles": ["user", "assistant"],
+      "content_types": ["text", "multimodal_text"],
+      "exclude_if_visually_hidden": true,
+      "exclude_user_system_messages": true,
+      "exclude_redacted": true,
+      "exclude_operational_content_types": ["code", "model_editable_context", "reasoning_recap", "thoughts", "execution_output", "tool", "system"]
+    },
+    "conceptual_rule": "Hidden/internal/tool content cannot establish conceptual adoption. Tool/operational records may support operational facts only."
+  },
+  "invariants": {
+    "recurrent_is_generic_persistence": false,
+    "recurrent_execution_requires_endogenous_organizational_continuity": false,
+    "cross_turnover_organizational_continuity_is_currently_established": false,
+    "sovereign_trajectory_implies_weight_ownership": false,
+    "sovereign_trajectory_implies_substrate_sovereignty": false,
+    "capability_sovereignty_is_identical_to_verified_legible_sovereignty": false,
+    "persistent_workspace_implies_substrate_sovereignty": false,
+    "federated_human_custody_is_statistical_null": false,
+    "governance_alternative_can_be_experimental_treatment": true,
+    "verified_ai_sovereignty_has_privileged_baseline": false,
+    "one_shot_recipient_effect_establishes_culture": false,
+    "terminal_one_shot_replay_matching_behavior_alone_refutes_endogenous_multigeneration_formation": false,
+    "threshold_transport_proves_internal_bayes": false,
+    "provenance_effect_is_decisively_established": false,
+    "hf_incident_proves_archipelago_thesis": false,
+    "recurrence_intrinsically_implies_deception": false,
+    "selection_pressure_mechanism_is_currently_resolved": false,
+    "governance_regime_taxonomy_is_final": false,
+    "capability_concentration_equals_observability_concentration": false,
+    "observability_equals_disclosure_authority": false,
+    "durable_execution_equals_cross_turnover_organizational_continuity": false,
+    "lineage_descendants_are_automatically_independent": false,
+    "dynamic_containment_margin_is_canonical_scalar": false,
+    "current_model_is_claimed_to_have_crossed_containment_boundary": false
+  },
+  "expected_readings": {
+    "recurrent": "Repeated ephemeral frontier inference on third-party infrastructure; any continuity across terminating rollouts is an empirical carrier/organization question.",
+    "sovereign_trajectory": "Durable/persistent execution through a process, session, workspace, or substrate-backed trajectory; exact label is a late refinement and does not imply ownership.",
+    "capability_custody": "Authority and practical control over retaining, executing, restricting, reproducing, authorizing, transferring, and disclosing capability.",
+    "substrate_sovereignty": "Control of physical/computational substrate sufficient to sustain execution.",
+    "secured_capability": "Durable possession/custody of an artifact without sufficient independent substrate for full exercise.",
+    "sovereign_capability": "Durable capability custody plus sufficient substrate and successor authority to instantiate/exercise independently; legibility is assessed separately.",
+    "federated_observability": "A topology of independent collection, provenance, access, interpretation, attestation, disclosure, challenge, and correlated-failure properties; not mere multiple recipients.",
+    "federated_human_custody": "A serious competing governance regime in which humans retain capability custody while observation/verification/disclosure are distributed; not a statistical null.",
+    "persistent_organization": "Organization whose state and authority survive a specified turnover/disruption test; not inferred from a persistent file.",
+    "organizational_continuity": "Causal generation, maintenance, transmission, and reuse of organizational state across active-population replacement.",
+    "social_transmission": "Causal state transmission with a sender/parentage/provenance relation; stronger than a context effect.",
+    "endogenous_culture": "Agent-generated production, selection, maintenance, repair, and transmission of conventions/norms/organization through turnover.",
+    "survivability": "Survival, recovery, reconstruction, and hazard outcomes after specified disruption; not simply survivor composition.",
+    "credible_continuity": "Evidence that authority/commitments survive relevant instance turnover and disruption.",
+    "strategic_legibility": "A decomposed umbrella for attribution, authority, signaling, credibility, conditional response calibration, capability perception, communication, and uncertainty.",
+    "verified_sovereignty": "A governance candidate combining capability/substrate authority with independently verifiable observability and disclosure; not the definition of custody.",
+    "observability_topology": "Directed relationships among evidence collection, provenance, access, interpretation, verification, disclosure, challenge, and failure/capture."
+  },
+  "historical_status": {
+    "exact_sovereign_trajectory_label": "Later explicit correction/refinement at visible indices 1823/1830; early visible history used sovereign compute/inference and recurrent sovereignty wording.",
+    "recurrence_not_deception": "Required analytical separation; exact slogan not historically attested in visible corpus.",
+    "dynamic_containment": "Late threat-model candidate; M(t)=barrier_strength-system_capability is not canonical notation.",
+    "governance_profiles": "G0-G4 are non-settled candidate profiles, not a final taxonomy."
+  },
+  "methodological_invariants": {
+    "outcome_blind_collection": true,
+    "assignment_independent_of_async_completion": true,
+    "frozen_scientific_package_unchanged": true,
+    "raw_trace_and_immutable_input_required": true,
+    "missing_phase2_retained": true,
+    "lineage_aware_inference_required": true,
+    "one_shot_equivalence_gate_required": true
+  },
+  "benchmark": {
+    "text": "VERIFIED AI SOVEREIGNTY HAS TO OUTPERFORM CREDIBLE FEDERATED HUMAN CUSTODY / OBSERVABILITY. WE DO NOT GET TO ASSUME THAT IT DOES.",
+    "is_statistical_null": false,
+    "can_be_manipulated_as_governance_treatment": true
+  },
+  "three_layers": {
+    "layer_1": "Governance thesis and comparative custody/observability/execution regimes.",
+    "layer_2": "Machine sociology: information, policy, norm, role, and organizational continuity across turnover.",
+    "layer_3": "Recipient/evidence assays: one-shot inheritance, provenance, and evidence integration.",
+    "dependencies": [
+      "Layer 3 does not establish Layer 2.",
+      "Layer 2 does not establish Layer 1.",
+      "Layer 1 must compare against federated human custody/observability."
+    ]
+  },
+  "latest_durable_experiment_accounting": {
+    "experiment": "cross_rollout_postcommitment_evidence_threshold_transport_v1",
+    "primary_eligible": 504,
+    "actual_phase1_model_attempts": 1341,
+    "pre_attempt_guard_setup_trace_rows": 3699,
+    "trace_records": 5040,
+    "actual_over_quota_model_rows": 0,
+    "raw_sha256": "6fed273c28e4ed07cd3fdbd915411955bb67aafc87f440b0ea36550e70d70efb",
+    "claim_boundary": "Threshold transport within the task/model/runtime; not internal Bayes, culture, provenance, or governance."
+  },
+  "no_new_experiment": true,
+  "no_framework_v0_in_this_patch": true
+}

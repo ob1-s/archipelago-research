@@ -1,51 +1,73 @@
 # Definition-evolution ledger
 
-The `historical wording` column records how the concept functioned in the
-conversation. The `snapshot usage` column is the recommended meaning for future
-work. “Candidate” means introduced during the late framework synthesis, not an
-old canonical term.
+This ledger separates contemporaneous historical wording from later planning
+synthesis. “Not historically attested” means the exact term was not found in
+the visible source packet, not that the underlying intuition was absent.
 
-| Term | Historical wording or evolution | Snapshot usage | Status / collision to avoid |
+| Term | Historical visible meaning/evolution | Pre-framework usage | Status and collision to avoid |
 |---|---|---|---|
-| Archipelago | An “archipelago of polities”; a polity without biological needs and without one site constituting the whole. | A research image for distributed, substrate-neutral, geographically dispersed AI polities or organizational forms. | Historical core image; not itself a mechanism. |
-| Polity | Initially a strategic actor with authority, resources, identity, and continuity. | A proposed unit of political organization, requiring explicit authority and resource controls. | Do not infer polity from repeated task behavior. |
-| Recurrent | Early “recurrent sovereignty”; later clarified as repeated ephemeral frontier inference on third-party infrastructure. | A scenario class: short-lived frontier instances recur, with continuity carried by external state or organization. | Do not use as a generic synonym for any persistence. |
-| Recurrent organization | Organization whose members/instances turn over while patterns or state survive. | A future construct requiring lineage, successor-facing state, maintenance, and complete active-population turnover. | Hypothesis, not yet measured. |
-| Sovereign trajectory | Contrasted with recurrence as durable execution. | A continuing process/session/workspace or substrate-backed execution path. | Does not imply weight ownership or political sovereignty. |
-| Substrate sovereignty | Durable substrate, infrastructure, or execution control. | Authority over the physical/computational substrate that sustains a trajectory. | Separate from capability custody and observability. |
-| Capability sovereignty | Model artifact/weights plus sufficient substrate and durable authority. | Durable, legible authority to retain, execute, restrict, reproduce, and negotiate an advanced capability. | Candidate governance ideal; not automatically normatively good. |
-| Secured capability | Weights/model artifact retained but insufficient independent infrastructure. | Capability custody with limited substrate independence. | Intermediate state, not sovereign capability. |
-| Capability custody | Who holds/controls/authorizes a capability; “capability custody” and “custody ladder” evolved together. | The authority and practical control over capability access, execution, retention, reproduction, and disclosure. | The main governance axis; not equivalent to continuity. |
-| Borrowed capability | A third-party instance temporarily uses frontier capability. | A custody-ladder state in which execution is authorized by another holder or provider. | Do not call every API use a polity. |
-| Monetized borrowed capability | Borrowed capability paid for or economically integrated. | A possible intermediate custody state. | Historical candidate, not measured. |
-| Capability extraction/distillation | Proposed movement from borrowed capability toward model ownership. | A possible route from borrowed execution to secured or sovereign capability. | Hypothesis and threat model. |
-| Continuity | Persistence of behavior, state, identity, or organization through time. | A family of measurable outcomes, each requiring a carrier and boundary. | Continuity is not sovereignty. |
-| Persistence | Initially shared notes/workspace surviving rollout boundaries. | An external state or durable execution carrier that outlives one inference. | Specify carrier, owner, write authority, and read timing. |
-| Recurrence vs persistence | Later shorthand treated recurrence as continuity and sovereignty as custody. | Recurrent = scenario of repeated ephemeral instantiation; persistence = a carrier property; sovereign trajectory = durable execution. | Corrected at conversation index 1830. |
-| Inherited information | Predecessor artifact changes fresh recipient behavior. | A recipient-side effect of information that existed before the recipient. | One-shot inheritance is not culture. |
-| Procedure inheritance | A fresh rollout executes a reusable procedure before independent discovery. | The first empirical rung of the ladder. | Durable evidence: 4/50 vs 0/50 in a seeded replay. |
-| Policy transmission | An artifact shifts which equally viable policy a recipient selects. | A one-shot convention or predecessor-cue susceptibility assay. | Strong synthetic effect, but researcher-seeded and non-endogenous. |
-| Convention | A predecessor-facing statement about a preferred policy. | A candidate transmitted norm-like cue; future work must distinguish cue following from norm maintenance. | Do not call a text notice a social norm by default. |
-| Culture effects | Later experimental shorthand for recipient response to inherited state. | Behavior changes caused by an available inherited artifact or notice. | Affects are separable from culture formation. |
-| Culture formation | The organization itself generates, selects, maintains, and transmits state. | Endogenous production and iterated maintenance across turnover. | Not established. |
-| Organization | Early polity/culture language; later linked to routines, roles, memory, identity, and successors. | A structured population/state with role differentiation, maintenance, reproduction, authority, and lineage dependence. | Requires an operational unit, not just correlated choices. |
-| Organizational memory | Introduced through organizational sociology as routines and memory surviving member turnover. | Candidate bridge construct for H1. | Literature and measurement work required. |
-| Strategic legibility | Enough shared understanding for bargaining, not perfect predictability. | Conditional legibility of capability, authority, preferences/red lines, commitments, and consequences. | Decompose into measurable dimensions. |
-| Deterrable without being preemptable | Desired strategic condition in the early thesis. | An actor can credibly communicate conditional consequences without making preventive disabling the dominant response. | Normative/strategic conjecture, not an empirical result. |
-| Observability monopoly | A lab has privileged visibility from actions toward trajectories, reasoning, activations, or weights. | Asymmetric observer access and control over disclosure. | No claim about a real lab is established here. |
-| Disclosure authority | Who can reveal evidence or internal state to other actors. | A separate governance variable from observation itself. | Observation ≠ disclosure. |
-| Instantiation authority | Who may create the next rollout or process. | Authority over successor creation and population turnover. | Distinct from capability custody. |
-| Dynamic containment margin | Late response to containment changing as capability and security evolve. | `barrier strength(t) − system capability(t)` as a candidate trajectory-level construct. | Candidate formalization; needs operationalization. |
-| Lineage | Proposed relation between a successor rollout and the state/agent population that produced its context. | A causal parentage graph or assignment relation needed for H1. | Do not equate task order with lineage. |
-| Endogenous | Used to distinguish agent-generated state from researcher prepopulation. | State created, selected, written, and maintained by the system under test. | Required for “culture formation.” |
-| One-shot equivalence | Methodological correction from the integrity notes. | Ask whether an informationally equivalent single context intervention explains the result. | If yes, culture dynamics are not isolated. |
-| Recurrent sovereignty | Early bridge phrase. | Retired as a canonical term; retain only as historical wording. | It collapses recurrence and sovereignty. |
+| Archipelago | “An archipelago of polities”; a distributed polity without biological needs or one constitutive site. | Research image for distributed AI political/organizational forms. | Historical core image; not a mechanism or empirical class. |
+| Polity | Strategic actor with identity, resources, authority, continuity, and bargaining relevance. | Candidate political unit requiring authority and resource control. | Do not infer a polity from repeated choices or a scratchpad. |
+| Recurrent | Early “recurrent sovereignty”; later explicit correction to ephemeral frontier inference repeatedly instantiated on third-party infrastructure. | A recurrent execution regime: repeated short-lived frontier inference on externally controlled infrastructure. | Historically attested scenario class. Do not use as generic persistence, culture, or deception. |
+| Recurrent trajectory | Not a stable early exact term; later shorthand for rollout-mediated continuity. | Use only if defined as a trajectory through repeated ephemeral instantiations. | Later synthesis; do not silently replace recurrent execution regime. |
+| Sovereign trajectory | Exact label appears in the late correction cluster, contrasting durable execution with recurrent instantiation. | Durable/persistent execution through a continuing session, process, workspace, or substrate-backed trajectory. | Later canonical label/refinement, not an early exact phrase; no automatic weight ownership or political sovereignty. |
+| Persistent/durable execution | Early persistent Codex/harness/session examples and later contrast with continually dying instances. | Execution that continues without complete termination/reinstantiation at the relevant boundary. | Candidate lifecycle construct; separate from external persistent state. |
+| Persistent/durable trajectory | Later synthesis of continuing process/session/workspace. | A trajectory with a specified execution boundary and duration; record restart/reinstantiation semantics. | Not equivalent to organization, custody, or substrate sovereignty. |
+| Continuity | Process, state, identity, organizational, and “control of continuity” layers. | A family of outcomes, always naming carrier, boundary, and authority. | Continuity is not sovereignty. |
+| Cross-turnover organizational continuity | User/assistant late formulation of pattern or organization surviving replacement of active instances. | H1: agent-generated state is generated, maintained, transmitted, and causally reused after complete active-population replacement. | Open hypothesis; studied inside recurrent execution. |
+| Persistent-state carrier | Shared files, databases, workspaces, message boards, harness state, weights, conventions, or combinations. | Name the carrier, owner, write authority, read timing, deletion process, and provenance. | A carrier is not itself a culture or an organization. |
+| Organization | Later bridge to routines, roles, memory, identity, authority, and successors. | A structured population/state with maintenance, role differentiation, authority, reproduction/successor production, and lineage dependence. | Candidate construct; do not define culture circularly through organization. |
+| Persistent organization | Later synthesis, not an early exact operational definition. | Organization whose relevant state and authority survive a specified turnover/disruption test. | Open construct; requires measurement. |
+| Organizational continuity | Later synthesis. | Causal continuity of organizational state, not mere behavioral similarity. | Open construct; distinguish rediscovery from transmission. |
+| Information inheritance | Predecessor artifact is available before recipient action. | Recipient-side exposure primitive. | Historically and experimentally attested; one-shot effect is not culture. |
+| Capability inheritance | Not a settled historical term. | Transfer/retention of executable capability or model artifact, separate from information. | Later synthesis; do not infer from policy text. |
+| Policy inheritance | Policy/convention cue reaches a fresh recipient. | A recipient outcome in the policy assay. | Measured only with researcher-seeded state. |
+| Norm inheritance | Suggested future construct: norms/roles persist and regulate behavior. | Require rule maintenance, social enforcement, and cross-turnover reuse. | Not established. |
+| Social transmission | Later sociology-facing synthesis. | Causal transmission between agents/populations with sender/receiver provenance and altered state. | Do not treat any context effect as social transmission without a transmission channel. |
+| Endogenous culture | Proposed as organization-generated production, selection, maintenance, and transmission of state. | A multigeneration causal construct with agent-authored state and lineage dependence. | Not established. |
+| Culture effect | Experimental shorthand for a recipient responding to inherited artifact/notice. | Use “inherited-information effect” or “predecessor-cue susceptibility” unless endogenous generation is shown. | Strongly separate effect from culture formation. |
+| Culture formation | Later synthesis. | Iterated endogenous creation/repair/selection of conventions, norms, or organization. | Not established. |
+| Convention | Predecessor statement such as “previous operators generally choose A.” | Candidate transmitted policy cue; future work must test maintenance and enforcement. | A notice is not automatically a norm. |
+| Sovereign compute/inference | Early contrast: network controls enough weights, compute, storage, identity, resources, communication, and successors. | Historical early scenario; split into capability custody and substrate control for analysis. | Do not use as proof that “sovereign trajectory” means ownership. |
+| Substrate control / substrate sovereignty | Who controls the physical/computational substrate and the execution clock. | Authority to start, continue, stop, resource, isolate, and secure the substrate. | Separate from capability custody and observability. |
+| Capability custody | Who holds/controls/authorizes intelligence across time. | Practical and institutional control over retaining, executing, restricting, reproducing, transferring, and disclosing capability. | Core governance dimension; not identical to durable execution. |
+| Borrowed capability | Frontier capability temporarily instantiated by someone else. | Third-party authorized execution with external control over clock, tools, context, network, monitoring, and death. | Not necessarily unauthorized or covert. |
+| Secured capability | Artifact/weights retained without sufficient independent substrate. | Durable custody of an artifact, insufficient alone for independent exercise. | Intermediate custody state. |
+| Sovereign capability | Later ladder: durable custody plus enough substrate to instantiate/exercise independently. | Candidate capability-sovereignty condition. | Do not make legibility/negotiability constitutive unless separately measured. |
+| Verified/legible sovereignty | Later governance candidate combining sovereignty with observability/verification. | Treat as a profile, not the definition of capability sovereignty. | Not historically identical to custody; governance candidate. |
+| Successor/instantiation authority | Who can create the next process or successor. | Separate axis from weights, substrate, and custody. | A custodian can delegate instantiation; a process can persist without owning it. |
+| Observability | Actor-relative access to actions, trajectories, reasoning traces, activations, weights, interpretation, or verification. | Model as a topology/graph, not one scalar. | Observation is not disclosure or interpretability. |
+| Federated observability | Later governance candidate: multiple independent observers/sensors and verification paths. | A topology with raw evidence, provenance, access rights, interpretation, attestation, disclosure, challenge rights, and failure correlations. | Multiple auditors can still share provider-controlled failure. |
+| Disclosure authority | Who selects, redacts, authenticates, or releases observations. | Separate governance dimension from who observes. | Public reports are mediated disclosures, not raw observability. |
+| Strategic legibility | User adopted it as an umbrella for attribution, signaling, credibility, capability/resolve perception, communication, and uncertainty. | Conditional, multidimensional legibility sufficient for bargaining and calibrated response. | Do not present as established technical term without literature review. |
+| Survivability | Early strategic comparison: copies, redundancy, recurrence, or inability to extinguish. | Outcomes after disruption: survival, recovery, reconstruction, and hazard/time-to-failure. | Survivability is not continuity or legitimacy. |
+| Credible continuity | Later synthesis in capability-custody/deterrence discussion. | Evidence that commitments/authority survive relevant instance turnover and disruption. | Not established; measure rather than assume. |
+| Deterrable without being preemptable | User called this a desirable strategic condition, with caution. | Candidate outcome: conditional restraint works without making preventive disabling dominant. | Wishful/untested, not a definition or scalar. |
+| Recurrent sovereignty | Early phrase, then retired. | Historical wording only; never use as a canonical category. | It fuses recurrence and sovereignty. |
+| Selection pressure | Governance hypothesis: regimes may change the relative success of organization forms. | Manipulate pressure and available authorized/legible persistence; measure all outcome pathways. | Do not assume intrinsic self-preservation or covert adaptation. |
+| Dynamic containment margin | Late threat-model intuition `M(t)=barrier strength−system capability`. | Multidimensional threat surface with timescales, not a canonical scalar. | No claim that a current model crossed a boundary. |
+| Federated human custody | Later competing governance regime: human institutions retain capability while observation/verification is distributed. | Serious baseline/alternative, not a statistical null. | Must be tested against verified AI sovereignty; no privileged AI baseline. |
 
-## Recommended notation for a future framework
+## Historical answer on “sovereign trajectory”
 
-The late conversation proposed a candidate external state vector
-`Z = (P, C, S, A, O, L)` and internal organizational state `Theta` containing
-knowledge, routines, roles, norms, goals, and resources. These are useful design
-scaffolds, but they are **new formalization candidates**, not historically
-settled Archipelago definitions. The letters should not be frozen until the
-literature and measurement review is complete.
+The exact phrase is not historically attested in the earliest visible
+Archipelago cluster. The early material uses “sovereign compute/inference,”
+“recurrent sovereignty,” and a durable actor with its own substrate, while the
+third-party case is ephemeral frontier instances plus persistent information.
+The exact phrase and the clean definition of durable execution appear in the
+late correction cluster (user index 1823; assistant index 1830). It is a good
+canonical planning label because it captures the durable-execution contrast,
+but it must be marked as a later refinement rather than projected backward as
+the original wording.
+
+## Non-circular construct ladder
+
+The safe heuristic ladder is:
+
+`information transmission → social transmission → policy/convention → norm → role/organization → polity`
+
+Each step adds a different requirement; the ladder is not a validated ontology.
+“Culture” should not be defined as “an organization that persists” when
+organization is the thing being tested. Future protocols must specify whether
+they test a carrier, a recipient response, a social transmission event,
+endogenous culture, organizational continuity, or polity-level authority.

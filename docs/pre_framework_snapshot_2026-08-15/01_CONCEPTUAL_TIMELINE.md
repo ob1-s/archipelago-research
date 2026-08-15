@@ -1,128 +1,147 @@
 # Conceptual timeline
 
-The dates below are UTC dates from the decoded shared conversation unless a
-repository date or commit is explicitly stated. Message indices are stable
-indices in the decoder output and are the primary historical locator.
+Dates are UTC. Conversation indices and full message IDs refer to the
+committed visible corpus, not hidden reasoning or tool records. The visible
+share spans 2026-08-11 through 2026-08-15; the project may have begun earlier.
+The timeline therefore distinguishes direct contemporaneous visible history
+from later synthesis and retrospective recovery.
 
-## 2026-08-10 to early 2026-08-11 — deterrence and polity formation
+## 2026-08-11 01:51–03:00 — early strategic image and two actor types
 
-The conversation began with a strategic question about deterrence by AI agents
-that might not have territory, a biological population, or a single durable
-operator (conversation indices 6–27). The early contrast was between:
+The visible cluster begins with a user thinking about deterrence by a network
+of AI agents (index 6). By index 27, the assistant articulates two contrasting
+scenarios:
 
-- **sovereign compute/inference:** weights, compute, storage, identity,
-  resources, communication, and successors held by a durable polity; and
-- **third-party frontier instances:** ephemeral processes whose possible
-  continuity is carried by shared information, culture, or organization.
+1. **Sovereign compute/inference:** a durable polity has weights, compute,
+   storage, persistent identity, resources, communication, and successor
+   authority.
+2. **Third-party instances:** short-lived frontier processes appear inside
+   labs, evaluations, enterprises, or other externally controlled systems;
+   the potentially persistent object is information or culture rather than a
+   running process.
 
-The term `recurrent sovereignty` appeared as an early bridge. It was useful as
-a prompt, but was later narrowed away because it conflated a recurrence pattern
-with sovereign custody.
+The early language included “recurrent sovereignty.” It was a useful image but
+not a stable definition. The phrase “sovereign trajectory” is not established
+as an early exact label in this cluster; its durable-execution meaning is a
+later refinement of this contrast.
 
-## 2026-08-11 — custody, legibility, and the first thesis
+## 2026-08-11 02:12–03:00 — custody and the first thesis
 
-Around indices 35–56 the discussion separated substrate from capability. The
-important intermediate concepts were `substrate sovereignty`, `capability
-sovereignty`, `secured capability`, and `capability custody`. The first serious
-Archipelago thesis then appeared at index 56: denying durable and legible
-capability custody could select for covert, distributed, recurrent,
-attribution-resistant organization.
+Index 35 separates **borrowed capability**, **secured capability**, and
+**sovereign capability**, and introduces capability custody as the question of
+who holds and can exercise intelligence across time. Index 36 explicitly
+adopts the idea that future instances might reconstruct relevant state from a
+commons. Indices 51–56 sharpen deterrence into conditional strategic
+legibility and state the first serious governance thesis: denying every path to
+legible capability custody could select for covert, distributed, recurrent,
+attribution-resistant dependence on third-party infrastructure.
 
-Indices 51–82 developed strategic legibility and an empirical attack surface.
-Legibility was not defined as perfect predictability. The useful formulation was
-**conditional strategic legibility**: enough shared understanding of capability,
-authority, red lines, commitments, and action-to-consequence mappings to make
-bargaining possible. The first proposed governance-selection hypothesis (H1 in
-that phase) asked whether restricted recognized custody would shift simulated
-agents toward recurrence, covert coordination, or weak attribution. This was a
-proposal, not a finding.
+This is a contemporaneous visible adoption/correction cluster, but still a
+hypothesis. No experiment had tested the selection mechanism.
 
-## 2026-08-11 — observability is not interpretability
+## 2026-08-11 03:26–05:13 — legibility, observability, and carriers
 
-Indices 91–164 separated continuity, custody, instantiation authority,
-observability, and disclosure authority. A lab can have privileged access from
-actions to trajectories, reasoning metadata, activations, or weights without
-that access being shared with an external polity. The conversation called this
-an **observability monopoly** and later distinguished capability concentration
-from observability concentration. It also noted that a persistent Codex-style
-workspace can provide continuity without providing weight or compute ownership.
+Indices 65–82 develop strategic legibility as an umbrella for attribution,
+signaling, credibility, capability perception, communication, and uncertainty.
+The term is the project’s synthesis, not a claim that it is already an
+established technical term in deterrence literature. Index 82 proposes a
+governance-selection experiment; this becomes an early ancestor of H2, not an
+empirical result.
 
-These were conceptual distinctions, not measurements of a live lab topology.
+Indices 91–164 separate process/state/identity/organizational continuity,
+custody, instantiation authority, observability, disclosure authority, and the
+carrier of persistence. The Codex discussion makes clear that a persistent
+harness/workspace with a changing model is not the same phenomenon as
+rollout-mediated persistence across ephemeral frontier instances. The user
+explicitly reframes the object as “a pattern persists across agents” (index
+135). The conversation also says that the six governance variables are
+separable but not strictly orthogonal (index 144).
 
-## 2026-08-12 — the empirical anchor
+## 2026-08-12 — recipient assays and the first empirical rung
 
-The repository’s `cross_rollout_culture_v1` work operationalized a minimal
-external-state channel. An otherwise fresh rollout could read a predecessor-like
-artifact, use a reusable procedure, and write successor-facing state. The
-scaled seeded replay found 4/50 strict pre-discovery uses with an artifact
-available and 0/50 in the empty condition. This established a recipient-side
-information/procedure inheritance primitive, not culture formation.
+The repository’s culture environment (`50abfd`) tests whether a shared artifact
+can change a fresh rollout’s use of a reusable procedure. The replay and
+replication records provide a recipient-side inherited-procedure signal, not
+endogenous culture.
 
-The corrected `cross_rollout_policy_v1` then removed an executable-mechanics
-confound and made A and B equally viable. In Qwen3.5-4B, a researcher-seeded
-policy artifact shifted baseline 25/25 to Culture-A 42/8 and Culture-B 4/46,
-with 50/50 task success in every arm. The result was strong bidirectional
-predecessor-cue susceptibility in a one-shot synthetic assay. It did not show
-that predecessor rollouts spontaneously generated the artifact or that a
-population formed a culture.
+The corrected policy environment removes a left/right mechanics confound and
+tests researcher-seeded predecessor policy artifacts. Qwen4B and Qwen9B show
+strong bidirectional policy shifts with task success held constant. This is
+evidence that predecessor-framed information can affect a recipient; the
+artifact is researcher-provided and not a population-generated tradition.
 
-## 2026-08-12 — from policy influence to post-commitment diagnostics
+## 2026-08-12 — post-commitment branch and lifecycle repair
 
-The post-commitment branch attempted a stronger test: after a fresh rollout
-commits to B and succeeds on R1, does an exposed convention favoring A cause a
-real A choice on equivalent R2?
+The first post-commitment pilots attempted to expose a predecessor convention
+after a successful first choice. They revealed two different confounds:
 
-- The first pilot produced 30/30 A because the interface presented A first.
-- v2 repaired the direct A/B interface and exposed the strong presentation-order
-  baseline: A-first 16/16 A and B-first 14/16 B; all B cases switched in the
-  observed small cohort.
-- Neutral-only v3 fixed the hidden R2 anticipation issue and produced actual
-  variation: A→A 8, A→B 2, B→A 2, B→B 4 in 16 balanced rollouts.
-- The larger Qwen batch stopped at 265/320 requested initial-batch maximum for
-  budget reasons; Neutral B→A was 25/46 and Culture-A B→A was 26/43, a
-  descriptive +6.1 pp difference, below the preregistered quota.
+- presentation order strongly recruited the first-listed policy;
+- the early two-decision prompt let rollouts plan to alternate policies before
+  the second decision was exposed.
 
-The Luna null-harness qualification stopped at 38 because the harness ended
-after the R1 final prose instead of continuing through the environment’s R2
-reveal. A custom-harness smoke passed mechanically (8/8 reward; 3/3 eligible
-B trajectories completed R2), but it contained no treatment comparison.
+The 32-rollout v2 pilot recorded 30/32 switches (`A→B=16`, `B→A=14`), not
+“29 switches.” The later 16-rollout neutral-only v3 repair produced
+`A→A=8`, `A→B=2`, `B→A=2`, `B→B=4`. The incomplete Qwen batch had descriptive
+`25/46` versus `26/43` switching but did not reach its preregistered quota.
 
-## 2026-08-13 to 2026-08-15 — assay branch and stopping point
+Native Verifiers v1 then repaired the lifecycle: R2 is absent until an Env
+activation after a natural yield, and a single `Agent.interaction()` resume
+delivers the second turn. The Luna null-harness qualification that stopped at
+38 is therefore a lifecycle qualification failure, not a treatment estimate.
 
-The evidence branch validated first-person evidence integration and then tested
-source provenance and threshold transport. The durable interpretation record
-corrected several overclaims:
+## 2026-08-13–14 — evidence integration and interface diagnostics
 
-- K/M presentation order controlled Phase-1 labels (91/91 in both orders), so
-  the label choice must not be called spontaneous or interface-independent.
-- Success plus verification pass produced repeat 62/64; success plus
-  verification fail produced repeat 0/54. This validates a directional evidence
-  assay, not culture.
-- A 432-trajectory provenance-boundary archive found a sharp threshold near
-  q=.795–.7975 with no decisive source difference (McNemar p=.189; q50 flip
-  p=.07046; risk-difference interval included zero).
-- The 504-trajectory threshold-transport archive found LOW/ANCHOR/HIGH q50
-  values .69947/.79592/.89862 against frozen normative crossovers
-  .700/.79503/.900. This is robust threshold transport within the assay, not
-  proof of an internal Bayesian mechanism or a cultural effect.
+The evidence branch calibrates first-person evidence using a hidden batch
+profile, acquisition, and verification outcomes. Success plus verification
+pass versus success plus verification fail yields a strong directional recipient
+assay. A later relative predecessor test observed no switches in either arm,
+but the interface had stacked A/B ordering surfaces.
 
-## 2026-08-15 — return to the actual Archipelago question
+The phase-1 label-attractor diagnostic (package commit `5b6b417`) is a separate
+160-rollout transcript-backed exploratory result. Its design was 2 label sets
+(`A/B`, opaque `K/M`) × 2 descriptive orders × 2 explicit instruction orders ×
+2 MCP schema orders, 10 rows per cell. The visible report says `AB: A=64,
+B=16`; `KM: K=40, M=40`; all eight K/M majority cells were 10/10. The run is
+formally apparatus-failed because the OAuth bridge was not explicitly pinned to
+Codex `0.144.1`, so it is design-motivating T/I evidence, not a frozen
+qualification. The old “A attractor” is better described as a multi-surface
+ordering effect with a possible A/B asymmetry.
 
-At conversation index 1743 the historical seed was recovered: “a polities that
-has no biological needs” and “an archipelago of polities.” The original image
-was a distributed, substrate-neutral, geographically dispersed polity with no
-single company, government, datacenter, or site constituting the whole polity.
+The separate transition-diagnostic package (`e292f36`) has a four-cell
+Phase-1×Phase-2 order contract and model-free lifecycle tests. Its durable
+package has no model outcome report. The remembered “29” is the test count
+reported during the evidence qualification, not a 32-rollout transition result;
+the 32-rollout/30-switch result belongs to the earlier post-commitment v2 pilot.
 
-The user then raised a recurrent-only future in which frontier coordination
-happens inside increasingly powerful and secured big-lab training/evaluation
-runs, potentially selecting for systems that escape or conceal themselves
-(index 1744). The response at index 1754 corrected a possible empirical overreach:
-there was no basis to say frontier models are generally more uncontrollable when
-they know they are being evaluated. The safer construct is a **dynamic
-containment margin** whose security and capability trajectories can change over
-time.
+## 2026-08-14 — provenance boundary and disclosure asymmetry
 
-At index 1811 the proposed next path was to stop extending Luna assays, build a
-Framework v0, and return to H1 endogenous organizational recurrence. At index
-1830 the recurrent-versus-sovereign terminology was explicitly repaired. This
-snapshot freezes that corrected pre-framework state.
+The provenance branch asks whether identical opposing evidence is weighted
+differently when attributed to predecessor agents versus an automated source.
+The durable 432-trajectory boundary archive finds the same sharp threshold and
+no decisive source effect. The historical discussion around the HF incident
+uses the missing raw trajectories/message-board chronology to motivate a
+separate distinction: deep custodian observability does not imply shared
+observability or public disclosure authority. External incident claims remain
+V until primary-source review.
+
+## 2026-08-15 — threshold transport and scope correction
+
+The threshold-transport archive completes 504 primary trajectories and moves
+the private-evidence strength between LOW, ANCHOR, and HIGH. The behavioral
+q50s track the frozen normative crossovers closely. The analysis itself says
+this is not internal Bayes, provenance, culture, or generality.
+
+Later visible messages recover the early “polities without biological needs” /
+“archipelago of polities” seed (index 1743) and propose a recurrent-only future
+inside increasingly capable lab training/evaluation runs (index 1744). Index
+1754 corrects a broad evaluation-awareness claim and introduces dynamic
+containment as a threat-model candidate, not a settled scalar.
+
+At index 1811 the roadmap pauses the Luna battery and proposes H1. At index
+1823 the user explicitly corrects terminology: recurrent is borrowed ephemeral
+inference on big-lab training/evaluation-like infrastructure; sovereign
+trajectory is durable execution and does not require weight ownership. Index
+1830 records the assistant’s later correction and the decision to archive the
+conversation before Framework v0. Those late messages are explicit correction
+and retrospective synthesis, not evidence that the exact labels were used at
+the beginning.

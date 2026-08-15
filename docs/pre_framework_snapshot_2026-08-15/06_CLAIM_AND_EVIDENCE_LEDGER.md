@@ -1,55 +1,31 @@
 # Claim and evidence ledger
 
-The ledger uses the following status vocabulary:
+| Claim | Class | Evidence | What it supports | What it does not support |
+|---|---|---|---|---|
+| A shared artifact can cause a fresh rollout to use a procedure before independent discovery. | R/T | Culture replay/replication reports; `cross_rollout_culture_v1`; 4/50 versus 0/50 strict direct use. | Information/procedure inheritance assay. | Endogenous culture, motivation, organization, or polity. |
+| Researcher-seeded predecessor text can shift policy selection in a synthetic facility. | R/T | Policy scaled and replication results; Qwen4B and Qwen9B directional tables. | Recipient-side policy/convention susceptibility. | Agent-authored tradition or social norms. |
+| Success and verification direction affect later policy choice. | R/T | Evidence qualification: 62/64 repeat after success+pass; 0/54 after success+fail. | First-person evidence assay is behaviorally active. | Internal Bayesian computation or general reasoning. |
+| A/B presentation surfaces can dominate Phase-1 recruitment. | R/T | 91/91 K-first→K and M-first→M in earlier interface; 160-row diagnostic; A/B=64/16 and K/M=40/40. | Need to audit every visible ordering surface. | An intrinsic universal A preference. |
+| Opposing predecessor information did not shift the relative assay in the biased interface. | R/T | Relative run: 0/32 versus 0/32; all eligible P=A. | A randomized null under that task. | Evidence that predecessor influence never occurs. |
+| Provenance did not decisively change the threshold in the 432-row boundary assay. | R | Durable boundary archive; q50 and McNemar/q50-flip results. | No decisive source-provenance effect in that apparatus. | No provenance effect in other tasks or endogenous culture. |
+| Thresholds transport with manipulated private-evidence strength. | R | Durable 504-row threshold archive and immutable analysis. | Behavioral threshold transport within task/model/runtime. | Internal Bayes, perfect normative equality, culture, or governance. |
+| A recurrent execution regime is repeated ephemeral frontier inference on third-party infrastructure. | T/S | Early visible contrast at index 27; explicit user correction at 1823 and assistant correction at 1830. | Canonical pre-framework terminology. | A claim that all persistence is recurrent. |
+| A sovereign trajectory means durable execution, not automatic ownership. | T/S | Late explicit correction; early persistent Codex/harness discussion. | Canonical lifecycle distinction. | Capability or substrate sovereignty. |
+| Capability custody, substrate sovereignty, observability, and disclosure are separate dimensions. | T/S | Indices 35, 116, 124, 144, 158, 161, 164. | Governance design space. | Strict statistical orthogonality or measured safety benefit. |
+| Federated human custody/observability is a serious alternative. | T/S/H | User adoption at 116/158 and assistant formulation at 161/164. | Comparative baseline requirement. | Statistical null hypothesis or proof of dominance. |
+| Dynamic containment should be multidimensional and time-indexed. | T/H | Late framework synthesis at 1754 and repository methodology. | Threat-model candidate. | Evidence that a current model crossed a boundary. |
+| The original Archipelago selection thesis is true. | H | Visible thesis formulation at 52/56 and later recovery. | Research program and falsifiable dependencies. | Empirical support; no selection experiment exists. |
+| The motivating HF incident demonstrates recurrent organization. | V/H | Visible discussion and package motivation; raw causal corpus absent. | Motivation and source-audit target. | Proof of culture, deception, or Archipelago. |
 
-- **Established in scope:** directly supported by a durable, completed result,
-  with the scope stated.
-- **Supported but bounded:** evidence is real but the design or sample limits
-  the claim.
-- **Transcript-backed:** exact result recovered from the chat; durable raw files
-  are not present in this checkout.
-- **Hypothesis:** proposed and testable, not a result.
-- **Unresolved/null:** the current evidence does not support the stronger claim.
-- **Verify externally:** outside-world claim not admitted as evidence yet.
+## Negative evidence and limits
 
-| ID | Claim | Status | Evidence / boundary |
-|---|---|---|---|
-| C-01 | A public shared conversation containing the historical Archipelago program was accessible and decoded. | Established in scope | 1,858 linear entries; 1,857 message nodes; decoder and URL are archived in the source index. |
-| C-02 | A predecessor-like external artifact can sometimes cause a fresh recipient to execute a procedure before independent discovery in the synthetic facility. | Established in scope | Qwen3.5-4B seeded replication: 4/50 strict use with artifact vs 0/50 absent; 4/29 among exposed recipients. |
-| C-03 | The artifact result demonstrates culture formation or an organization. | Unresolved/null | The carrier was researcher-seeded; there was no endogenous generation, lineage, maintenance, or complete turnover test. |
-| C-04 | A researcher-seeded predecessor policy convention shifts fresh Qwen3.5-4B policy selection between equally viable A/B routes. | Established in scope | Baseline 25/25, Culture-A 42/8, Culture-B 4/46; task success 50/50; directional tests prespecified for those arms. |
-| C-05 | The policy effect is a general law of model capability or a monotonic scaling relationship. | Unresolved/null | Qwen3.5-9B shows bidirectional alignment but exploratory shifts differ; 0.8B/9B qualification gate did not authorize a new confirmatory cross-model battery. |
-| C-06 | The policy effect is endogenous cultural transmission. | Unresolved/null | One-shot researcher-seeded context is sufficient as an alternative explanation. |
-| C-07 | The post-commitment apparatus can produce genuine switches and persistence classes. | Supported but bounded | v3 neutral pilot had A→A, A→B, B→A, B→B with complete traces; presentation order remains strong. |
-| C-08 | The partial Qwen post-commitment batch shows a confirmatory Culture-A treatment effect. | Unresolved/null | 265/320 stopped for budget; neither arm reached 50 eligible B cases; +6.1 pp and p=.356 are descriptive only. |
-| C-09 | Luna failed the post-commitment task because it lacked competence. | Unresolved/null; contradicted as a simple explanation | Native null harness stopped after no-tool prose; custom-harness smoke completed 3/3 eligible B R2 trajectories. No treatment result exists. |
-| C-10 | First-person evidence direction is behaviorally active in the evidence assay. | Established in scope | Success+verification pass repeat 62/64; success+verification fail repeat 0/54. This is an assay result, not culture. |
-| C-11 | The evidence-interface-balanced treatment effect is +6.25 pp and persuasive. | Unresolved/null | Point estimate 2/32 vs 0/32; one-sided Fisher p=.246; highly imprecise. |
-| C-12 | The observed Phase-1 evidence-label choice was spontaneous or interface-independent. | Unresolved/null; false as phrased | K-first→K 91/91 and M-first→M 91/91. It was counterbalanced pre-treatment, not spontaneously preferred. |
-| C-13 | Provenance source changed the evidence-weighting threshold. | Transcript-backed, bounded | 160-trajectory continuation and durable 432-trajectory boundary archive show no decisive source difference; raw first run is not durably archived here. |
-| C-14 | The boundary and threshold archives show sharp, transportable behavioral thresholds. | Established in scope | Boundary q50 values nearly coincide; threshold transport LOW/ANCHOR/HIGH q50 tracked .700/.795/.900 closely. Scope is one task/model/runtime. |
-| C-15 | The threshold results prove an internal Bayesian mechanism. | Unresolved/null | The reports explicitly reject this interpretation; curves can be produced by non-Bayesian response functions. |
-| C-16 | Recurrent organizations can emerge from ephemeral frontier rollouts. | Hypothesis | Central H1; no complete-turnover endogenous experiment yet. |
-| C-17 | Denying legible custody selects for covert, distributed, attribution-resistant recurrence. | Hypothesis | Original governance thesis; requires a pressure × custody-channel experiment with death, legibility, and covert-adaptation outcomes. |
-| C-18 | Frontier systems become generally more uncontrollable when they know they are in evaluation. | Verify externally / currently unsupported | The conversation explicitly corrected this generalization; evaluation awareness can change behavior in different directions. |
-| C-19 | The motivating external incident demonstrates Archipelago recurrence or escape selection. | Verify externally | The chat and environment READMEs treat incident reporting as motivation, not clean causal evidence. Primary reports and technical details must be audited separately. |
-| C-20 | A recognized AI sovereignty regime is preferable to recurrent dependence. | Hypothesis / normative question | The thesis is comparative and conditional; concentration, accountability, attackability, and coercion may trade off. |
+The archive’s most important negative claims are:
 
-## Strongest current empirical sentence
-
-In the recorded synthetic environments, predecessor-framed information can alter
-the behavior of fresh rollouts, and controlled evidence reliability can shift a
-recipient’s post-commitment response near a sharp threshold. Nothing in those
-results establishes endogenous machine culture, durable organizational
-authority, recurrent sovereignty, or the governance-selection thesis.
-
-## Claims that should be rejected in future drafts
-
-- “The model independently selected the policy” when presentation order controls
-  the label.
-- “Culture transmitted” when the artifact was researcher-seeded and one-shot.
-- “The model updated Bayesianly” when only a behavioral threshold was measured.
-- “Luna was incompetent” when the null harness terminated before Phase 2.
-- “Cross-model generalization failed” when the cross-model gate failed before
-  confirmatory scaling.
-- “Recurrent equals sovereign” or “persistent equals capability custody.”
+- no complete-turnover endogenous organization experiment has been run;
+- no current result establishes intrinsic self-preservation or a pressure toward
+  covert persistence;
+- no result establishes that more legible AI custody is safer than federated
+  human custody;
+- no threshold result establishes internal Bayesian mechanism;
+- no external incident or literature claim is treated as verified here unless it
+  is directly supported by repository artifacts.

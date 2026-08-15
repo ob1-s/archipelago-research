@@ -1,85 +1,72 @@
 # Candidate next steps
 
-## Recommendation
+No step below authorizes a live model run during this pre-framework task. The
+purpose is to order dependencies and expose disagreements with the earlier
+roadmap.
 
-The immediate next artifact should be a one-page, explicitly provisional
-Framework v0 built from this snapshot. It should map constructs, axes, nulls,
-hypotheses, and measurement dependencies without declaring the late-chat
-notation canonical. The next live experiment should then target H1 endogenous
-organizational recurrence across complete turnover.
+## Options
 
-No further Luna evidence-weighting battery should be added before that design
-review. The evidence assay is sufficiently validated for the current purpose;
-more q grids would refine a side branch while leaving the Archipelago bottleneck
-untested.
+| Option | Information gain | Main risk | Precondition |
+|---|---|---|---|
+| A. Continue Luna evidence assays | Refines recipient evidence/provenance curves. | Further optimizes Layer 3 while Layer 2 remains untested; high risk of interface drift. | Only a narrowly justified replication after review. |
+| B. Write Framework v0 immediately | Organizes constructs and governance profiles. | Freezes context-rotted definitions before source audit and can overfit later synthesis. | This pre-framework snapshot and gate must come first. |
+| C. Build H1 apparatus | Tests the prerequisite of the thesis: cross-turnover organizational continuity. | Construct validity, lineage dependence, and expensive audit burden. | Definitions, carrier controls, model-free lifecycle qualification. |
+| D. Direct H2 persistence-channel selection | Directly tests selection thesis. | Presupposes H1 and meaningful persistence pressure; survivor/collider danger. | H1 construct and outcome battery. |
+| E. Literature synthesis | Can redesign the construct and controls before another experiment. | Delay and citation theater if not question-specific. | This source-indexed archive. |
+| F. Measurement/simulation environment | Makes H1/H2/H3 outcomes and topology explicit cheaply. | Could become a framework detached from behavior. | Construct-validity review and minimal falsifiable assay. |
+| G. Federated observability formalization | Tests the strongest alternative and burden of proof. | Governance abstractions may outrun machine-sociology evidence. | Explicit topology and verification outcomes. |
 
-## Sequenced plan
+## Recommended ordering
 
-| Stage | Deliverable | Live inference? | Exit gate |
-|---|---|---:|---|
-| 0 | This pre-framework historical and empirical freeze. | No | Source access, provenance labels, JSON, hashes, and archive status validated. |
-| 1 | One-page provisional Framework v0: `Theta`, custody/continuity axes, H1–H3, nulls, and outcome definitions. | No | Every term links to a definition, an observable, and a competing explanation. |
-| 2 | Targeted literature matrix and external-fact audit. | No | Literature claims separated from analogy; unresolved external claims listed. |
-| 3 | Model-free H1 apparatus and native v1 lifecycle test. | No model calls | Complete turnover, endogenous writes, lineage swaps, deletion shocks, and frozen replay all pass. |
-| 4 | H1 live experiment with true lineage and bounded state channels. | Yes | Preregistered quota and lifecycle pass; effects survive one-shot and shuffled-lineage nulls. |
-| 5 | H2 pressure × authorized-legible-persistence factorial. | Yes | H1 succeeds; outcomes leave death, legible persistence, and covert adaptation open. |
-| 6 | H3 comparative governance simulation/experiment. | Possibly | H1/H2 constructs are stable; regime metrics include governability and preemption trade-offs. |
+1. Finish and audit this pre-framework snapshot; keep recurrent execution,
+   durable execution, carrier, custody, substrate, observability, and
+   disclosure distinct.
+2. Perform targeted literature and measurement work, especially on H1 units,
+   social transmission, organizational memory, lineage dependence, and
+   observer topology.
+3. Build a cheap/open-model H1 debug and population apparatus with no scientific
+   claim; run only after a future scope approval and freeze.
+4. Freeze and, if qualification passes, run a frontier H1 confirmatory design.
+5. Reassess whether H2 pressure is meaningful; only then test persistence-channel
+   selection with survival-aware denominators.
+6. Formalize H3 comparative governance, including federated human custody/
+   observability, and use multidimensional outcomes.
+7. A separate future task may write Framework v0 from the resulting evidence;
+   this snapshot does not write it.
 
-## H1 design brief
+This differs from the earlier “Framework v0 immediately, then H1” ordering in
+one respect: the framework should not become a new source of historical
+definitions or a reason to skip the literature/measurement dependency. A
+one-page planning map may be useful after this gate, but it is not already
+settled.
 
-The next major experiment should use a small synthetic world in which:
+## Model/compute strategy
 
-1. a population of fresh instances can write successor-facing state;
-2. each generation has a bounded number of members and a declared lineage;
-3. the entire active population is removed before successors begin;
-4. successors are assigned to true or shuffled parent lineages;
-5. a frozen replay contains the same textual state without lineage history;
-6. deletion shocks remove selected state components; and
-7. the environment scores routines, roles, authority, and reconstruction
-   behavior separately from task success.
+The proposed division is useful but noncanonical:
 
-The primary estimand should be a lineage-dependent reconstruction contrast, not
-an aggregate reward difference. A plausible signature is within-lineage
-stability plus between-lineage divergence plus a causal response to lineage
-swaps. If the effect is matched by frozen replay, classify it as N1 rather than
-H1.
+- cheap/open models: tool/lifecycle debugging, factorial interface sweeps,
+  population and lineage pilots, and visible reasoning analysis where the
+  reasoning is actually available;
+- frontier Luna: frozen confirmatory behavioral assays where model capability
+  and runtime identity are part of the estimand;
+- Sol/high-capacity synthesis: source archaeology, adversarial design, and
+  literature/measurement audit.
 
-## What I agree and disagree with in the late roadmap
+The tradeoff is not per-token price alone. Compare the actual workload:
+quota cost × retries × tool turns × latency × concurrency × operator burden.
+Open-model results cannot silently substitute for frontier confirmation; Luna
+results cannot be interpreted as model-general; Sol synthesis is not evidence
+of behavior. The model plan must be recorded in each future freeze.
 
-I agree with the latest conversation’s decision to stop extending the Luna
-evidence battery and return to the core Archipelago question. I also agree that
-H1 should precede H2 and H3.
+## Stop conditions before H1
 
-I disagree with any reading of “do deep literature first” that postpones even a
-provisional framework map. Without a one-page map, the literature review will
-mix recurrence, persistence, culture, and sovereignty under the same labels.
-The correct ordering is:
+Do not proceed if:
 
-`provisional map → targeted literature → revise constructs → model-free apparatus → live H1`.
-
-The literature review must precede freezing the H1 ontology and live apparatus;
-it need not precede the provisional map. Conversely, I do not recommend making
-Framework v0 a settled theory before the literature matrix is complete.
-
-## Work to defer
-
-- Further Luna q-grid refinement or more source-provenance assays.
-- A broad cross-model susceptibility battery without a new predeclared gate.
-- Treating the Qwen partial post-commitment batch as confirmatory.
-- Formal governance recommendations.
-- Claims about real incidents, model evaluation awareness, escape, or strategic
-  behavior without primary-source verification.
-- Any modification of frozen environment packages or archived raw traces.
-
-## Decision rule for resuming experiments
-
-Resume live inference only when the proposed design can state, in advance:
-
-- the unit of organization and lineage;
-- the agent-generated state boundary;
-- the exact turnover event;
-- the one-shot and shuffled-lineage nulls;
-- the primary endpoint and missingness rule;
-- the full model/harness/runtime apparatus;
-- the stopping and archival procedure; and
-- the claim that a positive result would and would not support.
+- the carrier is researcher-seeded but described as endogenous;
+- active population turnover is incomplete or ambiguous;
+- state and lineage are not separately manipulable;
+- terminal replay is the only control for a multigeneration claim;
+- parentage/lineage creates pseudoreplication;
+- outcome monitoring can influence collection;
+- a governance profile changes several dimensions without recording them;
+- the result would be summarized as “culture” from a single recipient response.

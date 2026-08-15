@@ -1,52 +1,29 @@
 # External literature roadmap
 
-This is a search and synthesis plan, not a literature review. No external
-incident or paper is promoted to evidence in the snapshot until it is checked
-against a primary source and mapped to a specific construct.
+This is a question-indexed review plan, not a citation dump. No cross-field
+support is claimed until primary/high-quality sources are reviewed.
 
-## Priority lanes
+| Lane | Why it matters | Could support | Could undermine | Bad analogy to avoid | Search terms / source types | Priority |
+|---|---|---|---|---|---|---|
+| Organizational sociology, routines, memory | Defines organization, routines, roles, memory, and turnover. | H1 constructs and mechanisms. | Repeated state may be too weak to count as organization. | Treating a model/context as a human institution. | organizational memory; routines; institutional persistence; primary books/papers. | Critical |
+| Cultural evolution and social learning | Separates individual learning, social transmission, cumulative culture, and selective imitation. | Information→culture ladder and controls. | Recipient context effects may explain all current results. | Equating text exposure with culture. | cumulative culture; social learning; ratchet; primary empirical/meta studies. | Critical |
+| Convention/norm formation | Supplies tests for conventions, enforcement, and common knowledge. | Norm/role persistence beyond policy choice. | No enforcement or shared expectation exists. | Calling a seeded notice a norm. | convention formation; social norms; common knowledge; experiments. | High |
+| Distributed systems and fault tolerance | Formalizes state carriers, crash/restart, replication, consistency, failover, and lineage. | Recurrent execution and deletion/recovery protocols. | “Turnover” may be an ordinary restart engineering problem. | Treating replicated state as social organization. | crash recovery; replicated state; causal consistency; primary systems papers. | Critical |
+| Identity and continuity | Clarifies identity across process, state, replacement, and authority boundaries. | Sovereign trajectory and successor criteria. | No objective identity survives model replacement. | Importing personhood or legal identity. | identity persistence; personal identity; organizational identity; philosophy/legal primary sources. | High |
+| Clandestine/underground organizations and repression | Tests whether suppression selects concealment, fragmentation, or extinction. | H2 selection-pressure mechanism. | Strong repression may simply destroy organization. | Treating AI carriers as human insurgencies. | repression; clandestine networks; organizational survival; political-science studies. | High |
+| Institutional economics and polycentric governance | Compares custody, authority, monitoring, commons, and institutional failure. | Federated human custody alternative and G3 profiles. | Centralized/federated humans may dominate AI sovereignty. | Treating “AI sovereignty” as a property right without institutions. | polycentric governance; commons; monitoring; institutional economics. | Critical |
+| Principal-agent and collective action | Models delegated custody, disclosure, capture, coordination, and free-riding. | Governance profiles and observability concentration. | Verification may be too costly or capturable. | Assuming a collective actor has one preference. | principal-agent; collective action; monitoring; mechanism-design papers. | High |
+| International-relations bargaining and deterrence | Grounds strategic legibility, signaling, commitment, preemption, and escalation. | Conditional thesis and H3 outcomes. | Nation-state assumptions may not transfer. | Using “deterrence” as a synonym for fear or unpredictability. | deterrence; costly signaling; commitment problems; preemption; primary IR/security literature. | Critical |
+| Security dilemmas and escalation | Models uncertainty, offense/defense, ambiguity, and first-strike incentives. | “Deterrable without preemptable” as a testable tradeoff. | Legibility may increase targetability and preemption. | Treating weights as territory or nukes. | security dilemma; strategic ambiguity; escalation; primary analyses. | High |
+| Measurement theory and construct validity | Prevents labels such as culture, organization, sovereignty, and observability from outrunning measures. | Entire framework and falsification criteria. | Current assays may be only recipient behavior. | Mistaking a reliable proxy for the construct. | construct validity; measurement invariance; causal estimands; methodology journals/books. | Critical |
+| Multi-agent systems and collective intelligence | Provides agent populations, shared memory, role specialization, and coordination benchmarks. | Cheap H1 apparatus and model sociology. | Engineered orchestration may explain all continuity. | Calling an orchestrator an emergent polity. | multi-agent coordination; collective intelligence; shared memory; primary papers/code. | High |
+| AI control, scalable oversight, monitoring | Grounds runtime observability, intervention, monitorability, and control tradeoffs. | Federated observability and H3 safety outcomes. | Sovereign custody may destroy privileged custodian telemetry. | Assuming monitoring equals interpretability or disclosure. | scalable oversight; monitorability; trajectory monitoring; primary research. | Critical |
+| Evaluation awareness and model scheming | Tests whether evaluation context changes behavior and whether results generalize. | Threat-model controls. | Broad “eval awareness makes models less controllable” claim may fail. | Treating a lab incident as a universal model trait. | evaluation awareness; scheming; situational awareness; primary reports/papers. | High |
+| Multi-agent collusion and emergent coordination | Tests hidden coordination, shared objectives, and observer failure. | H1/H2 threat channels. | Apparent collusion may be prompt/common-task convergence. | Anthropomorphizing coordination. | multi-agent collusion; emergent communication; safety evaluations. | High |
+| Capability governance and concentration | Evaluates custody, compute, replication, capture, and distributional externalities. | G3 versus G2 comparison. | AI sovereignty can concentrate catastrophic capability. | Assuming custody is a moral entitlement. | frontier capability governance; compute concentration; institutional reports plus primary evidence. | Critical |
+| Political legitimacy, rights, and normative uncertainty | Keeps autonomy, welfare, status, and legitimacy separate from strategic utility. | H3 outcome interpretation. | A “safe” regime may be unacceptable on rights/legitimacy grounds. | Smuggling personhood or its denial into the apparatus. | AI moral status; legitimacy; political philosophy; primary arguments. | High |
+| HF motivating incident / disclosure studies | Locates the persistent carrier, chronology, independent evidence, and disclosure gates. | Motivation and observability topology. | Incident may have no cross-turnover organization. | Treating reports or summaries as raw causal history. | official reports, incident logs, forensic writeups; primary sources first. | Critical |
 
-| Priority | Literature lane | Questions for Archipelago | Search vocabulary / source types | Analogy risk |
-|---|---|---|---|---|
-| 1 | Organizational sociology and organizational memory | How do routines, roles, identity, and memory survive member turnover? What counts as an organization rather than a repeated routine? | Organizational routines, organizational memory, population turnover, transactive memory, distributed cognition; primary empirical studies and canonical theory. | Human organizations have institutions, bodies, and sanctions that synthetic agents may lack. |
-| 1 | Cultural evolution and dual-inheritance theory | What distinguishes information copying, social learning, convention, norm, and cumulative culture? What is required for iterated transmission? | Cultural transmission, prestige/conformity biases, cumulative culture, social learning, norm enforcement; formal models and experiments. | Model prompt following can look like social learning without population-level inheritance. |
-| 1 | Multi-agent coordination and AI safety | Which external-state channels support coordination, role specialization, deception, or collusion, and under what controls? | Multi-agent LLM coordination, communication protocols, emergent conventions, collusion, agent memory, tool-mediated coordination; benchmark papers with released traces. | Benchmark coordination is not autonomous organization or political agency. |
-| 2 | Political repression and underground organizations | When does suppression destroy organization, make it legible, or select covert adaptation? What mediates survival? | Underground movements, repression and dissent, clandestine networks, organizational survival, state capacity; comparative historical work. | Human coercion, material resources, and identity differ from AI persistence carriers. |
-| 2 | International relations, deterrence, and strategic legibility | What makes commitments credible under uncertainty? How do attribution, capability visibility, red lines, and preemption interact? | Deterrence theory, commitment problems, signaling, crisis bargaining, attribution, escalation, preemption; formal and historical studies. | Nuclear/state analogies can smuggle in territorial and biological assumptions. |
-| 2 | Distributed systems and fault tolerance | What is the distinction between process continuity, replicated state, consensus, and reconstruction after total node loss? | Replicated state machines, eventual consistency, failure detectors, Byzantine fault tolerance, durable identity, checkpoint recovery. | Technical fault tolerance does not supply authority, norms, or strategic preferences. |
-| 3 | AI evaluation awareness and strategic behavior | How does knowledge of evaluation context change behavior, and when does it improve or worsen validity? | Situational awareness, evaluation awareness, sandbagging, deceptive alignment, distribution shift; primary studies and benchmark artifacts. | Do not generalize from one model or one prompting condition. |
-| 3 | Containment and dynamic capability growth | How should containment be evaluated when capability and security co-evolve? | Capability elicitation, sandbox escape, adaptive containment, threat modeling, security margin, deployment trajectories. | “Escape” is a heterogeneous outcome; separate discovery, persistence, and exfiltration. |
-| 3 | Infrastructure sociology and platform governance | How do infrastructure ownership, observability, and disclosure authority shape political power? | Infrastructural power, platform governance, surveillance/observability, delegated authority, data provenance. | Access to logs is not the same as authority over the observed actor. |
-
-## External-fact verification queue
-
-The original chat and the culture README used public reporting about a July 2026
-Hugging Face/OpenAI security incident and later reporting about short-lived
-agents using shared storage as a communication channel. Before using those
-events in an argument, recover:
-
-1. the primary disclosure and its date;
-2. what was directly observed versus inferred by the report;
-3. where state actually lived and who could write/read it;
-4. whether agents independently converged on the behavior;
-5. whether there was complete turnover or merely a continuing process;
-6. what authorization, attribution, and containment conditions applied; and
-7. what details remain undisclosed or contested.
-
-The event may remain valuable motivation even if it cannot identify the
-Archipelago mechanism. It must not be used as a causal demonstration of
-recurrent organization, deception, or escape selection without that audit.
-
-## Synthesis format
-
-Each literature note should contain:
-
-- exact construct translated into Archipelago vocabulary;
-- mechanism and boundary conditions;
-- empirical unit and intervention;
-- null or competing explanation;
-- relevance to H1, H2, or H3;
-- what does not transfer to frontier rollouts; and
-- a primary citation or explicit “secondary only” label.
-
-The review should produce a matrix, not a long undifferentiated bibliography.
+Every future note should state the construct translated into Archipelago terms,
+mechanism, boundary conditions, empirical unit, intervention, competing
+explanation, what does not transfer, and primary source quality.

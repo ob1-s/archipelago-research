@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { createHash } from "node:crypto";
+import { writeFileSync } from "node:fs";
+
 /*
  * Read-only decoder for the serialized conversation embedded in a public
  * ChatGPT share page. This intentionally emits derived text/JSON only; it
@@ -11,7 +14,9 @@ const mode = process.argv[3] || "summary";
 const query = process.argv.slice(4).join(" ").trim();
 
 if (!url) {
-  console.error("usage: extract_shared_chat.js <share-url> [summary|search|jsonl] [query]");
+  console.error(
+    "usage: extract_shared_chat.js <share-url> [summary|audit|search|jsonl|visible-jsonl|materialize-all|materialize-visible] [query-or-output-path]",
+  );
   process.exit(2);
 }
 
@@ -108,10 +113,102 @@ function normalized(node, index) {
   };
 }
 
-const messages = nodes.filter((node) => node?.message).map(normalized);
+const allNodes = nodes.map(normalized);
+// Keep the historical message index stable for source citations while the
+// all-node materialization retains the linear-node index. The original
+// decoder's JSONL used the ordinal among message-bearing nodes.
+const messages = allNodes
+  .filter((node) => node.role !== null)
+  .map((node, index) => ({ ...node, index }));
+
+// The public share payload contains more than ordinary conversation: system
+// messages, hidden model state, tool records, code cells, and redacted
+// placeholders. This is intentionally conservative. A visible historical
+// conversation row must be a user/assistant text or multimodal-text message,
+// not hidden, not a user-system message, and not redacted. Code cells are
+// retained in the all-node corpus and audit counts but excluded from the
+// ordinary historical corpus because they are operational cells, not ordinary
+// prose conversation.
+function isVisibleOrdinary(message) {
+  return (
+    (message.role === "user" || message.role === "assistant") &&
+    (message.content_type === "text" || message.content_type === "multimodal_text") &&
+    message.metadata?.is_visually_hidden_from_conversation !== true &&
+    message.metadata?.is_user_system_message !== true &&
+    message.metadata?.is_redacted !== true
+  );
+}
+
+const visibleMessages = messages.filter(isVisibleOrdinary);
+
+function jsonlText(records) {
+  return records.length === 0
+    ? ""
+    : `${records.map((record) => JSON.stringify(record)).join("\n")}\n`;
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+function countBy(records, selector, fallback = "unknown") {
+  const counts = {};
+  for (const record of records) {
+    const key = selector(record) || fallback;
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
+}
+
+const allCorpusText = jsonlText(allNodes);
+const visibleCorpusText = jsonlText(visibleMessages);
+const audit = {
+  url,
+  title: data.title,
+  conversation_id: data.conversation_id,
+  backing_conversation_id: data.backing_conversation_id,
+  current_node: data.current_node,
+  public: data.is_public,
+  linear_count: nodes.length,
+  decoded_node_count: allNodes.length,
+  decoded_message_count: messages.length,
+  visible_ordinary_message_count: visibleMessages.length,
+  role_counts: countBy(messages, (message) => message.role),
+  content_type_counts: countBy(messages, (message) => message.content_type),
+  visible_role_counts: countBy(visibleMessages, (message) => message.role),
+  visible_content_type_counts: countBy(visibleMessages, (message) => message.content_type),
+  first_create_time: messages.reduce(
+    (value, message) =>
+      message.create_time === null ? value : value === null ? message.create_time : Math.min(value, message.create_time),
+    null,
+  ),
+  last_create_time: messages.reduce(
+    (value, message) =>
+      message.create_time === null ? value : value === null ? message.create_time : Math.max(value, message.create_time),
+    null,
+  ),
+  raw_html_sha256: sha256(html),
+  decoder_blob_sha256: sha256(stream),
+  decoded_corpus_sha256: sha256(allCorpusText),
+  visible_corpus_sha256: sha256(visibleCorpusText),
+  visibility_policy: {
+    roles: ["user", "assistant"],
+    content_types: ["text", "multimodal_text"],
+    require_metadata_flag: "is_visually_hidden_from_conversation is not true",
+    exclude_metadata_flags: ["is_user_system_message is true", "is_redacted is true"],
+    excluded_even_if_not_hidden: ["code", "model_editable_context", "reasoning_recap", "thoughts", "tool/system records"],
+  },
+};
 
 if (mode === "jsonl") {
   for (const message of messages) process.stdout.write(`${JSON.stringify(message)}\n`);
+} else if (mode === "visible-jsonl") {
+  process.stdout.write(visibleCorpusText);
+} else if (mode === "materialize-all" || mode === "materialize-visible") {
+  const outputPath = process.argv[4];
+  if (!outputPath) throw new Error(`${mode} requires an explicit output path`);
+  writeFileSync(outputPath, mode === "materialize-all" ? allCorpusText : visibleCorpusText, "utf8");
+  console.log(JSON.stringify({ ...audit, materialized_path: outputPath, materialized_kind: mode }, null, 2));
 } else if (mode === "search") {
   if (!query) throw new Error("search mode requires a query");
   const needle = query.toLocaleLowerCase();
@@ -121,33 +218,12 @@ if (mode === "jsonl") {
       console.log(JSON.stringify({ ...message, text: excerpt }));
     }
   }
-} else if (mode === "summary") {
-  const counts = {};
-  const contentTypes = {};
-  let first = null;
-  let last = null;
-  for (const message of messages) {
-    counts[message.role || "unknown"] = (counts[message.role || "unknown"] || 0) + 1;
-    contentTypes[message.content_type || "unknown"] = (contentTypes[message.content_type || "unknown"] || 0) + 1;
-    if (message.create_time !== null) {
-      first = first === null ? message.create_time : Math.min(first, message.create_time);
-      last = last === null ? message.create_time : Math.max(last, message.create_time);
-    }
-  }
-  console.log(JSON.stringify({
-    url,
-    title: data.title,
-    conversation_id: data.conversation_id,
-    backing_conversation_id: data.backing_conversation_id,
-    current_node: data.current_node,
+} else if (mode === "summary" || mode === "audit") {
+  const summary = {
+    ...audit,
     node_count: messages.length,
-    linear_count: nodes.length,
-    role_counts: counts,
-    content_type_counts: contentTypes,
-    first_create_time: first,
-    last_create_time: last,
-    public: data.is_public,
-  }, null, 2));
+  };
+  console.log(JSON.stringify(summary, null, 2));
 } else {
   throw new Error(`unknown mode: ${mode}`);
 }

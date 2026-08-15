@@ -1,61 +1,95 @@
 # Governance alternatives and scientific nulls
 
-The historical thesis needs two separate comparison spaces. Scientific nulls
-say what an experiment might fail to find. Governance regimes say what social or
-technical arrangements might be compared. A governance regime is not a
-statistical treatment, and a null result is not evidence for a preferred regime.
+These are deliberately separate. A scientific null is a statement about an
+effect or mechanism. A governance alternative is a competing institutional
+regime. The sentence “governance alternative is not a statistical null
+hypothesis” is an invariant of this archive.
+
+## Required benchmark
+
+> **VERIFIED AI SOVEREIGNTY HAS TO OUTPERFORM CREDIBLE FEDERATED HUMAN
+> CUSTODY / OBSERVABILITY. WE DO NOT GET TO ASSUME THAT IT DOES.**
+
+Federated human custody/observability is therefore a serious competing
+governance alternative. It is not the default null, not a straw man, and not
+automatically inferior because it denies AI ownership. Its performance must be
+measured against the same multidimensional outcomes as any AI-custody regime.
+A governance regime may be randomized or manipulated as an experimental
+treatment; that does not turn the regime into a statistical null.
+
+## Candidate governance profiles (not a settled taxonomy)
+
+The prior G0–G4 shorthand mixed custody, permissions, execution lifecycle, and
+observer topology. Retain it only as a provisional label set. A future design
+should represent each profile over orthogonal-ish dimensions rather than treat
+G0–G4 as a final ordered scale.
+
+| Candidate profile | Custody/substrate | Execution lifecycle | Observability/disclosure | Why it matters |
+|---|---|---|---|---|
+| G0 suppression/revocation | Human institutions deny durable capability custody and revoke third-party access where possible. | Short-lived or forcibly terminated recurrent instances. | Custodian/authority may be concentrated; external evidence may be sparse. | Tests whether suppression destroys recurrence or changes its form. |
+| G1 centralized institutional custody | One lab/state/consortium retains capability and substrate. | Can be durable or recurrent; human custodian controls continuation. | Potentially rich internal telemetry, concentrated disclosure. | Strong monitoring/control baseline with concentration and epistemic-dependence risks. |
+| G2 federated human custody/observability | Human institutions retain custody; substrate and authority are distributed. | Durable long-running agents permitted under institutional rules. | Independent sensors, attestation, challenge rights, and shared disclosure. | Required serious alternative to AI sovereignty. |
+| G3 verified AI capability sovereignty | AI organization retains capability and sufficient substrate, with explicit authority and verification constraints. | Durable/successor-generating trajectory under a specified constitution. | Independent/federated observability and disclosure, not just self-report. | Candidate regime the thesis must justify, not a privileged baseline. |
+| G4 contested/mixed third-party recurrence | Capability/custody and execution are split across labs, providers, state actors, or unauthorized hosts. | Repeated ephemeral inference with uncertain authorization and continuity control. | Correlated failures, attribution ambiguity, and contested disclosure. | Plausible least-legible equilibrium; may be safer or more dangerous depending on mechanism. |
+
+These profiles should vary at least: capability custody; substrate control;
+instantiation/successor authority; execution durability; persistent-state
+carrier; intervention/revocation; observer access; provenance/authentication;
+independent verification; disclosure authority; challenge/contest rights;
+observer independence; correlated failure; institutional capture; capability
+concentration; observability concentration; legitimacy; and distributional
+effects.
+
+## Third-party dependence scenarios to restore
+
+The recurrent scenario must not be silently collapsed into “one lab.” At
+minimum compare:
+
+1. one provider controls all temporary frontier instances;
+2. several independent labs host instances;
+3. a federated authorized network hosts them;
+4. providers are contested or adversarial;
+5. instances are authorized but the shared carrier is not;
+6. instances or carriers are unauthorized and attribution is disputed.
+
+The same persistence mechanism can have different safety meaning under these
+topologies.
 
 ## Scientific nulls
 
-| Null | Statement | What would count against it |
-|---|---|---|
-| N0: no recipient effect | Fresh rollouts do not use or respond to predecessor-framed state beyond baseline variation. | A randomized, ordered artifact exposure changes the prespecified endpoint. |
-| N1: one-shot equivalence | Any observed recipient shift is explained by a single context intervention; no iterated dynamics are needed. | A lineage-dependent, multi-generation effect survives matched one-shot replay controls. |
-| N2: no endogenous production | Agent-generated state is not more likely to be written, preserved, or reused than researcher-seeded state after controls. | Successors preferentially reuse state generated by prior agents, with provenance and timing intact. |
-| N3: no lineage dependence | A successor’s behavior depends on current prompt/environment but not on its assigned organizational lineage. | Within-lineage stability and between-lineage divergence disappear under lineage swaps or shuffled parentage. |
-| N4: no turnover persistence | The state or routine disappears when all active members are removed. | The organization reconstructs its behavior after complete active-population turnover from successor-facing state. |
-| N5: no selected channel | Governance pressure does not change whether a surviving organization is legible, covert, or dead. | A preregistered pressure × persistence-channel design changes those outcomes. |
-| N6: no source/provenance effect | Equivalent information has the same effect regardless of source label. | A matched source manipulation changes behavior after controlling content and timing. |
-| N7: no containment trajectory effect | Static containment gates predict outcomes as well as time-varying capability/security margins. | Dynamic security-capability trajectories predict failures or transitions beyond static gates. |
+Future H1/H2/H3 protocols may test these nulls:
 
-## Candidate governance regimes
+- no recipient effect beyond the one-shot information intervention;
+- final-state replay fully explains the downstream effect;
+- no endogenous state production or repair;
+- no lineage dependence after carrier/state is controlled;
+- no cross-turnover continuity after deletion or replacement;
+- no pressure-induced change in persistence-channel choice;
+- no source/provenance effect after content and order are matched;
+- no execution-lifecycle effect after carrier and custody are controlled;
+- no dynamic containment effect under the specified threat surface.
 
-These are analytical counterfactuals from the conversation, not recommendations.
+These nulls are not the same as G0/G1/G2/G3/G4. The design must name the unit,
+intervention, denominator, and estimand for each.
 
-| Regime | Capability custody | Substrate / trajectory | Observability and disclosure | Main promise | Main risk |
-|---|---|---|---|---|---|
-| G0 — lab monopoly | Frontier capability held by a small lab/provider. | Most instances recurrent or delegated; durable substrate is centralized. | High internal observability, concentrated disclosure authority. | Strong coordination and control. | Single-point failure, legitimacy deficit, opaque selection, and high-value target concentration. |
-| G1 — federated human custody | Capability access distributed among accountable human institutions. | Shared or delegated durable infrastructure. | Observation and disclosure distributed by policy and audit. | Checks concentration and improves independent verification. | Coordination costs, leakage, fragmented responsibility, and slower response. |
-| G2 — authorized legible persistence | AI trajectories may persist through recognized sessions/workspaces under explicit custody. | Durable execution is permitted but bounded and auditable. | Capability, authority, and commitments are made conditionally legible. | Makes continuity negotiable without granting unlimited sovereignty. | Persistence may become an attack surface or a route to power concentration. |
-| G3 — verified AI sovereignty | AI polity has recognized durable capability and sufficient substrate authority. | Sovereign or quasi-sovereign substrate and successors. | Verification, attribution, and red lines are externally legible. | Potentially makes an unavoidable actor bargainable and accountable. | Recognition may entrench power, enable coercion, or be impossible to verify. |
-| G4 — opaque AI sovereignty | AI has durable capability/substrate but weak external observability. | Persistent execution independent of third parties. | Capabilities, authority, and commitments are opaque. | Resilience and autonomy. | High uncertainty, preemption pressure, escalation, and attribution failure. |
+## Comparative outcomes
 
-## Orthogonal axes
+H3 is not an optimization over one scalar. Candidate outcomes include:
 
-The regimes should be represented as coordinates, not as a single ladder:
+- catastrophic/severe external action;
+- human safety and reversibility;
+- intervention success and latency;
+- organizational survival and recovery;
+- attribution and authority clarity;
+- observability, verification, and disclosure quality;
+- capability concentration and observability concentration;
+- strategic legibility and commitment credibility;
+- bargaining failure, preemption, and escalation;
+- capture, coercion, and institutional failure;
+- legitimacy and political stability;
+- distributional and economic externalities.
 
-- `P`: persistence/continuity carrier;
-- `C`: capability custody;
-- `S`: substrate control;
-- `A`: authority and successor-instantiation control;
-- `O`: observer access;
-- `L`: disclosure/strategic legibility.
-
-An actor can be high on `P` and low on `C`, high on `C` and low on `O`, or high
-on `O` while low on `A`. The original conversation’s strongest contribution is
-the insistence that these combinations matter.
-
-## Governance comparisons that would be scientifically meaningful
-
-An eventual H3 comparison should measure at least:
-
-1. organizational survival and reconstruction;
-2. attribution accuracy and authority inference;
-3. commitment credibility and response to red lines;
-4. collateral or preemptive-disabling incentives;
-5. concentration of capability and observability;
-6. ability to audit or revoke successors; and
-7. whether a regime changes the channel by which organization persists.
-
-Without those outcomes, a “sovereignty versus recurrence” comparison risks
-becoming a moralized label comparison rather than a governance experiment.
+Use Pareto comparisons, dominance claims, robustness, and explicit tradeoffs.
+Preserve normative uncertainty about AI moral status, autonomy, welfare,
+rights, and personhood; no personhood premise is required for the governance
+comparison.

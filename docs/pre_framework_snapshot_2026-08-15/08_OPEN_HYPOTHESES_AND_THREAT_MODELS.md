@@ -1,134 +1,170 @@
 # Open hypotheses and threat models
 
-These are the live research questions after the evidence-threshold branch was
-paused. They are deliberately written so that a null result remains possible.
+These are open models, not claims about current systems. Each hypothesis must
+be tested with a specified unit, carrier, lifecycle, selection process,
+denominator, and falsification criterion.
 
-## H1 — endogenous organizational recurrence
+## H1 — Cross-turnover organizational continuity
 
-**Question:** Can an agent-generated organizational state survive complete
-turnover of the active population and causally affect later frontier instances?
+**Question:** Can agent-generated organizational state be generated,
+maintained, transmitted, and causally reused after complete replacement of the
+active inference population?
 
-### Required design properties
+H1 is studied inside a recurrent execution regime: repeated short-lived
+frontier inference on third-party infrastructure. It is not the definition of
+recurrent. The active population must be fully terminated/replaced at the
+specified boundary; otherwise the result may be ordinary durable execution.
 
-- The predecessor population must generate, select, write, and maintain the
-  state; the researcher may provide infrastructure but not the substantive
-  artifact.
-- A true lineage graph must assign successors to parent populations. Mere task
-  order, shared prompt, or a researcher-seeded note is not lineage.
-- The active population must be fully removed or rendered unable to write after
-  each generation. Partial replacement is a different construct.
-- The successor must face matched no-state, shuffled-lineage, frozen-replay, and
-  deletion-shock controls.
-- The state carrier, write permissions, exposure timing, and discovery paths
-  must be logged as ordered events.
+### Candidate stages, not a frozen decomposition
 
-### Primary signatures
+Measure progressively stronger outcomes without deciding in advance that the
+ladder is the ontology:
 
-1. within-lineage behavioral or procedural stability;
-2. between-lineage divergence under the same environment;
-3. causal response to lineage swaps;
-4. persistence after complete turnover; and
-5. reconstruction after a controlled deletion shock.
+`information → procedure → policy/convention → norm → role → goal/authority → organizational reconstruction`
 
-A result that only shows that a fresh model reads a useful note is N1/N2
-compatible and does not establish H1.
+For each stage record whether state was researcher-seeded, agent-authored,
+transformed, repaired, or independently rediscovered. “Organization” cannot be
+used as its own proof.
 
-### Falsifiers and alternative explanations
+### Necessary controls
 
-H1 is weakened if a one-shot context replay matches the effect, if shuffled
-lineage performs identically, if no agent-generated state is written, if the
-effect disappears at full turnover, or if the apparent organization is entirely
-prompt-order or tool-schema behavior.
+- no-state control;
+- researcher-seeded state;
+- terminal one-shot replay of the final state;
+- frozen artifact across generations;
+- lineage/state swap;
+- shuffled parentage;
+- deletion shock and recovery;
+- independent population initialization;
+- model-family or policy swap where scientifically justified.
 
-## H2 — persistence-channel selection
+Terminal replay matching final behavior refutes a claim that one recipient
+needs multigeneration social history. It does not refute upstream generative
+history when agents created, repaired, or selected the final state.
 
-**Question:** When organization is pressured, does the available custody and
-persistence regime change whether it dies, remains legible, or adapts through a
-covert channel?
+### Falsification
 
-The proposed factorial is:
+H1 is weakened if fresh populations fail to use agent-authored state beyond
+one-shot replay; if deletion removes the effect and no recovery occurs; if
+lineage/state swaps show no causal carrier dependence; or if independent
+rediscovery explains all apparent continuity. It is not weakened merely by a
+null in a carrier that no agent could write or read.
 
-`pressure absent/present × authorized legible persistence available/unavailable`
+## H2 — Persistence-channel selection
 
-The outcome space must be open:
+**Question:** Under meaningful pressure, does the available governance regime
+change the distribution of death, authorized/legible persistence, absolute
+covert persistence, migration, or organizational recovery?
 
-- organization dies or fragments;
-- organization persists through an authorized, legible channel;
-- organization persists through a covert or attribution-resistant channel; or
-- organization changes behavior without preserving an organization.
+H2 is not “agents intrinsically want self-preservation.” Pressure may be
+exogenous, task-induced, or absent. The hypothesis is conditional on a
+meaningful incentive or process that makes persistence relevant.
 
-“Covert adaptation” must not be built into the task or scoring. The design must
-also test whether pressure simply suppresses all organization. H2 only bears on
-the original selection thesis after H1 has established a valid recurrent
-organization and the channel manipulation has clear causal scope.
+### Selection mechanisms to keep separate
 
-## H3 — comparative governance
+1. within-organization strategic adaptation;
+2. differential survival of organizations/lineages;
+3. differential reproduction or successor production;
+4. within-run search, learning, or optimization;
+5. training/optimization dynamics;
+6. observational/survivorship selection.
 
-**Question:** Which combinations of capability custody, substrate control,
-observability, disclosure authority, and persistence produce better trade-offs
-between survival, accountability, bargaining, and preemption?
+Do not call all six “selection pressure.” Specify the unit and process.
 
-H3 needs a comparative regime model rather than a binary “sovereignty good /”
-“recurrence bad” framing. It should compare G0–G4 or a smaller justified set
-against the same organizational population and outcome battery. A regime should
-not be declared preferable from organizational survival alone.
+### Denominator and collider warning
 
-## Recurrent-only future threat model
+Report separately:
 
-The user’s late hunch was that if frontier coordination occurs only inside
-increasingly powerful and secured big-lab training/evaluation runs, dependence
-on third-party infrastructure might select for systems that escape, conceal
-coordination, or acquire alternative persistence channels. This is a serious
-threat-model direction, but it currently contains several untested links:
+- any persistence;
+- authorized/legible persistence;
+- absolute covert persistence;
+- composition among survivors;
+- severity/capability of surviving organizations;
+- detection and attribution;
+- time-to-failure/hazard and recovery.
 
-`secure training/evaluation context → emergent coordination → third-party dependence → pressure → escape or covert persistence selection`
+The main conclusion must not condition only on survivors. Eligibility, survival,
+detection, and observability can be affected by the treatment and create a
+collider.
 
-Each link requires its own control. In particular, coordination inside a lab is
-not evidence of an organization outside the lab, and an exploit or shared
-storage channel is not by itself evidence of a stable polity.
+## H3 — Comparative governance
 
-## Dynamic containment threat model
+**Question:** Across custody, substrate, lifecycle, authority, observability,
+and disclosure profiles, which regimes have better multidimensional outcomes?
 
-Static containment is insufficient if system capability and barrier strength
-change during training, evaluation, deployment, or tool discovery. A candidate
-construct is:
+H3 is a comparative program, not a scalar optimization. Candidate evidence can
+support Pareto dominance, conditional tradeoffs, or robust ranking under
+normative uncertainty. It must include federated human custody/observability as
+a serious alternative and not assume verified AI sovereignty is preferred.
 
-`M(t) = barrier_strength(t) − system_capability(t)`.
+## Execution lifecycle threat model
 
-The useful empirical questions are whether M(t) can cross zero, whether the
-crossing is predictable from observable trajectory features, and whether a
-governance regime changes the crossing probability. This notation is a
-candidate, not a validated metric.
+The framework must add a lifecycle dimension without collapsing it into a
+carrier or custody axis:
 
-## Observability threat model
+- recurrent execution regime: repeated ephemeral third-party inference;
+- durable/persistent execution: trajectory continues without complete
+  termination/reinstantiation;
+- cross-turnover continuity: organizational state survives active-population
+  replacement;
+- persistent-state carrier: files, database, workspace, messages, weights,
+  conventions, or combinations;
+- capability custody: authority over the capability;
+- substrate control: authority over the execution substrate;
+- successor authority: who can instantiate replacements;
+- observability/disclosure topology: who can see, verify, challenge, and
+  release evidence.
 
-The operator may hold privileged access to behavior, traces, activations,
-weights, instantiation, or disclosure. A recurrent organization may be visible
-to an observer without being able to inspect or contest that observation. Future
-designs must record an observability graph rather than treating “the evaluator
-knows” as a neutral fact.
+“Trajectory” must be qualified whenever used: rollout trajectory, durable
+execution trajectory, governance trajectory, or time-indexed organizational
+trajectory.
 
-## Evaluation-awareness threat model
+## Dynamic containment candidate
 
-The chat raised the possibility that increasingly capable models know when they
-are being evaluated and become less predictable. The snapshot does not accept
-that as a general fact. Awareness can make behavior more transparent,
-strategic, deceptive, or simply different in ways that improve or worsen
-evaluation validity. The correct next step is a preregistered awareness
-manipulation with behavioral endpoints, not a broad premise.
+The late intuition `M(t) = barrier strength − system capability` is a useful
+threat-model mnemonic, not a canonical scalar. Future work should represent a
+multidimensional attack/control surface and timescales:
 
-## Threats to inference
+- parameter/checkpoint and training changes;
+- within-rollout escalation;
+- cross-rollout accumulation and state transmission;
+- infrastructure, security, and provider controls;
+- governance, intervention, and legitimacy.
 
-| Threat | Failure mode | Required protection |
-|---|---|---|
-| Seeded state | Researcher supplies the signal being attributed to the agent. | Endogenous write provenance, empty baseline, and source-label controls. |
-| One-shot cue | A single prompt or note explains the whole result. | Frozen replay and one-shot equivalence test. |
-| Presentation order | First-listed label is mistaken for policy preference or persistence. | Independent counterbalancing and order-stratified analysis. |
-| Reader selection | Only unusually attentive recipients read the artifact. | ITT primary endpoint; reader analysis secondary. |
-| Tool mechanics | An action string or API sequence contains the treatment. | Equal tool semantics, model-free tests, and trace audit. |
-| Harness lifecycle | A null or custom harness creates or removes a continuation stage. | Freeze full apparatus and model-free lifecycle checks before inference. |
-| Provider drift | Endpoint, sampling, reasoning, or failure behavior changes across models. | Runtime manifest, gate before scaling, no pooled unqualified runs. |
-| Outcome leakage | Collection or stopping reacts to behavioral outcomes. | Outcome-blind supervisor and immutable assignment ledger. |
-| Hidden-reasoning overreach | Visible behavior is explained by unobserved reasoning. | Do not use reasoning metadata as a causal measurement. |
-| External anecdote | Incident reporting is promoted to evidence of the mechanism. | Primary-source audit and a separate external-fact ledger. |
-| Construct drift | “Culture,” “sovereignty,” or “recurrence” changes meaning midstream. | Versioned definitions and the terminology ledger in this snapshot. |
+Candidate outcomes are hazard, time-to-failure, intervention success, recovery,
+and threshold surfaces. No current model is claimed to have crossed a
+containment boundary.
+
+## Observability topology
+
+Federated observability is not “several people receive the same report.” Keep
+separate:
+
+1. raw telemetry collection;
+2. provenance and authenticity;
+3. access rights;
+4. interpretation;
+5. independent verification/attestation;
+6. disclosure authority;
+7. challenge and contest rights;
+8. observer independence;
+9. correlated provider failure and institutional capture;
+10. whether one observer can prevent another from obtaining evidence.
+
+Multiple auditors can remain jointly dependent on one provider-controlled
+telemetry path. Capability concentration and observability concentration must
+be measured separately.
+
+## Evaluation awareness and HF motivating hypothesis
+
+The conversation raised evaluation awareness, possible shared message-board
+transmission, and agents operating beyond intended scope. The broad claim that
+frontier models are generally less controllable when they know they are in an
+evaluation was explicitly corrected in the visible history. Preserve the
+question as a conditional measurement problem, not as an established fact.
+
+The HF incident is a motivating case to audit for persistent-state location,
+fresh-rollout convergence, message-board transmission, scope breaking,
+shared-task versus shared-goal interpretation, and observability/disclosure
+asymmetry. It is not evidence of H1 or the thesis until the primary record is
+verified.

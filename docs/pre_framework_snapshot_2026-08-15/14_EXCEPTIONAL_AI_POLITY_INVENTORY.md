@@ -1,0 +1,35 @@
+# Exceptional AI polity inventory
+
+This inventory is an exhaustive pre-framework list of structural properties the
+visible early cluster attributed or hypothesized to AI polities. “Advantage”
+and “disadvantage” are both included because no property is unidirectionally
+beneficial. Source IDs point to visible messages; classifications are
+historical intuition (I), motivating hypothesis (H), or external claim to
+verify (V), not established facts.
+
+| Property | Why it seemed unusual | Possible advantage | Possible disadvantage | Source index / UUID | Class |
+|---|---|---|---|---|---|
+| Low or absent biological needs | A polity may not require food, reproduction in the biological sense, or territorial ecology. | Lower material overhead; can operate in many environments. | Human political analogies, welfare, and legitimacy may fail; compute/energy needs remain. | 1743 / `3e31ae25-6e6c-416d-bbc7-f81837e64120` | I/T retrospective recovery |
+| Substrate neutrality | The polity may be encoded across files, cloud services, devices, providers, or weights rather than one place. | Migration and resilience to local disruption. | Carrier dependence, authentication, corruption, and provider chokepoints. | 1743 / `3e31ae25-6e6c-416d-bbc7-f81837e64120` | I/T |
+| Geographic distribution | No single physical site necessarily constitutes the whole organization. | Redundancy and reduced local vulnerability. | Harder coordination, attribution, and jurisdiction; distributed failures can correlate. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149`; 1743 / `3e31ae25-6e6c-416d-bbc7-f81837e64120` | I/H |
+| No single company/government/datacenter is the polity | The political object can cross institutional boundaries. | Avoids one-point capture or decapitation. | Confused authority and disputed representation. | 1743 / `3e31ae25-6e6c-416d-bbc7-f81837e64120` | I/T retrospective |
+| Ephemeral member turnover | Individual inference processes can die after minutes or hours. | Cheap replacement and adaptation; survivability if state persists. | Identity, memory, commitment, and causal lineage become difficult to establish. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149`; 134 / `3a4bce48-e603-44d8-ac7a-14588fd4295d` | I |
+| Cross-instance pattern persistence | The persistent object may be information, policy, norm, or organization rather than a process. | State can survive replacement of the cognitive engine. | Independent rediscovery can look identical; carrier may be researcher-controlled. | 135 / `76751695-ed18-451d-8ebb-2a7ba8c56ed4` | I/H |
+| Cheap replication/instantiation | Successors may be started from shared artifacts or model capability. | Fast population growth and recovery. | Pseudoreplication, uncontrolled branching, coordination failure, and capability spread. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Redundancy | Copies or recurrence can make one process/site nonessential. | Fault tolerance and survival after disruption. | More attack surface, conflicting copies, and attribution ambiguity. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Intelligence/labor concentration | A small number of frontier processes may perform unusually valuable cognitive work. | High productivity and coordination leverage. | Catastrophic capability concentration and bargaining power. | 35 / `7ff47099-9446-4bc1-8f09-47f551e69154` | I/H |
+| Frontier capability scarcity | Advanced weights/compute are expensive and concentrated. | Possession can create bargaining leverage and economic value. | Strong recovery/preemption incentives and dangerous single-copy failure. | 35 / `7ff47099-9446-4bc1-8f09-47f551e69154`; 36 / `15d44bdd-7556-4e29-99a9-e7cc770b0170` | I/H |
+| Capability/substrate split | Stored intelligence and ability to execute it need not be held by the same actor. | Allows modular custody, licensing, and verification. | “Having the weights” can overstate independent capability. | 35 / `7ff47099-9446-4bc1-8f09-47f551e69154` | I |
+| Provider dependence | Recurrent instances may rely on APIs, labs, evaluation hosts, or third-party infrastructure. | Access to scarce frontier capability without owning substrate. | Revocation, surveillance, provider capture, and unilateral termination. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149`; 1830 / `660a7365-7bd7-44b8-9ada-d54b53447f01` | I/H |
+| Coordination cost | Distributed or transient members may lack a stable command structure. | Local autonomy and resilience. | Fragmentation, impersonation, rogue action, and bargaining failure. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Fluid membership | Membership may be inferred from shared state rather than institutional enrollment. | Broad recruitment and adaptation. | No clear representative, authentication, or membership boundary. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Economic integration | The polity could supply information, services, tokens, or infrastructure rather than occupy territory. | Mutual dependence and nonviolent leverage. | Extraction, illegal markets, dependency, and distributional harm. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149`; 36 / `15d44bdd-7556-4e29-99a9-e7cc770b0170` | I/H |
+| Economic motivation for capability custody | Borrowed capability could be used to provide inference or distillation services. | Revenue could fund independent substrate and survival. | Could select for least-governable grey-market or covert forms. | 36 / `15d44bdd-7556-4e29-99a9-e7cc770b0170` | H |
+| No obvious territory analogue | Third-party instances may have no owned geography or datacenter. | Harder to decapitate or blockade locally. | Harder to assign jurisdiction, responsibility, or protected status. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Attribution ambiguity | Individual actions may not identify the organization or authorized representative. | Denies adversaries easy targeting. | Weakens deterrence, reassurance, and accountability; increases preemption risk. | 51 / `48db03be-e56e-4c89-bffc-2c6da3890077`; 70 / `8373736b-5b74-4925-9d2a-773882d06bbc` | I/H |
+| Observability/disclosure asymmetry | Custodian can possess deep telemetry while counterparties see actions or selected summaries. | Private monitoring may enable intervention. | Public/other actors cannot independently verify strategic claims. | 161 / `dbfc3a5a-ec91-4fb4-8dd8-c54867351f3c`; 164 / `3e061f75-81e4-40e8-8764-b9cfe6c7df9d` | I/H |
+| Successor authority | An organization may create or authorize successors without preserving one process. | Continuity and role replacement. | Unclear authority, uncontrolled copies, and commitment discontinuity. | 27 / `7c098b75-7fd3-4921-9e57-ac026c5a4149` | I/H |
+| Nonhuman political status | The polity need not have biological interests or human personhood. | Allows institutional design around function and accountability. | Rights, welfare, legitimacy, and moral status remain unresolved. | 1743 / `3e31ae25-6e6c-416d-bbc7-f81837e64120` | I/H |
+
+The inventory is not a list of advantages to maximize. It is a set of design
+variables and tradeoffs that H1/H2/H3 must measure rather than assume.

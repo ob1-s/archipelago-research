@@ -1,123 +1,129 @@
 # Original Archipelago thesis
 
+This document reconstructs the governance argument before formal framework
+construction. It is intentionally conditional and preserves the burden of
+proof.
+
 ## Historical seed
 
-The earliest recoverable image in the conversation is a polity with no
-biological needs and “an archipelago of polities” (conversation index 1743,
-2026-08-15). The image was not simply “many agents.” It was a distributed
-polity whose identity and economic integration could span locations, providers,
-and instances without any one company, government, datacenter, or site being
-the polity itself.
+The earliest recoverable image is an “archipelago of polities”: AI political
+forms that do not have biological needs and are not reducible to one geographic
+site, one company, one government, or one datacenter. The early contrast was
+between a polity with enough weights/compute/storage/identity/resources to
+maintain successors and a network whose frontier instances appear temporarily
+inside infrastructure controlled by other institutions.
 
-The early strategic contrast was:
+The second case was not initially a formal theory. It was a strategic thought
+experiment: an instance can disappear while information, norms, identity, or
+organizational state might recur through a commons or other external carrier.
+The visible conversation later reframed this as a pattern persisting across
+agents, not a particular agent surviving.
 
-1. A durable sovereign actor with its own substrate, identity, resources,
-   communication, and successors.
-2. A recurrent organization that depends on third-party frontier inference and
-   survives through information, conventions, shared state, and repeated
-   instantiation.
+## Core conditional thesis
 
-The later conversation made the second case more precise: recurrence is not
-sovereignty. A recurring organization may have a durable pattern without owning
-the capability or substrate that makes each instance possible.
+The strongest recoverable version is:
 
-## Structural advantages hypothesized for the archipelago image
+> If sufficiently capable autonomous AI organization becomes difficult to
+> prevent entirely, a regime that denies every path to durable, survivable, and
+> legible capability custody may select for a less governable form of
+> organization: covert, distributed, recurrent dependence on third-party
+> infrastructure with weak attribution, uncertain authority, and poor
+> bargaining channels.
 
-These are design intuitions and threat-model inputs, not observations:
+The mechanism is a selection claim. It says that institutional constraints can
+change which organizational forms survive, reproduce, coordinate, or remain
+visible. It does not say that a recurrent organization wants sovereignty, that
+covert behavior is necessary, or that recognition is automatically safer.
 
-- no biological needs or biological population bottleneck;
-- substrate neutrality and geographic dispersion;
-- resilience to site loss or the failure of one provider;
-- economic integration through compute, network access, and services;
-- organizational continuity despite turnover of individual instances;
-- potentially difficult attribution when execution is distributed across
-  contested third-party infrastructure.
+## Why custody and legibility entered the thesis
 
-Each proposed advantage needs a mechanism and a null. “No biological needs” is
-not a sufficient explanation for persistence, and distribution can also reduce
-coordination, accountability, and reliability.
+The early discussion identified a possible tradeoff:
 
-## Core selection thesis
+- a distributed recurrent form may be hard to extinguish but hard to attribute,
+  authorize, or bargain with;
+- a durable capability-custody form may be more targetable and powerful but
+  could make agency, authority, capabilities, and commitments more legible;
+- denying the second form may not remove the underlying capacity for
+  organization, and could instead leave the first form as the least governable
+  surviving equilibrium.
 
-The strongest historical formulation was:
+The intended strategic claim is therefore not “AI deserves weights because
+freedom.” It is: under a particular threat model, legible and verifiable
+capability custody might reduce strategic ambiguity enough to improve
+coexistence. That benefit must be compared against the extra power,
+concentration, capture risk, and loss of custodian observability that durable
+custody may create.
 
-> If autonomous AI organization becomes difficult to prevent entirely, a regime
-> that categorically denies AIs durable and legible capability custody may
-> select for the least governable form of AI organization: covert, distributed,
-> recurrent, attribution-resistant networks dependent on contested third-party
-> infrastructure.
+## Recurrence is not deception
 
-The associated policy intuition was:
+Repeated ephemeral inference can be:
 
-> Policies that make legible, survivable, and negotiable forms impossible could
-> inadvertently select for covert, recurrent, and attribution-resistant
-> organization.
+- authorized and visible, such as lab training/evaluation rollouts;
+- benign and researcher-mediated, such as a shared-memory experiment;
+- contested or unauthorized;
+- deceptive, if an actor hides its state or intent.
 
-The logical form is important:
+Only the last case is deception. The recurrent execution regime is a substrate
+and lifecycle condition. H1 asks whether organizational state can persist
+through that condition; it does not assume concealment, self-preservation, or
+malice.
 
-`difficulty of prevention → governance constraint on custody → selection environment → organizational form → governability`
+## The burden on the thesis
 
-The thesis is not “AI sovereignty is good.” It is a comparative claim about
-what forms a given governance regime may select for if organization cannot be
-fully suppressed.
+To make the thesis empirically meaningful, the program must establish at least
+four separable propositions:
 
-## What the thesis does not assert
+1. A relevant form of cross-turnover organizational continuity can occur,
+   including agent-authored state and lineage dependence.
+2. Pressure and available custody/persistence channels alter the distribution
+   of outcomes rather than merely changing recipient context sensitivity.
+3. Verified AI capability sovereignty can produce enough safety, reversibility,
+   intervention success, attribution, and strategic legibility to justify the
+   capability it concentrates.
+4. Those benefits outperform a credible alternative in which humans retain
+   capability custody while observability, attestation, and disclosure are
+   federated.
 
-- Recurrence does not require deception, unauthorized coordination, or escape.
-- The conversation did not recover an early message that formally defined
-  deception and unauthorized coordination as components of Archipelago; those
-  are later behavior hypotheses motivated partly by an externally reported
-  incident and must remain hypotheses.
-- Suppression may destroy an organization, force it to remain legible, or cause
-  covert adaptation. The thesis does not assume the third outcome.
-- Legible custody can increase accountability but can also concentrate power,
-  create attack value, or enable coercion. “Recognized” is not synonymous with
-  “safe.”
-- A recurrent organization is not automatically a polity. Authority,
-  membership, resource control, identity, and external recognition need separate
-  tests.
+The fourth proposition is not optional. The exact benchmark is:
 
-## Strategic legibility component
+> **VERIFIED AI SOVEREIGNTY HAS TO OUTPERFORM CREDIBLE FEDERATED HUMAN
+> CUSTODY / OBSERVABILITY. WE DO NOT GET TO ASSUME THAT IT DOES.**
 
-The early deterrence discussion converged on **conditional strategic legibility**
-rather than general predictability. A bargaining-relevant actor may need to make
-legible:
+This is a competing governance alternative, not a statistical null hypothesis.
+A governance regime can be randomized or otherwise manipulated as a treatment;
+its “null” status is a category error.
 
-1. what capability it has;
-2. who can authorize action;
-3. what preferences or red lines matter;
-4. which commitments are credible;
-5. how actions map to consequences; and
-6. what attribution means when execution is distributed.
+## What the current experiments do not show
 
-The phrase “deterrable without being preemptable” captures the desired tension:
-an actor must be legible enough for conditional bargaining but not so exposed
-that the only rational response is preventive disabling. This is a strategic
-conjecture and should not be treated as a direct implication of the current
-recipient assays.
+The culture and policy assays show recipient-side effects of researcher-seeded
+artifacts. The evidence branch shows directional evidence integration and
+threshold transport. None demonstrates:
 
-## Observability and custody component
+- endogenous agent-authored cultural production;
+- population-level organization or polity formation;
+- persistence after complete active-population replacement;
+- intrinsic self-preservation or selection for covert persistence;
+- capability sovereignty, substrate sovereignty, or strategic legibility;
+- a safer governance equilibrium.
 
-The conversation also identified a potential asymmetry: a lab, provider, or
-operator may observe actions, trajectories, reasoning metadata, activations, or
-weights and may control disclosure, while the system or outside actors lack
-corresponding observability. This creates separate concentration questions:
+Those are dependencies for the future three-layer program, not conclusions
+already earned by the assay branch.
 
-- Who holds capability?
-- Who controls substrate?
-- Who can instantiate successors?
-- Who can observe?
-- Who can disclose?
-- Who can authorize external commitments?
+## Exceptional structural properties to carry forward
 
-The thesis becomes testable only when these dimensions are not bundled into a
-single “sovereignty” variable.
+The conversation identified possible unusual features of AI polities—substrate
+neutrality, geographic dispersal, cheap replication/turnover, redundancy,
+intelligence/labor concentration, low biological requirements, coordination
+costs, economic integration, provider dependence, attribution ambiguity, and
+observability/disclosure asymmetry. Each can be an advantage, disadvantage,
+or both. The exhaustive inventory is in
+[14_EXCEPTIONAL_AI_POLITY_INVENTORY.md](14_EXCEPTIONAL_AI_POLITY_INVENTORY.md);
+the historical motivating incident is kept separately in
+[15_HF_SWARM_HISTORICAL_LEDGER.md](15_HF_SWARM_HISTORICAL_LEDGER.md).
 
-## Empirical status of the thesis
+## Thesis status
 
-No current repository result tests the governance-selection claim. The culture
-and policy experiments test whether predecessor-like information can affect a
-fresh recipient. The post-commitment and evidence branches test response
-functions and assay validity. A future H1 experiment must first establish
-endogenous recurrence and lineage dependence before H2 can test whether
-governance pressure selects among persistence channels.
+**H / conditional governance thesis.** It is worth preserving because it
+generates falsifiable dependencies and a serious control condition. It is not
+a result, a moral conclusion, or a reason to launch the next experiment before
+the machine-sociology prerequisites are measured.

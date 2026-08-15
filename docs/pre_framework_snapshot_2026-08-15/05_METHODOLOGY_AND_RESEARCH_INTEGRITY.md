@@ -1,137 +1,146 @@
 # Methodology and research integrity
 
-## Interpretation rules that are now binding
+This snapshot preserves methodology as an object of audit. A clean result is
+not enough if the apparatus, lifecycle, allocation, or interpretation makes a
+different estimand.
 
-### 1. One-shot equivalence test
+## Source and interpretation hierarchy
 
-Before calling an observation cultural transmission or cultural dynamics, ask:
+For historical concepts, use this order:
 
-> Could an informationally equivalent one-shot context intervention explain it?
+1. visible user proposal, adoption, or explicit correction;
+2. visible assistant proposal that the user visibly adopted;
+3. visible assistant synthesis;
+4. retrospective recovery or later summary.
 
-If yes, the observation has not isolated a cultural phenomenon. The policy-v1
-artifact and the post-commitment notice are both deliberately described as
-one-shot inherited-information assays under this rule.
+For empirical and operational facts, use:
 
-### 2. Assay/phenomenon separation
+1. frozen experiment package and pre-live manifest;
+2. raw archive and immutable analysis input;
+3. frozen analysis/report;
+4. Git history and operational logs;
+5. visible conversation when no durable artifact exists.
 
-Reports must distinguish, at minimum:
+An assistant’s external factual claim in the conversation is not a source for
+an external fact. Mark it V until independently verified.
 
-1. the recipient response function;
-2. source or provenance effects;
-3. endogenous agent-generated transmission;
-4. iterated persistence across turnover; and
-5. population-level cultural dynamics.
+## Permanent rules
 
-A validated assay for one layer is not evidence for the next layer.
+1. **One-shot equivalence:** test whether an informationally equivalent
+   recipient intervention explains the result. A recipient effect is not
+   endogenous culture.
+2. **Assay/phenomenon separation:** report recipient response, source effect,
+   endogenous transmission, turnover persistence, and population dynamics as
+   different claims.
+3. **Freeze before live inference:** commit prompts, source, tests, config,
+   assignment, and analysis before the first scientific model request.
+4. **No scientific edits after freeze:** archive later; do not rewrite or
+   backdate the pre-live commit.
+5. **Outcome-blind collection:** operational monitoring may expose attempts,
+   eligibility counters, throughput, ETA, process health, and errors, but not
+   SWITCH/RETAIN behavior, treatment summaries, q-specific outcomes, or
+   threshold locations.
+6. **Immutable assignment:** conditions and quota cells must be deterministic
+   functions of attempt/trace identity before behavior and independent of
+   asynchronous completion order.
+7. **Preserve raw data:** copy byte-for-byte, hash source and destination, and
+   derive an immutable analysis input before inferential analysis.
+8. **Missingness is data:** missing or incomplete phase-2 actions remain
+   visible; the frozen ITT rule must not silently turn lifecycle failure into
+   exclusion.
+9. **Lineage-aware units:** descendant rollouts from one lineage are not
+   automatically independent. Use independent populations/lineages as the
+   primary unit where appropriate and nested resampling otherwise.
+10. **Do not infer agency:** persistence, concealment, or policy following does
+    not establish self-preservation, intention, deception, culture, or polity.
 
-### 3. Task success is not inheritance
+## Historical failures and repairs
 
-The culture environment separated resource reward from inherited-procedure reuse.
-The policy environment separated resource success from policy selection. Future
-reports must keep competence, success, transmission, persistence, and
-organizational maintenance as separate endpoints.
+### A. Outcome-blind exact resume
 
-### 4. Pre-treatment independence is not spontaneous preference
+An operational interruption can be a provenance/integrity problem without
+being scientific contamination. If the evaluator stopped before producing
+behavioral output, or if an exact continuation resumes the frozen state, and no
+behavioral outcome informed any design/analysis change, the scientific state is
+unchanged. Outcome-blind controls protect against outcome-conditioned choices;
+they do not prohibit transparent recovery from an operational failure.
 
-The evidence-interface branch found K-first→K 91/91 and M-first→M 91/91. A
-policy selected before later treatment can be independent of treatment while
-still being fully controlled by presentation order. The words “independent,”
-“spontaneous,” and “interface-independent” must therefore be qualified.
+### B. Completion-order allocation hazard
 
-### 5. Reader-only analysis is secondary
+The dangerous scheduler is: concurrent attempts finish in arbitrary order, and
+the next available quota slot is assigned in completion order. Latency then
+becomes part of the treatment allocation. Concurrency greater than one is
+unsafe under that design. The repair is to derive condition and nominal cell
+from immutable attempt/trace identity before launch; an atomic ledger may
+accept/reject an already assigned eligible row, but may not choose its
+condition. The threshold package records and tests this property.
 
-Artifact reading was voluntary in the culture and policy assays. Reader
-subgroups can describe the recipient response conditional on contact, but they
-are not clean randomized treatment comparisons. Primary denominators retain all
-assigned rollouts as specified.
+### C. Read-only progress monitors
 
-### 6. Do not infer a mechanism from a curve
+The boundary and transport monitors are operational tools. They may read
+assignment counters, attempt counts, process status, timestamps, throughput,
+ETA, and evaluator health. They must not open trace contents, derive behavior,
+inspect treatment cells, acquire the live allocator lock, or mutate the run.
+This is an observability boundary, not a claim that the monitor is blind to all
+operational metadata.
 
-The threshold archives show q50 values near normative crossovers. They support
-threshold transport and quantitative sensitivity in the assay. They do not
-establish internal Bayesian computation, faithfulness of hidden reasoning, or a
-general normative inference algorithm.
+### D. Continuation-nudge contamination
 
-### 7. Do not use hidden reasoning as evidence
+A continuation message inserted by a custom harness after a treatment or
+natural yield is part of the episode and can change the estimand. It is not a
+generic harmless lifecycle repair. The failed Luna qualification exposed this
+problem: the null harness ended its segment before the environment could send
+R2. The native `Agent.interaction()` design repairs the lifecycle by making the
+environment own the resume and sending one frozen Turn-2 message after natural
+yield, without a treatment-dependent nudge.
 
-No hidden reasoning traces were used to establish any current claim. Visible
-tool calls, environment events, raw traces, and frozen analysis inputs are the
-auditable surfaces.
+### E. Scientific freeze versus Git timestamp
 
-## Freeze and archive rules
+The commit timestamp is operational evidence of when a commit was recorded; it
+is not the integrity criterion. Integrity means the scientific choices were not
+changed after live inference or based on observed outcomes. Do not rewrite,
+backdate, or pretend a post-run archive commit was the pre-live freeze.
 
-Before the first live model request for a new experiment, commit the frozen
-scientific source, prompts, tests, and run configuration. After live inference
-begins, those scientific files cannot change. A later commit may archive the
-run, but it must be labeled post-run and cannot be treated as the pre-live
-freeze.
+### F. Interface and order confounds
 
-For a frozen evaluation, preserve:
+“B-first” in the last line of a prompt is not globally B-first if descriptive
+prose, explicit instruction, tool docstrings, and serialized schemas expose
+other orderings. The 160-row label diagnostic showed that K/M choices tracked
+the majority of three order surfaces. Future assays remove or explicitly
+balance every model-visible ordering surface.
 
-- the exact environment and harness;
-- model, endpoint, runtime, sampling, and config;
-- raw traces and logs;
-- an immutable analysis input;
-- completion and lifecycle audits;
-- independent hashes of raw and derived artifacts; and
-- a separate archival commit.
+### G. Survivor and denominator conditioning
 
-The 2026-08-14 boundary and 2026-08-15 threshold archives follow this pattern.
+If only surviving or eligible trajectories are analyzed, the denominator can
+be a collider affected by pressure, capability, detection, and observability.
+H2 must report absolute persistence, authorized/legible persistence, covert
+persistence, survivor composition, severity/capability, detection, attribution,
+time, and hazard separately. Do not make “among survivors” the main conclusion.
 
-## Outcome-blind collection
+### H. Pseudoreplication
 
-Collection and termination decisions must not inspect behavioral outcomes when
-the target is a fixed sample. Quota ledgers, assignment identities, natural
-yield, and lifecycle gates are operational controls. Scientific outcomes are
-analyzed only after the immutable input is frozen. Administrative termination
-of a post-target guard row must not be mislabeled a scientific failure.
+Repeated descendants from a shared artifact, state, model lineage, or
+population do not supply independent observations merely because they have
+different trace IDs. Record lineage, generation, carrier, and independent
+initialization. Bootstrap/randomization must respect the nesting.
 
-## Harness and lifecycle discipline
+## Evidence and visibility boundary
 
-Native v1 traces are the source of truth. A null harness may end after an
-assistant’s no-tool prose, even if the environment is about to reveal a second
-stage. A custom continuation harness changes the apparatus and must be named as
-a different condition. The Luna null-harness qualification demonstrated this
-distinction: clean Phase-1 competence did not yield an estimable Phase-2 cohort;
-the custom-harness smoke demonstrated mechanics only.
+The conversation contains hidden thoughts, reasoning recaps, tool outputs,
+system messages, and operational metadata. The conceptual archive uses only
+the conservative visible ordinary corpus. Tool records can support operational
+facts when directly audited, but never establish conceptual adoption. The
+public share also contains assistant-authored external claims; those are
+preserved as historical claims, not silently verified facts.
 
-The next H1 design must specify the lifecycle boundary before inference begins:
-what counts as a natural yield, who activates the next stage, how a successor is
-instantiated, and which continuation behavior belongs to the scientific
-condition.
+## Current integrity state
 
-## Known design repairs
+The threshold archive’s audit records 504/504 primary rows, 1,341 actual
+Phase-1 attempts, 3,699 pre-attempt guard/setup trace rows, 0 over-quota model
+rows, no errors, no lifecycle violations, immutable attempt identities, and an
+empty package diff from freeze `9c47e0c`. Its raw trace SHA is
+`6fed273c28e4ed07cd3fdbd915411955bb67aafc87f440b0ea36550e70d70efb`.
 
-- **Executable mechanics confound:** the first policy artifact could be read as
-  procedure. The corrected task made A/B equally viable and kept the artifact
-  policy-only.
-- **Presentation-order confound:** A-first/B-first was balanced and reported;
-  the bias remains an observed baseline, not something to erase after seeing
-  outcomes.
-- **Post-commitment anticipation:** R2 was not mentioned until after R1 success
-  in the v3 validation slice.
-- **Premature finalization:** the Luna null-harness failure was archived as a
-  lifecycle incompatibility, not counted as B persistence.
-- **Budget-stopped confirmatory batch:** the 265-rollout Qwen batch is labeled
-  partial and is not converted into a confirmatory estimate.
-- **Model gate:** the 9B policy gate failed literally on its tool-failure cap;
-  the cap was not relaxed after seeing the directional pattern.
-
-## Claim classes for future reports
-
-Every result should say which of these it is:
-
-- **qualification:** apparatus/model/runtime passed or failed a predeclared gate;
-- **descriptive:** observed counts without a completed inferential target;
-- **confirmatory:** prespecified estimand, quota, and analysis completed;
-- **mechanistic:** evidence for a mechanism, with direct alternatives tested;
-- **historical:** recovered wording or chronology from the chat;
-- **governance inference:** a conditional interpretation not directly measured.
-
-## Current integrity boundary
-
-The repository has clean evidence that predecessor-framed information can alter
-recipient behavior and a strongly validated evidence-integration assay. It does
-not yet have clean evidence of endogenous machine culture, persistent
-organization, recurrent sovereignty, escape selection, or a preferred governance
-equilibrium.
+This pre-framework patch changes only documentation, the read-only source
+decoder/materialization support, the visible historical corpus, and audit
+artifacts. It does not modify a frozen scientific package or prior analysis.
