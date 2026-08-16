@@ -22,6 +22,6 @@ Runtime fixtures are:
 - F — undeclared external carrier present: fail.
 - G — clean turnover with declared carrier positive control: pass.
 
-Before preregistration, one additional live provider canary is required. It must be semantically trivial, fixed in advance, and useful only for transport/session mechanics: capture exact request policy/body hash, local logical/wire IDs, provider response/body ID, `x-request-id`, completed status, reported model, absence of continuation/conversation/tools, and `provider_storage_observed=null`. It must not contain an H1 routine, carrier-transmission target, culture/social prompt, adaptive follow-up, or scientifically interpreted behavior.
+Before execution, one additional live provider canary is required (deferred, not a design/freeze blocker). It must be semantically trivial, fixed in advance, and useful only for transport/session mechanics: capture exact request policy/body hash, local logical/wire IDs, provider response/body ID, the server `x-request-id` (now mandatory in the evidence contract and fail-closed in the OpenAI backend), completed status, reported model, absence of continuation/conversation/tools, and `provider_storage_observed=null`. It must not contain an H1 routine, carrier-transmission target, culture/social prompt, adaptive follow-up, or scientifically interpreted behavior.
 
 A live canary failure blocks freezing/running; a success qualifies only the observed provider contract on that pinned configuration. It cannot make provider caches or retention mechanically controlled.

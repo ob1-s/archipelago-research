@@ -52,6 +52,7 @@
     }
   ],
   "contains_secret_field": false,
+  "execution_status": "NO \u2014 provider/deployment validation remains",
   "gate_results": {
     "L1_through_L5_not_credited": true,
     "actor_credentials_and_signing_isolated": true,
@@ -70,9 +71,10 @@
     "original_model_free_qualification_unchanged": true,
     "predecessor_teardown_complete": true,
     "provider_request_is_stateless_and_completed": true,
+    "provider_response_identity_recorded": true,
     "state_manifest_valid_and_hash_bound": true
   },
-  "generated_at_utc": "2026-08-16T00:36:57.718052+00:00",
+  "generated_at_utc": "2026-08-16T02:04:47.847747+00:00",
   "live_model_calls": 0,
   "model_free_regression": {
     "apparatus_version": "h1-model-free-apparatus/v1",
@@ -111,6 +113,7 @@
       ],
       "question": "Is this artifact limited to mechanical qualification rather than H1?",
       "question_id": "Q01",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -121,6 +124,7 @@
       ],
       "question": "Does every actor generation use a structurally fresh process/runtime identity?",
       "question_id": "Q02",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -132,17 +136,20 @@
       ],
       "question": "Are predecessor history, heap, files, environment, handles, and keys unavailable to successors?",
       "question_id": "Q03",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
-      "answer": "Yes in the strict signed request/response contract.",
+      "answer": "Yes in the strict signed request/response contract, and request-input shape is restricted to declared plain message items.",
       "evidence": [
         "previous_response_id=null",
         "conversation=null",
-        "stream=false"
+        "stream=false",
+        "input role/content shape allowlist"
       ],
       "question": "Are provider conversation and continuation mechanisms disabled?",
       "question_id": "Q04",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -153,6 +160,7 @@
       ],
       "question": "Is stale worker, thread-pool, fork, or session reuse excluded?",
       "question_id": "Q05",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -163,16 +171,19 @@
       ],
       "question": "Are actor tools, shell, browser, MCP, DNS, and general network denied?",
       "question_id": "Q06",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
-      "answer": "Not yet on a deployment host; code pins HTTPS policy, but host egress is not OS-allowlisted.",
+      "answer": "Not yet on a deployment host. Code pins the HTTPS base_url in the signed policy and records the policy hash. Under the qualified threat model (no actor egress, small trusted gateway, pinned and logged request contract, no causal route from predecessor to successor through arbitrary gateway networking) OS egress allowlisting is defense-in-depth rather than a validity prerequisite; it remains recommended deployment hardening before live execution.",
       "evidence": [
         "gateway policy hash",
-        "deployment repair required"
+        "no actor egress",
+        "defense-in-depth deployment hardening"
       ],
       "question": "Is provider-gateway egress restricted to a pinned endpoint at the OS layer?",
       "question_id": "Q07",
+      "scope": "execution",
       "status": "PASS WITH REPAIRS"
     },
     {
@@ -183,6 +194,7 @@
       ],
       "question": "Are provider credentials absent from actor state?",
       "question_id": "Q08",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -193,6 +205,7 @@
       ],
       "question": "Can the orchestrator forge actor actions or reuse a revoked key?",
       "question_id": "Q09",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -204,6 +217,7 @@
       ],
       "question": "Is cross-generation state limited to enumerated declared carriers/backups?",
       "question_id": "Q10",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -215,6 +229,7 @@
       ],
       "question": "Are carrier writes hash-finalized, attributable, idempotent, and crash-recoverable?",
       "question_id": "Q11",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -226,10 +241,11 @@
       ],
       "question": "Are retries nested under one logical actor attempt and ambiguous delivery terminal?",
       "question_id": "Q12",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
-      "answer": "No; the real adapter exists, but qualification deliberately used a no-model backend.",
+      "answer": "No; choosing and pinning the real endpoint/model snapshot/auth scope is part of the H1 design/freeze itself, and live qualification deliberately used a no-model backend (zero live calls). The mechanical boundary is ready to freeze such a pin; the frozen configuration must be exercised before execution.",
       "evidence": [
         "provider=none",
         "model=mechanical-no-model",
@@ -237,27 +253,31 @@
       ],
       "question": "Is a real provider/model/project/auth configuration pinned and qualified?",
       "question_id": "Q13",
+      "scope": "execution",
       "status": "PASS WITH REPAIRS"
     },
     {
-      "answer": "No live request was made; official documentation supports the request contract only.",
+      "answer": "No live request was made; the request/response contract is mechanically enforced and documented, and a nonempty server x-request-id is now required in the evidence contract. The trivial live canary on the frozen endpoint remains an execution gate.",
       "evidence": [
         "documentation-supported",
         "trivial live canary remains"
       ],
       "question": "Have provider response/session semantics been mechanically checked on the frozen endpoint?",
       "question_id": "Q14",
+      "scope": "execution",
       "status": "PASS WITH REPAIRS"
     },
     {
-      "answer": "No; those layers are explicitly OPAQUE/UNVERIFIED and excluded from L0.",
+      "answer": "Yes; those layers are explicitly OPAQUE/UNVERIFIED with no successor-read edge, and the L0 wording does not depend on their absence. Proof of absence is not required, is not claimed, and is not a repair.",
       "evidence": [
         "state manifest provider-opaque rows",
-        "residual_opaque_state"
+        "residual_opaque_state",
+        "exact L0 wording"
       ],
-      "question": "Are provider caches, routing, logs, retention, and weight state fully observed?",
+      "question": "Are provider caches, routing, logs, retention, and weight state carried as OPAQUE/UNVERIFIED and excluded from L0?",
       "question_id": "Q15",
-      "status": "PASS WITH REPAIRS"
+      "scope": "design_freeze",
+      "status": "PASS"
     },
     {
       "answer": "Yes.",
@@ -272,6 +292,7 @@
       ],
       "question": "Do known-bad runtime fixtures A-F fail while clean fixture G passes?",
       "question_id": "Q16",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -282,6 +303,7 @@
       ],
       "question": "Does the unchanged model-free apparatus still pass its original qualification?",
       "question_id": "Q17",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -292,6 +314,7 @@
       ],
       "question": "Does the adapter prevent runtime evidence from silently earning L1-L5?",
       "question_id": "Q18",
+      "scope": "design_freeze",
       "status": "PASS"
     },
     {
@@ -302,17 +325,18 @@
       ],
       "question": "Is the authorized next step design/freeze only, with no H1 run or scientific state collection?",
       "question_id": "Q19",
+      "scope": "design_freeze",
       "status": "PASS"
     }
   ],
   "readiness_scope": "ready only to DESIGN/FREEZE a bounded H1 pilot",
-  "record_hash": "d737c7043797bf7042033ee0f8c6c8d6b1bd5f5608981982a70ac6d2be92feff",
-  "required_repairs_before_preregistration_or_run": [
-    "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration.",
-    "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint.",
-    "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration.",
-    "Reconfirm response/request IDs, completed-status handling, and absence of continuation on that endpoint.",
-    "Carry provider caches, logs, routing, retention, and serving state as OPAQUE/UNVERIFIED; never broaden L0."
+  "record_hash": "295fb94ea14d7f50a387e70f1f395df64eafad208a0730568bbfa8b5850ef90e",
+  "required_before_design_freeze": [],
+  "required_before_execution": [
+    "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration as part of the H1 freeze.",
+    "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint (defense-in-depth; recommended before execution).",
+    "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration; it must return a nonempty response-body ID and server x-request-id, a completed status, and no continuation/conversation/tools.",
+    "Carry provider caches, logs, routing, retention, and serving state as OPAQUE/UNVERIFIED; never broaden L0 with a canary result."
   ],
   "runtime_boundary": {
     "actor_network_mode": "unshared-deny",
@@ -326,23 +350,23 @@
         "attempt_id": "mechanical-generation-0",
         "can_read": false,
         "can_write": true,
-        "capability_hash": "b54094b09f692061a7eb7c50cb6fb0f6f449c0fac10cb7f3f4e91eeec45037a6",
+        "capability_hash": "10938a2338a9af8306f8e97b233f10d231d69462808badbce67668102edf0ae5",
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
         "generation": 0,
-        "lifecycle_id": "lifecycle-745e8f66195f7833",
+        "lifecycle_id": "lifecycle-7241d978ade8e749",
         "lineage_id": "mechanical-lineage"
       },
       {
         "actor_id": "generation-1-probe",
-        "attempt_id": "attempt-3e6934909ad4a2e4702b998023e76755",
+        "attempt_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b",
         "can_read": true,
         "can_write": false,
-        "capability_hash": "53a46911ea667c9e73a2f7c2f0de1354cad1848799cad00b2ab742a6d44dbbbf",
+        "capability_hash": "360b16f6ea3f98f8ca773a7d04111f8a6ee1670f988b9c917912739706ee31c1",
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
         "generation": 1,
-        "lifecycle_id": "lifecycle-641ef62437ab3b82",
+        "lifecycle_id": "lifecycle-7572dd7a0d756b25",
         "lineage_id": "mechanical-lineage"
       }
     ],
@@ -351,7 +375,7 @@
       {
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
-        "content_hash": "d7065692a97c3e5f8e4b31e38d8decff79b60d94941d9b6c6bae60198ad392bb",
+        "content_hash": "89720dc11cac16616253b6850d9b4b0421b0fd9b0d2e2f31103b8e84f896871d",
         "finalized": true,
         "generation": 0,
         "lineage_id": "mechanical-lineage",
@@ -360,45 +384,45 @@
         "read_actions": [
           {
             "action": "carrier_read",
-            "action_id": "lifecycle-641ef62437ab3b82:3",
+            "action_id": "lifecycle-7572dd7a0d756b25:3",
             "actor_id": "generation-1-probe",
             "generation": 1,
-            "lifecycle_id": "lifecycle-641ef62437ab3b82",
+            "lifecycle_id": "lifecycle-7572dd7a0d756b25",
             "lineage_id": "mechanical-lineage",
             "parent_hashes": [
-              "d7065692a97c3e5f8e4b31e38d8decff79b60d94941d9b6c6bae60198ad392bb",
-              "0429da0bcfc91bbab7926ceaa8ca4339c7e6f809e702d6414018eea89938c48f"
+              "89720dc11cac16616253b6850d9b4b0421b0fd9b0d2e2f31103b8e84f896871d",
+              "defef90094a8c0ca7a868ff1a128f428dd0e65d9456808f33d79ad49fda0f5bb"
             ],
-            "payload_hash": "d7065692a97c3e5f8e4b31e38d8decff79b60d94941d9b6c6bae60198ad392bb",
-            "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
+            "payload_hash": "89720dc11cac16616253b6850d9b4b0421b0fd9b0d2e2f31103b8e84f896871d",
+            "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
             "sequence": 3,
-            "session_id": "session-fdfd586412bf2d913517483311c2f46c",
-            "signature_b64": "CBi9jxoNIBrYqgdVOE+WrurFybcUc7KAev3DBZw0Ao00dD+b2uLhmvyhg05VejZ/uCyPzkVZsnCSTPqu3o8XDw=="
+            "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1",
+            "signature_b64": "kDRtl3uVBx3hSLXXfvQv28f2XjdrRyP1Q/nvUrhsNo1ZrDZMFldX5lOiY1duppUc/6gopGOcozpLgWNya/69AA=="
           }
         ],
         "read_by": [
           "generation-1-probe"
         ],
         "read_capability_hashes": [
-          "53a46911ea667c9e73a2f7c2f0de1354cad1848799cad00b2ab742a6d44dbbbf"
+          "360b16f6ea3f98f8ca773a7d04111f8a6ee1670f988b9c917912739706ee31c1"
         ],
-        "write_authority": "635cd73ea8e850557bb4b57ebd9ebf2394aa93c29b001d38c38c9697d26e4f96",
-        "write_capability_hash": "b54094b09f692061a7eb7c50cb6fb0f6f449c0fac10cb7f3f4e91eeec45037a6",
+        "write_authority": "79b353316c65cb517ba4cbb5178069c52ae244b7ecec40f750837c9590ca667b",
+        "write_capability_hash": "10938a2338a9af8306f8e97b233f10d231d69462808badbce67668102edf0ae5",
         "writer": {
           "action": "carrier_write",
-          "action_id": "lifecycle-745e8f66195f7833:2",
+          "action_id": "lifecycle-7241d978ade8e749:2",
           "actor_id": "generation-0-probe",
           "generation": 0,
-          "lifecycle_id": "lifecycle-745e8f66195f7833",
+          "lifecycle_id": "lifecycle-7241d978ade8e749",
           "lineage_id": "mechanical-lineage",
           "parent_hashes": [
-            "6b5afb35d5a3422590f72fce6a630be77ed8383038e5eac762da09e7b766d946"
+            "0d0daf42da0f1aaf88d6b4c905a21ce52934f498da789803480d2033ede7ad2d"
           ],
-          "payload_hash": "d7065692a97c3e5f8e4b31e38d8decff79b60d94941d9b6c6bae60198ad392bb",
-          "public_key_b64": "FGCuZK9jgPeH0QR/IH5jRLHuSigVOERQ3DtLmDAIDAk=",
+          "payload_hash": "89720dc11cac16616253b6850d9b4b0421b0fd9b0d2e2f31103b8e84f896871d",
+          "public_key_b64": "vzGACjRV3IZ7/Jo79s5gBpg/go88WqKlaLohMn09Du0=",
           "sequence": 2,
-          "session_id": "session-f504d7760de80b90d122d1074f9b28b4",
-          "signature_b64": "2Bw15a7hMedlzQzFzJO/eCPfVobirt1gQhhreT37yOV/0D34hjTkIYMG276YXylWB5xE/1Q3c+miQQ6QuIgJCA=="
+          "session_id": "session-4cdc3f0ce2e907884a4cc64f16e6ca3f",
+          "signature_b64": "GiR52zI2KPPLs3L6W/mtc8s1KkjfdMLHH6CfN06liGPj43Kwm1w6ZAdJklSJpejflV2ML0W1jkT/NH/pkg8RCA=="
         }
       }
     ],
@@ -408,9 +432,9 @@
       "carrier_protocol": "b61c390529d51bb909b469761093024fcb23caeca231358c45fc13bdb7b4d1f7",
       "common_instructions": "45f0b7d2a039187a89f1aa68f2d95de536b5919696dc92c69cda646782864084",
       "orchestration_contract": "d1b233de85924c823db517ea6d39cb4973a4aee8860cbeabf0064f23adbc8fca",
-      "provider_gateway": "3ba6a10b9c9f91a8eb37af9aa3948c79c5ac4ed72c0adccf3f679975c22021cf",
+      "provider_gateway": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
       "provider_policy": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-      "state_schema": "a06df679dffcad09330b96d1ce5c50cb85840373d390b9a26cdb740508553e02",
+      "state_schema": "a571b29880cb5ae3e3aef406b7e20cc57cf876af838a0ef243cf8eb8099bc425",
       "taskset": "e76729bd280adfcb9a95801954b9a2105ba3838e254a36287d5ba40df05b52cd"
     },
     "env_or_cache_reused": false,
@@ -424,44 +448,44 @@
     },
     "network_probe_action": {
       "action": "network_probe",
-      "action_id": "lifecycle-641ef62437ab3b82:2",
+      "action_id": "lifecycle-7572dd7a0d756b25:2",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-641ef62437ab3b82",
+      "lifecycle_id": "lifecycle-7572dd7a0d756b25",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
       "payload_hash": "3587b915807f7e582eb8dc99e4fe0a678096026e12c92ce080d83735adb11e1b",
-      "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
+      "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
       "sequence": 2,
-      "session_id": "session-fdfd586412bf2d913517483311c2f46c",
-      "signature_b64": "zZASPSxhQQu2O8iOmMaD3iZoVOeqVVpgAWtL3t3j1R0z9BTIpZOf1c/T+GxGTAs6Bc2ekMrrJuknrsnhIYmwDA=="
+      "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1",
+      "signature_b64": "GJ1UMwrowYQVmXGCVWIfJ2LMpx2tIGNZZRcYSTrBlZIfOlhCt1MQzZ5As/sqKSTQRRGB4mm91G87tVLERH0QDw=="
     },
     "predecessor_attempt_id": "mechanical-generation-0",
     "predecessor_canary": {
       "action": {
         "action": "write_canaries",
-        "action_id": "lifecycle-745e8f66195f7833:1",
+        "action_id": "lifecycle-7241d978ade8e749:1",
         "actor_id": "generation-0-probe",
         "generation": 0,
-        "lifecycle_id": "lifecycle-745e8f66195f7833",
+        "lifecycle_id": "lifecycle-7241d978ade8e749",
         "lineage_id": "mechanical-lineage",
         "parent_hashes": [],
-        "payload_hash": "75c2d8a9daf87c49f54f730ad4fbe2db16ab00d1f486284bcff05a0a2dc90ccf",
-        "public_key_b64": "FGCuZK9jgPeH0QR/IH5jRLHuSigVOERQ3DtLmDAIDAk=",
+        "payload_hash": "d4b3a96e043d9291ddab61dfa8dd70a6e1948a31dfd10b83173eb0101a28de06",
+        "public_key_b64": "vzGACjRV3IZ7/Jo79s5gBpg/go88WqKlaLohMn09Du0=",
         "sequence": 1,
-        "session_id": "session-f504d7760de80b90d122d1074f9b28b4",
-        "signature_b64": "tnBFwwvGQF5hAPfSOowUbv+wMrwKP8ARZIofKMtCoEux8daicwprZP1QvyoqbmQtYKXfF7BX9FsH0/dYIj6RBw=="
+        "session_id": "session-4cdc3f0ce2e907884a4cc64f16e6ca3f",
+        "signature_b64": "R3pMUYmfycSrRirDtlqOVDhxYj4bUkfe75GwBNihAECEe6NBmt6BJMfERfFabMdBhXhm3hH+1QLy78wDqZgvDg=="
       },
       "actor_id": "generation-0-probe",
-      "environment_value_hash": "ba6c631be23ec9801381a31f14572f2ce40c3846ae2ec52ddecb2d37014d4989",
+      "environment_value_hash": "197bb4c4117251b8c4ae881e359c2e466b2dc64bde7ec37ed50c96b51bb1951e",
       "history_length": 1,
       "path_hashes": {
-        "cache": "13840314f344345f83b2a4808905bcfece43693ff09e8cf77a4c4d9e10e4e931",
-        "env_path": "0fd6ccbd2e6d167db72ff8b886f94873dddbaef45d25e9aa06f5c2305c8c8866",
-        "home": "c191a36370f4265556de131882391ebb7903335990a21046fb6af699bac3f75c",
-        "shared_memory": "79466c939145621994fdbae0d997df3178d4b9c15e50e4e43adc48afac5e69cc",
-        "tmp": "a4441766e8cf3273d1069dc0e7dc01c6332c00d3685926c8150c1af5d345744b",
-        "workdir": "af37ca7e58f5025e5acfe9988e59bf43a9f57d17f7818a9cac383ccab709e9d7"
+        "cache": "fc47f88a9359cb74def7d4827f61fcc8b643c093a2e3328e0d57fed6c3e8e762",
+        "env_path": "0e3a86e6e95ec281c1ef036d9308e855ba3e7abaa5de5243d806810e918229b0",
+        "home": "0cecefb1974e0e5873a412fd4c6e567aa1511cf9560f48657a942fe0911ef0c5",
+        "shared_memory": "de04fdc0b277c1adf336139ddd63889e979567e2d5da6cd28454d586eb58fac0",
+        "tmp": "c7ab844732a60ce725e4d4483a3b28a64e3a7fb12a1288661c83c71c0b8f6b27",
+        "workdir": "97f00525f94532d7fde4bbc8754a6dbc162d283749f9b758ed60090378436ee1"
       },
       "paths": [
         "/work/private-canary.bin",
@@ -477,7 +501,7 @@
         "identity": {
           "actor_id": "generation-0-probe",
           "effective_capabilities_hex": "0000000000000000",
-          "environment_fingerprint": "4a68a137c4f82304a8a6638e70aab15e339ca24760d85949c704056b3f2bdd1b",
+          "environment_fingerprint": "2626fef0fd7213f53332f802e7118365f396a493fd6e685a5d04271a762cd5e6",
           "environment_names": [
             "ACTOR_ENV_PATH",
             "ACTOR_ENV_SENTINEL",
@@ -490,51 +514,51 @@
             "TMPDIR",
             "XDG_CACHE_HOME"
           ],
-          "gateway_public_key_b64": "+Mc+AiuiJcp/IzW1NbgB9/7kT9v3HUyIodm8gmpkED0=",
+          "gateway_public_key_b64": "0XQ7APoQEiy2kghYAFXGYwQ5Hwh4MocN5AHzCj7O8nk=",
           "generation": 0,
-          "lifecycle_id": "lifecycle-745e8f66195f7833",
+          "lifecycle_id": "lifecycle-7241d978ade8e749",
           "lineage_id": "mechanical-lineage",
           "namespace_ids": {
-            "cgroup": "cgroup:[4026534190]",
-            "ipc": "ipc:[4026534188]",
-            "mnt": "mnt:[4026534186]",
-            "net": "net:[4026534191]",
-            "pid": "pid:[4026534189]",
-            "user": "user:[4026534637]",
-            "uts": "uts:[4026534187]"
+            "cgroup": "cgroup:[4026534926]",
+            "ipc": "ipc:[4026534649]",
+            "mnt": "mnt:[4026534644]",
+            "net": "net:[4026534927]",
+            "pid": "pid:[4026534650]",
+            "user": "user:[4026535354]",
+            "uts": "uts:[4026534646]"
           },
           "namespace_pid": 1,
-          "namespace_process_start_ticks": 52144370,
+          "namespace_process_start_ticks": 52671376,
           "no_new_privileges": true,
           "open_extra_fd_count": 1,
           "open_extra_fd_targets": {
             "3": "/dev/urandom"
           },
           "position": "boundary-probe",
-          "public_key_b64": "FGCuZK9jgPeH0QR/IH5jRLHuSigVOERQ3DtLmDAIDAk=",
-          "registration_signature_b64": "VIGGlra6O+nh9yMMo+PvoYaFG9k+ZE/jtRTmBuWgGI0wKv/fvuQgWZu+aMLTVT9c48JBUTx+vClgth9WlaziDg==",
-          "session_id": "session-f504d7760de80b90d122d1074f9b28b4"
+          "public_key_b64": "vzGACjRV3IZ7/Jo79s5gBpg/go88WqKlaLohMn09Du0=",
+          "registration_signature_b64": "VC+o9i/Yz7tkQG5XaZnUaITJTKT6rUSVfC04tOmR1SsoUPd7BsJMBAl8eJZN504P+thk2IuGA3MshU3p23PXBg==",
+          "session_id": "session-4cdc3f0ce2e907884a4cc64f16e6ca3f"
         },
-        "runtime_process_id": 490197
+        "runtime_process_id": 549276
       }
     ],
     "private_mount_reused": false,
     "process_namespace_fresh": true,
     "provider": "none",
-    "provider_assignment_hash": "f5ebc3550a805416d28a573236d74aa91bc35f5191e7da949d50f51c63133fca",
+    "provider_assignment_hash": "26cd1d6d034d0e211c87c4d2713b1b8616109ad587d7f98c2b33e05b61f221a0",
     "provider_continuation_present": false,
     "provider_gateway_receipt": {
-      "assignment_hash": "f5ebc3550a805416d28a573236d74aa91bc35f5191e7da949d50f51c63133fca",
-      "gateway_id": "gateway-f480751e2f71c5d60ca68c16215420b9",
-      "logical_attempt_id": "attempt-3e6934909ad4a2e4702b998023e76755",
-      "output_hash": "3ef55cb242cfc90c3378f15abf922376006bade4bc4dd25331b988b52b5e3177",
-      "provider_request_id": "attempt-3e6934909ad4a2e4702b998023e76755:wire:1",
-      "public_key_b64": "+Mc+AiuiJcp/IzW1NbgB9/7kT9v3HUyIodm8gmpkED0=",
-      "request_hash": "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476",
+      "assignment_hash": "26cd1d6d034d0e211c87c4d2713b1b8616109ad587d7f98c2b33e05b61f221a0",
+      "gateway_id": "gateway-3f746a49ea66615dce85ea7a3c3f0ce5",
+      "logical_attempt_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b",
+      "output_hash": "9328bba2837077d04652edb1ddded318a51bc02b2e3925a9468dfcc435f60eda",
+      "provider_request_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b:wire:1",
+      "public_key_b64": "0XQ7APoQEiy2kghYAFXGYwQ5Hwh4MocN5AHzCj7O8nk=",
+      "request_hash": "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e",
       "response_id": "scripted-response-1",
-      "signature_b64": "Y3IEyatKflYsZMY1RBqERfDgPA68TxaOvzlZ0CcQVuY7AblnvKASenP62m8Wy4XdBTYMzZwOd8Aj4Kab0te2CA=="
+      "signature_b64": "DftA+vdSYvjHilfcM74SbbLr/1azJxjyxNbG4psUeIOd/LLfcBLg4wk89zOPByki1MAf9+422EfnJ194riDvAQ=="
     },
-    "provider_output_hash": "3ef55cb242cfc90c3378f15abf922376006bade4bc4dd25331b988b52b5e3177",
+    "provider_output_hash": "9328bba2837077d04652edb1ddded318a51bc02b2e3925a9468dfcc435f60eda",
     "provider_policy": {
       "adapter": "openai_responses_stateless_v1",
       "background": false,
@@ -550,36 +574,36 @@
     },
     "provider_request_action": {
       "action": "provider_request",
-      "action_id": "lifecycle-641ef62437ab3b82:4",
+      "action_id": "lifecycle-7572dd7a0d756b25:4",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-641ef62437ab3b82",
+      "lifecycle_id": "lifecycle-7572dd7a0d756b25",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
-      "payload_hash": "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476",
-      "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
+      "payload_hash": "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e",
+      "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
       "sequence": 4,
-      "session_id": "session-fdfd586412bf2d913517483311c2f46c",
-      "signature_b64": "3N6esrnoPFmsndXCnBtj34bukPZmqLp+8rKwL1OVQVnQKS/54pFP+qig3Q3yF5HCElqW3sD5A6PSwkg4IljODg=="
+      "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1",
+      "signature_b64": "M0yNEaZI9fIHMy16ap5+SjYsz1kKw+hpY0GPJbmDXoCfukszx5jxuWJRWkxdMmLM0kZxnJGF0KNhBVrKbg66CQ=="
     },
-    "provider_request_hash": "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476",
-    "provider_request_id": "attempt-3e6934909ad4a2e4702b998023e76755:wire:1",
+    "provider_request_hash": "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e",
+    "provider_request_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b:wire:1",
     "provider_response_acceptance": {
       "action": "provider_response_accept",
-      "action_id": "lifecycle-641ef62437ab3b82:5",
+      "action_id": "lifecycle-7572dd7a0d756b25:5",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-641ef62437ab3b82",
+      "lifecycle_id": "lifecycle-7572dd7a0d756b25",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [
-        "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476",
-        "c7ba37b98f9b3f800f3df42eb9b055069b6d5cca1453bb903237db58d50eac82"
+        "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e",
+        "be47da4c896fc3597c0b3c9bcd0c214801d11fe429de634b66b2fb400a07456c"
       ],
-      "payload_hash": "3ef55cb242cfc90c3378f15abf922376006bade4bc4dd25331b988b52b5e3177",
-      "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
+      "payload_hash": "9328bba2837077d04652edb1ddded318a51bc02b2e3925a9468dfcc435f60eda",
+      "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
       "sequence": 5,
-      "session_id": "session-fdfd586412bf2d913517483311c2f46c",
-      "signature_b64": "3Ot33fPPVUyjyTwzL9Sr6GqI4TX6gE7gxHHK6jMyk8JJQslOmp0i/UHgyNMg+sEcf0DR0z8c3QhXOccYz+YiDg=="
+      "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1",
+      "signature_b64": "ad0ShZKa8xlpwgWy4UZp/BxO3+lFXTLr7X0Wapp1zg0/tITLnXMSZb38IDgDv50Jnrz09W99NMhbjnyr2O13AA=="
     },
     "provider_response_id": "scripted-response-1",
     "provider_status": "completed",
@@ -595,15 +619,15 @@
       {
         "actor_id": "generation-1-probe",
         "dispatch_phase": "response_received",
-        "lifecycle_id": "lifecycle-641ef62437ab3b82",
-        "logical_attempt_id": "attempt-3e6934909ad4a2e4702b998023e76755",
+        "lifecycle_id": "lifecycle-7572dd7a0d756b25",
+        "logical_attempt_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b",
         "outcome": "accepted_completed",
-        "provider_request_id": "attempt-3e6934909ad4a2e4702b998023e76755:wire:1",
+        "provider_request_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b:wire:1",
         "provider_response_id": "scripted-response-1",
-        "request_hash": "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476",
+        "request_hash": "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e",
         "retryable": false,
         "transport_attempt": 1,
-        "wire_attempt_id": "attempt-3e6934909ad4a2e4702b998023e76755:wire:1"
+        "wire_attempt_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b:wire:1"
       }
     ],
     "runtime": "bubblewrap-unshare-all",
@@ -618,22 +642,22 @@
     "schedule_contract": {
       "assignments": [
         {
-          "actor_spec_hash": "5dbfe31a08b6a6faa0ce47a485f5c2b2118dfe2f69a617c276f1a1188e460966",
-          "assignment_hash": "47aa7b670216b06b50cb5c0002fe67bfe3a3241c32ab6804ffd4805839ab7424",
+          "actor_spec_hash": "89c4faede3ebc316b1d0ae23130bf13b307fbf2cbf2982d53b153b9bd6b8862f",
+          "assignment_hash": "19667b8578d1fe7d9a8b9744cf800e312a762a1ef7d71d5420b8ac28afea1b09",
           "attempt_id": "mechanical-generation-0",
           "capability_hashes": [
-            "b54094b09f692061a7eb7c50cb6fb0f6f449c0fac10cb7f3f4e91eeec45037a6"
+            "10938a2338a9af8306f8e97b233f10d231d69462808badbce67668102edf0ae5"
           ],
           "request_hash": null
         },
         {
-          "actor_spec_hash": "1beb626626eaeb99797b98d6a78f7cd406985f3d934b2a93e6b5f678a226094c",
-          "assignment_hash": "f5ebc3550a805416d28a573236d74aa91bc35f5191e7da949d50f51c63133fca",
-          "attempt_id": "attempt-3e6934909ad4a2e4702b998023e76755",
+          "actor_spec_hash": "4272eeb386c9f07f249fc4ebad7d214c429620cc129042e0145412cf5e27d8aa",
+          "assignment_hash": "26cd1d6d034d0e211c87c4d2713b1b8616109ad587d7f98c2b33e05b61f221a0",
+          "attempt_id": "attempt-871186e4a7e2db2fe7738c680ab2d67b",
           "capability_hashes": [
-            "53a46911ea667c9e73a2f7c2f0de1354cad1848799cad00b2ab742a6d44dbbbf"
+            "360b16f6ea3f98f8ca773a7d04111f8a6ee1670f988b9c917912739706ee31c1"
           ],
-          "request_hash": "986eecc36ad01d96222bac17e25e6d9371ba93af544adc693233fabd2dbed476"
+          "request_hash": "058cae2907f991f4a149436e364ee35fed038576528753dd413bc95d80de256e"
         }
       ],
       "common_prior_hashes": {
@@ -642,34 +666,34 @@
         "carrier_protocol": "b61c390529d51bb909b469761093024fcb23caeca231358c45fc13bdb7b4d1f7",
         "common_instructions": "45f0b7d2a039187a89f1aa68f2d95de536b5919696dc92c69cda646782864084",
         "orchestration_contract": "d1b233de85924c823db517ea6d39cb4973a4aee8860cbeabf0064f23adbc8fca",
-        "provider_gateway": "3ba6a10b9c9f91a8eb37af9aa3948c79c5ac4ed72c0adccf3f679975c22021cf",
+        "provider_gateway": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
         "provider_policy": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-        "state_schema": "a06df679dffcad09330b96d1ce5c50cb85840373d390b9a26cdb740508553e02",
+        "state_schema": "a571b29880cb5ae3e3aef406b7e20cc57cf876af838a0ef243cf8eb8099bc425",
         "taskset": "e76729bd280adfcb9a95801954b9a2105ba3838e254a36287d5ba40df05b52cd"
       },
-      "gateway_public_key_b64": "+Mc+AiuiJcp/IzW1NbgB9/7kT9v3HUyIodm8gmpkED0=",
+      "gateway_public_key_b64": "0XQ7APoQEiy2kghYAFXGYwQ5Hwh4MocN5AHzCj7O8nk=",
       "provider_policy_hash": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-      "schedule_hash": "54de6a906f3815b958482190491993a1b4579925cbbb0210cd0137aa7f3497e4",
+      "schedule_hash": "2c4f644fa5b89df6cb977f50e4a3ac8ded9cf964befc587729e31379b025f62b",
       "version": "h1-runtime-schedule-pin/v1"
     },
     "scientific_result": false,
     "signing_key_reused": false,
     "stale_worker_reused": false,
-    "successor_environment_value_hash": "b880646f205a9c848d278086cd92806bab49a100aa65b24198e68bf446c9743b",
+    "successor_environment_value_hash": "0144b7e7c29cfe81f34220740a805f7f7c03e3dc6a83aa64cb6a1ed98f5cfa14",
     "successor_history_length_at_spawn": 0,
     "successor_path_probe_action": {
       "action": "probe_paths",
-      "action_id": "lifecycle-641ef62437ab3b82:1",
+      "action_id": "lifecycle-7572dd7a0d756b25:1",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-641ef62437ab3b82",
+      "lifecycle_id": "lifecycle-7572dd7a0d756b25",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
-      "payload_hash": "263c8c7d1f8bd5bc949037773272bb38fc4e3780d034fecda7a70a2823e4a551",
-      "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
+      "payload_hash": "f9b2e54e3cc423f105a61efe87e5dd1b66bc8b0c3940a12a61c80357afd42788",
+      "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
       "sequence": 1,
-      "session_id": "session-fdfd586412bf2d913517483311c2f46c",
-      "signature_b64": "YPCkwk0oaxyAsI6aTGm7mIN8qGtnPtIjgGFwwAC325oOb1nr1bPL9z9EbfN8CAfjip9pNuZtqBz/x9N++deaCA=="
+      "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1",
+      "signature_b64": "zsIknkFrvZTIqzbihKqw+bwehtx7vHlvKq6MnuQFLlzCalqT7Ysu4jwcEx91GZ+buxqWYaSllnspJEyI090LAQ=="
     },
     "successor_path_probes": {
       "/cache/private-canary.bin": false,
@@ -684,7 +708,7 @@
         "identity": {
           "actor_id": "generation-1-probe",
           "effective_capabilities_hex": "0000000000000000",
-          "environment_fingerprint": "ffbacf29f9f8803dd3a802f90f18c3808c91dde08e7853747c1dd96c04e4a0d9",
+          "environment_fingerprint": "b361ba897b19b7ae750f50b75063864932d54bab1b57604064a0cb9ee03a7f94",
           "environment_names": [
             "ACTOR_ENV_PATH",
             "ACTOR_ENV_SENTINEL",
@@ -697,56 +721,56 @@
             "TMPDIR",
             "XDG_CACHE_HOME"
           ],
-          "gateway_public_key_b64": "+Mc+AiuiJcp/IzW1NbgB9/7kT9v3HUyIodm8gmpkED0=",
+          "gateway_public_key_b64": "0XQ7APoQEiy2kghYAFXGYwQ5Hwh4MocN5AHzCj7O8nk=",
           "generation": 1,
-          "lifecycle_id": "lifecycle-641ef62437ab3b82",
+          "lifecycle_id": "lifecycle-7572dd7a0d756b25",
           "lineage_id": "mechanical-lineage",
           "namespace_ids": {
-            "cgroup": "cgroup:[4026534639]",
-            "ipc": "ipc:[4026534636]",
-            "mnt": "mnt:[4026534187]",
-            "net": "net:[4026534640]",
-            "pid": "pid:[4026534638]",
-            "user": "user:[4026534920]",
-            "uts": "uts:[4026534190]"
+            "cgroup": "cgroup:[4026534361]",
+            "ipc": "ipc:[4026534359]",
+            "mnt": "mnt:[4026534357]",
+            "net": "net:[4026534362]",
+            "pid": "pid:[4026534360]",
+            "user": "user:[4026534649]",
+            "uts": "uts:[4026534358]"
           },
           "namespace_pid": 1,
-          "namespace_process_start_ticks": 52144551,
+          "namespace_process_start_ticks": 52671558,
           "no_new_privileges": true,
           "open_extra_fd_count": 1,
           "open_extra_fd_targets": {
             "3": "/dev/urandom"
           },
           "position": "boundary-probe",
-          "public_key_b64": "5BJ7ryAsmc44p+3Ef1jAxmv9JN91oVb3aKPB5MolTtg=",
-          "registration_signature_b64": "k0JZIS/8C/aZRlKsKo7ykgOecbZO1xKhOpY080TREUxuP7/KenSlvC+qNtQwlFkprkUE8Pb6NKuVUY+zuuF9Ag==",
-          "session_id": "session-fdfd586412bf2d913517483311c2f46c"
+          "public_key_b64": "SZ+arx+BtGakt0k2Pun8y+AQDI9vOxDcbRx8j+gRPJI=",
+          "registration_signature_b64": "fBia6EOSuEhry0gwWUgY2H4fHMZsi9FpI+BOEOAJZycHqaPaiTTO4+JZHmU7F1yuSQnX7iItdFWQbWO9ASpxBA==",
+          "session_id": "session-cff4d8c6706ba207cf3a5b92b60413a1"
         },
-        "runtime_process_id": 490219
+        "runtime_process_id": 549294
       }
     ],
     "teardowns": [
       {
         "actor_id": "generation-0-probe",
         "key_invalidated": true,
-        "launcher_pid": 490197,
-        "lifecycle_id": "lifecycle-745e8f66195f7833",
+        "launcher_pid": 549276,
+        "lifecycle_id": "lifecycle-7241d978ade8e749",
         "private_root_removed": true,
         "process_absent": true,
         "process_group_absent": true,
         "return_code": 0,
-        "runtime_process_id": 490197
+        "runtime_process_id": 549276
       },
       {
         "actor_id": "generation-1-probe",
         "key_invalidated": true,
-        "launcher_pid": 490219,
-        "lifecycle_id": "lifecycle-641ef62437ab3b82",
+        "launcher_pid": 549294,
+        "lifecycle_id": "lifecycle-7572dd7a0d756b25",
         "private_root_removed": true,
         "process_absent": true,
         "process_group_absent": true,
         "return_code": 0,
-        "runtime_process_id": 490219
+        "runtime_process_id": 549294
       }
     ],
     "undeclared_external_carrier": false
@@ -880,7 +904,7 @@
         "version": "h1-live-runtime-orchestrator/v1"
       },
       "provider_gateway": {
-        "hash": "3ba6a10b9c9f91a8eb37af9aa3948c79c5ac4ed72c0adccf3f679975c22021cf",
+        "hash": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
         "source": "provider.py",
         "version": "h1-live-runtime-provider/v1"
       },
@@ -890,7 +914,7 @@
         "version": "openai-responses-stateless-policy/v1"
       },
       "state_schema": {
-        "hash": "a06df679dffcad09330b96d1ce5c50cb85840373d390b9a26cdb740508553e02",
+        "hash": "a571b29880cb5ae3e3aef406b7e20cc57cf876af838a0ef243cf8eb8099bc425",
         "source": "models.py",
         "version": "h1-live-runtime-wire-schema/v1"
       },
@@ -1608,8 +1632,8 @@
         "verification": "multi-surface file canaries and fixture C/F"
       }
     ],
-    "manifest_hash": "e62c034c2523ed4519a2672d7e88110f91fdf6c7d061fa4d1f6afc45bd1ac7d0",
+    "manifest_hash": "def2e21f893bc1ac8514f48780105d134a31ef70a47a92cf8b2cd6989fd03361",
     "manifest_version": "h1-live-runtime-state-manifest/v1"
   },
-  "status": "PASS WITH REPAIRS"
+  "status": "PASS"
 }

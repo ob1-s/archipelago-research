@@ -255,11 +255,16 @@ class OpenAIResponsesBackend:
         output = response.output_text
         if not output:
             raise InvalidProviderResponseError("provider response has empty output text")
+        request_id = raw.headers.get("x-request-id")
+        if not request_id:
+            raise InvalidProviderResponseError(
+                "provider response lacks a server x-request-id"
+            )
         return ProviderResponse(
             provider="openai-responses",
             model=response.model,
             response_id=response.id,
-            request_id=raw.headers.get("x-request-id"),
+            request_id=request_id,
             output_text=output,
             output_hash=sha256_bytes(output.encode()),
             request_hash=request.semantic_hash(),

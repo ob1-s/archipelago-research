@@ -284,6 +284,10 @@ class ProviderPolicy(StrictModel):
         return self
 
 
+_ALLOWED_INPUT_ROLES = frozenset({"user", "system", "developer", "assistant"})
+_ALLOWED_INPUT_KEYS = frozenset({"role", "content"})
+
+
 class ProviderRequest(StrictModel):
     action: SignedAction
     policy: ProviderPolicy
@@ -299,6 +303,25 @@ class ProviderRequest(StrictModel):
             raise ValueError("provider request requires provider_request action")
         if self.action.payload_hash != self.semantic_hash():
             raise ValueError("signed provider request hash mismatch")
+        return self
+
+    @model_validator(mode="after")
+    def validate_input_shape(self) -> "ProviderRequest":
+        for index, item in enumerate(self.input):
+            if not isinstance(item, dict):
+                raise ValueError(f"provider request input item {index} is not an object")
+            if set(item) != _ALLOWED_INPUT_KEYS:
+                raise ValueError(
+                    f"provider request input item {index} has undeclared keys"
+                )
+            if item["role"] not in _ALLOWED_INPUT_ROLES:
+                raise ValueError(
+                    f"provider request input item {index} has an undeclared role"
+                )
+            if not isinstance(item["content"], str):
+                raise ValueError(
+                    f"provider request input item {index} content is not plain text"
+                )
         return self
 
     def semantic_payload(self) -> dict[str, Any]:
@@ -324,7 +347,7 @@ class GatewayReceipt(StrictModel):
     assignment_hash: Sha256Digest
     request_hash: Sha256Digest
     response_id: str = Field(min_length=1)
-    provider_request_id: NonEmptyString | None = None
+    provider_request_id: NonEmptyString
     output_hash: Sha256Digest
     signature_b64: str
 
@@ -337,7 +360,7 @@ class ProviderResponse(StrictModel):
     model: str
     status: Literal["completed"] = "completed"
     response_id: str = Field(min_length=1)
-    request_id: NonEmptyString | None
+    request_id: NonEmptyString
     output_text: str
     output_hash: Sha256Digest
     request_hash: Sha256Digest
@@ -481,6 +504,7 @@ class ReadinessQuestion(StrictModel):
     question_id: str = Field(pattern=r"^Q(0[1-9]|1[0-9])$")
     question: str
     status: Readiness
+    scope: Literal["design_freeze", "execution"]
     answer: str
     evidence: tuple[str, ...]
 
@@ -520,7 +544,7 @@ class RuntimeBoundaryEvidence(StrictModel):
     provider_gateway_receipt: GatewayReceipt
     provider_response_acceptance: SignedAction
     provider_response_id: NonEmptyString
-    provider_request_id: NonEmptyString | None
+    provider_request_id: NonEmptyString
     provider_status: Literal["completed"]
     provider_store_requested: Literal[False]
     provider_storage_observed: bool | None

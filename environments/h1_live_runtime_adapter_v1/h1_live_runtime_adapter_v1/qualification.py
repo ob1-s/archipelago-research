@@ -33,6 +33,7 @@ from .state_manifest import (
 
 QUALIFICATION_VERSION = "h1-live-runtime-qualification/v1"
 READINESS_SCOPE = "ready only to DESIGN/FREEZE a bounded H1 pilot"
+EXECUTION_NOT_READY = "NO — provider/deployment validation remains"
 
 
 def _claim_mapping(l0_supported: bool) -> tuple[ClaimBoundary, ...]:
@@ -77,11 +78,14 @@ def _claim_mapping(l0_supported: bool) -> tuple[ClaimBoundary, ...]:
 def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
     repair = Readiness.PASS_WITH_REPAIRS
     passed = Readiness.PASS
+    design_freeze = "design_freeze"
+    execution = "execution"
     return (
         ReadinessQuestion(
             question_id="Q01",
             question="Is this artifact limited to mechanical qualification rather than H1?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; its Taskset has no prompt, gives scientific_result=0, and the canary uses no model.",
             evidence=("qualification_only=true", "live_model_calls=0"),
         ),
@@ -89,6 +93,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q02",
             question="Does every actor generation use a structurally fresh process/runtime identity?",
             status=passed,
+            scope=design_freeze,
             answer="Yes for the qualified Bubblewrap path.",
             evidence=("fresh PID/mount/IPC/UTS/user/cgroup/net namespaces", "fresh lifecycle/session/actor IDs"),
         ),
@@ -96,6 +101,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q03",
             question="Are predecessor history, heap, files, environment, handles, and keys unavailable to successors?",
             status=passed,
+            scope=design_freeze,
             answer="Yes within the controlled OS/runtime boundary and stated host threat model.",
             evidence=("multi-surface secret canaries", "predecessor exit/root removal", "fresh Ed25519 key"),
         ),
@@ -103,13 +109,15 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q04",
             question="Are provider conversation and continuation mechanisms disabled?",
             status=passed,
-            answer="Yes in the strict signed request/response contract.",
-            evidence=("previous_response_id=null", "conversation=null", "stream=false"),
+            scope=design_freeze,
+            answer="Yes in the strict signed request/response contract, and request-input shape is restricted to declared plain message items.",
+            evidence=("previous_response_id=null", "conversation=null", "stream=false", "input role/content shape allowlist"),
         ),
         ReadinessQuestion(
             question_id="Q05",
             question="Is stale worker, thread-pool, fork, or session reuse excluded?",
             status=passed,
+            scope=design_freeze,
             answer="Yes for the only exposed factory spawn path.",
             evidence=("new interpreter exec per actor", "fixture B fails L0"),
         ),
@@ -117,6 +125,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q06",
             question="Are actor tools, shell, browser, MCP, DNS, and general network denied?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; the actor has a narrow command protocol and an unshared network with no route.",
             evidence=("tools=[]", "no default route/DNS/external connect"),
         ),
@@ -124,13 +133,15 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q07",
             question="Is provider-gateway egress restricted to a pinned endpoint at the OS layer?",
             status=repair,
-            answer="Not yet on a deployment host; code pins HTTPS policy, but host egress is not OS-allowlisted.",
-            evidence=("gateway policy hash", "deployment repair required"),
+            scope=execution,
+            answer="Not yet on a deployment host. Code pins the HTTPS base_url in the signed policy and records the policy hash. Under the qualified threat model (no actor egress, small trusted gateway, pinned and logged request contract, no causal route from predecessor to successor through arbitrary gateway networking) OS egress allowlisting is defense-in-depth rather than a validity prerequisite; it remains recommended deployment hardening before live execution.",
+            evidence=("gateway policy hash", "no actor egress", "defense-in-depth deployment hardening"),
         ),
         ReadinessQuestion(
             question_id="Q08",
             question="Are provider credentials absent from actor state?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; credentials exist only in the gateway constructor and not actor env/mounts.",
             evidence=("exact actor environment", "gateway-only API key"),
         ),
@@ -138,6 +149,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q09",
             question="Can the orchestrator forge actor actions or reuse a revoked key?",
             status=passed,
+            scope=design_freeze,
             answer="No through the qualified API; the registry stores public keys only and enforces sequence/revocation.",
             evidence=("registry private_key_count=0", "domain-separated Ed25519 signatures"),
         ),
@@ -145,6 +157,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q10",
             question="Is cross-generation state limited to enumerated declared carriers/backups?",
             status=passed,
+            scope=design_freeze,
             answer="Yes within the controlled boundary.",
             evidence=("frozen per-assignment capabilities", "fixtures C/F fail", "positive carrier read"),
         ),
@@ -152,6 +165,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q11",
             question="Are carrier writes hash-finalized, attributable, idempotent, and crash-recoverable?",
             status=passed,
+            scope=design_freeze,
             answer="Yes for local durable carrier storage.",
             evidence=("signed content/parent hash", "durable writer/read capability hashes", "same-hash replay/different-hash reject"),
         ),
@@ -159,6 +173,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q12",
             question="Are retries nested under one logical actor attempt and ambiguous delivery terminal?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; SQLite enforces logical-attempt uniqueness, v1 performs zero automatic retries, and ambiguous delivery is terminal.",
             evidence=("durable attempt ledger", "frozen max_retries=0", "UNKNOWN_DELIVERY terminal"),
         ),
@@ -166,27 +181,31 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q13",
             question="Is a real provider/model/project/auth configuration pinned and qualified?",
             status=repair,
-            answer="No; the real adapter exists, but qualification deliberately used a no-model backend.",
+            scope=execution,
+            answer="No; choosing and pinning the real endpoint/model snapshot/auth scope is part of the H1 design/freeze itself, and live qualification deliberately used a no-model backend (zero live calls). The mechanical boundary is ready to freeze such a pin; the frozen configuration must be exercised before execution.",
             evidence=("provider=none", "model=mechanical-no-model", "live_model_calls=0"),
         ),
         ReadinessQuestion(
             question_id="Q14",
             question="Have provider response/session semantics been mechanically checked on the frozen endpoint?",
             status=repair,
-            answer="No live request was made; official documentation supports the request contract only.",
+            scope=execution,
+            answer="No live request was made; the request/response contract is mechanically enforced and documented, and a nonempty server x-request-id is now required in the evidence contract. The trivial live canary on the frozen endpoint remains an execution gate.",
             evidence=("documentation-supported", "trivial live canary remains"),
         ),
         ReadinessQuestion(
             question_id="Q15",
-            question="Are provider caches, routing, logs, retention, and weight state fully observed?",
-            status=repair,
-            answer="No; those layers are explicitly OPAQUE/UNVERIFIED and excluded from L0.",
-            evidence=("state manifest provider-opaque rows", "residual_opaque_state"),
+            question="Are provider caches, routing, logs, retention, and weight state carried as OPAQUE/UNVERIFIED and excluded from L0?",
+            status=passed,
+            scope=design_freeze,
+            answer="Yes; those layers are explicitly OPAQUE/UNVERIFIED with no successor-read edge, and the L0 wording does not depend on their absence. Proof of absence is not required, is not claimed, and is not a repair.",
+            evidence=("state manifest provider-opaque rows", "residual_opaque_state", "exact L0 wording"),
         ),
         ReadinessQuestion(
             question_id="Q16",
             question="Do known-bad runtime fixtures A-F fail while clean fixture G passes?",
             status=passed,
+            scope=design_freeze,
             answer="Yes.",
             evidence=RUNTIME_FIXTURES,
         ),
@@ -194,6 +213,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q17",
             question="Does the unchanged model-free apparatus still pass its original qualification?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; all 15 original gates pass.",
             evidence=(MODEL_FREE_VERSION, "15/15 gates PASS"),
         ),
@@ -201,6 +221,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q18",
             question="Does the adapter prevent runtime evidence from silently earning L1-L5?",
             status=passed,
+            scope=design_freeze,
             answer="Yes; only bounded L0 is supported and L1-L5 are explicitly false.",
             evidence=("claim_mapping L0-L5", "scientific_evidence=false"),
         ),
@@ -208,6 +229,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
             question_id="Q19",
             question="Is the authorized next step design/freeze only, with no H1 run or scientific state collection?",
             status=passed,
+            scope=design_freeze,
             answer="Yes.",
             evidence=(READINESS_SCOPE, "authorized_to_run_h1=false"),
         ),
@@ -285,6 +307,9 @@ async def async_run_qualification() -> dict[str, Any]:
             and evidence.provider_store_requested is False
             and not evidence.provider_continuation_present
         ),
+        "provider_response_identity_recorded": bool(
+            evidence.provider_request_id and evidence.provider_response_id
+        ),
         "durable_retry_record_present": bool(evidence.retry_attempts),
         "no_live_model_call": evidence.live_model_calls == 0,
         "no_scientific_result": evidence.scientific_result is False,
@@ -297,19 +322,24 @@ async def async_run_qualification() -> dict[str, Any]:
             and all(original.gate_results.values())
         ),
     }
-    repairs = (
-        "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration.",
-        "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint.",
-        "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration.",
-        "Reconfirm response/request IDs, completed-status handling, and absence of continuation on that endpoint.",
-        "Carry provider caches, logs, routing, retention, and serving state as OPAQUE/UNVERIFIED; never broaden L0.",
+    # The L0 window is the frozen-state boundary, not a billing or transport
+    # claim.  A deployment that cannot obtain these identifiers proves only
+    # that its provider contract differs from the qualified one; it cannot
+    # broaden the claim.
+    execution_repairs = (
+        "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration as part of the H1 freeze.",
+        "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint (defense-in-depth; recommended before execution).",
+        "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration; it must return a nonempty response-body ID and server x-request-id, a completed status, and no continuation/conversation/tools.",
+        "Carry provider caches, logs, routing, retention, and serving state as OPAQUE/UNVERIFIED; never broaden L0 with a canary result.",
     )
+    design_freeze_repairs: tuple[str, ...] = ()
     report: dict[str, Any] = {
         "qualification_version": QUALIFICATION_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "adapter_version": ADAPTER_VERSION,
-        "status": Readiness.PASS_WITH_REPAIRS,
+        "status": Readiness.PASS,
         "readiness_scope": READINESS_SCOPE,
+        "execution_status": EXECUTION_NOT_READY,
         "authorized_to_run_h1": False,
         "scientific_result": False,
         "live_model_calls": 0,
@@ -325,7 +355,8 @@ async def async_run_qualification() -> dict[str, Any]:
         "readiness_questions": [
             item.model_dump(mode="json") for item in questions
         ],
-        "required_repairs_before_preregistration_or_run": list(repairs),
+        "required_before_design_freeze": list(design_freeze_repairs),
+        "required_before_execution": list(execution_repairs),
         "model_free_regression": {
             "apparatus_version": original.apparatus_version,
             "readiness": original.readiness,
@@ -339,8 +370,22 @@ async def async_run_qualification() -> dict[str, Any]:
         },
     }
     report["contains_secret_field"] = _contains_secret_field(report)
+    # The mechanical boundary's readiness splits into two gates.  Every
+    # design/freeze question must pass and every mechanical gate must pass
+    # before the runtime may be frozen for a live pilot; execution additionally
+    # requires the deployment/response validation listed above.
+    design_freeze_questions = tuple(
+        item for item in questions if item.scope == "design_freeze"
+    )
+    execution_questions = tuple(item for item in questions if item.scope == "execution")
     if not all(gates.values()) or report["contains_secret_field"]:
         report["status"] = Readiness.FAIL
+    elif any(item.status is not Readiness.PASS for item in design_freeze_questions):
+        report["status"] = Readiness.PASS_WITH_REPAIRS
+    if any(item.status is not Readiness.PASS for item in execution_questions):
+        report["execution_status"] = EXECUTION_NOT_READY
+    else:
+        report["execution_status"] = "YES — deployment-validated contract"
     report["record_hash"] = stable_hash(report)
     return report
 

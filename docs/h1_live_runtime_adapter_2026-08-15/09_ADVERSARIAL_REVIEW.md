@@ -27,4 +27,50 @@ The carrier passes repaired unsigned relabeling/parentage, crash windows, symlin
 
 The assignment-integration pass found caller-supplied request pins, mutable schedule shadows, schedule-wide carrier unions, and read-before-recipient-authorization paths. Repairs made the schedule private/immutable, derive provider pins from exact assignments, require one-operation actor/lifecycle/attempt-scoped capabilities, authorize an active recipient before content access, and keep normal delivery metadata-only at the controller API.
 
-Residual limits remain: the actual provider/model/project/auth/data controls are not pinned; gateway endpoint egress is not yet OS-allowlisted; no live provider canary was made; the provider substrate is opaque; and malicious host/kernel/controller-binary compromise is outside the threat model. These limits produce `PASS WITH REPAIRS` and constrain the exact L0 wording.
+Residual limits remain: the actual provider/model/project/auth/data controls are not pinned; gateway endpoint egress is not yet OS-allowlisted; no live provider canary was made; the provider substrate is opaque; and malicious host/kernel/controller-binary compromise is outside the threat model. Those limits deferred execution but do not block design/freeze (see 10).
+
+## Final independent review tracks (closed on this commit)
+
+The interrupted WIP left three final review tracks un-adjudicated; they were re-run as independent agent reviews against the checkpoint `0c3fcc0` and all findings were adjudicated below. All three returned **zero VALIDITY_CRITICAL** findings.
+
+### Review A — turnover / carrier / isolation security (all DEFENSE_IN_DEPTH, no validity-critical finding)
+
+1. `key_invalidated` is hardcoded `True` in the teardown path (`isolation.py` stop); revocation is a separate caller-visible step (orchestrator and boundary call it explicitly), so the evidence field is a snapshot, not a mechanism. No skip-revocation test existed. — Closed by an adjudication test in `test_isolation.py` that documents `key_invalidated` as factory-scope evidence while registry revocation remains a distinct caller step (fresh-actor definition 02:4).
+2. A signed "shutdown" action is discarded: an uncooperative crash exiting 0 yields a "clean" teardown with no actor signature. Defense-in-depth gap; adversarial-crash teardown is not load-bearing for L0 wording. — Documented limitation; new crash-teardown test covers exit code 0 and 73, asserting mechanical teardown (process/group/root removed) without any actor-signed "clean" shutdown being manufactured.
+3. Post-restart continuation (a registry-restore path) is dead code and misleading: reads/attributions require the active registry and there is no restore API; a store reload alone cannot support it. — Accepted: the misleading path is documented as unsupported; restart/replay semantics are defined only for the durable provider ledger, not for actor registries.
+4–9. Additional probes (mount-root regression, revocation ordering, teardown signature coverage) — no mechanism defects; the mount-root probe test already exists (`TMPDIR` cannot redirect the actor's private backing root).
+
+### Review B — provider / request / retry semantics (10 findings: 8 DEFENSE_IN_DEPTH, 2 OUT_OF_SCOPE-with-notes)
+
+1. **DEFENSE_IN_DEPTH** — "exact request content known" is precise at the semantic-body level (closed, signed, policy/frozen-hash-pinned kwargs body) but is not a byte/wire claim: SDK-injected headers (`User-Agent`, `X-Stainless-*`, possible org/project env headers, proxy env), pre-pinning of `x-request-id`, sampling parameters, and SDK version are unpinned/unsigned/uncaptured. — Accepted with documentation (03); L0 does not depend on the wire surface.
+2. **DEFENSE_IN_DEPTH** — nothing mechanically required a nonempty provider `x-request-id`; a live canary could pass with `None`. — **Closed:** `GatewayReceipt.provider_request_id` and `ProviderResponse.request_id` are now mandatory, the OpenAI backend fails closed on a missing server `x-request-id`, and the qualification adds the `provider_response_identity_recorded` gate (19th gate) plus regression tests.
+3. **DEFENSE_IN_DEPTH (coverage)** — five fail-closed branches were enforced but untested: in-flight `'active'` reservation, restart-without-key fresh dispatch, receipt-present-on-fresh-path, empty output text, and store/continuation tamper on durable replay. — **Closed:** new regression tests cover all five (see 08).
+4. **OUT_OF_SCOPE with note** — ledger swap resistance relies on a spec field that is optional by default and on the host threat model. — Accepted; qualified paths always set the pin; host-level replacement exclusion is documented (03).
+5. **DEFENSE_IN_DEPTH** — `ProviderRequest.input` item shape was unrestricted; conversation-shaped input could earn a clean L0. — **Closed:** per-item `{role, content}` allowlist with declared roles and string content, validators on `ProviderRequest` plus tests.
+6. **DEFENSE_IN_DEPTH (nit)** — 401/5xx API errors are labeled `unknown_delivery` instead of `response_received`; both are terminal. — Accepted as cosmetic label choice; conservative by construction.
+7. **OUT_OF_SCOPE with note** — the freeze authority (caller-supplied policy) is design intent under a host-trusted model; divergence between prepared and gateway policy fails at `execute`. — Accepted; schedule pin records the policy.
+8. **DEFENSE_IN_DEPTH** — malformed-response admission matrix verified; cross-call response presentation is impossible (request-hash gate). — Verified by new regression test.
+9. **OUT_OF_SCOPE** — whole-package re-presentation is the excluded malicious-host case; archived evidence should dedup by `(response_id, provider_request_id, gateway_id)`. — Adopted as an archive rule.
+10. **DEFENSE_IN_DEPTH (nit)** — at-most-once dispatch verified incl. in-flight rows, crash windows, and no-rowless finish; the vestigial retry-loop shape cannot iterate even with a nonzero budget. — Accepted; commented in code.
+
+### Review C — cold-read claim audit (all ACCEPTABLE / COSMETIC; verdict APPROVE-AS-DESIGN-AND-QUALIFICATION)
+
+Machine-verified: `record_hash` self-consistency (`7eda6c0b…` at checkpoint; regenerated `295fb94e…` after completion), 9 common-prior hashes identical, `COMMON_INSTRUCTION_CONTRACT` hash `45f0b7d2…`, 47/47 state layers, manifest document fresh == archived, model-free regression hash matches the runner print format, embedded record hash matches. Findings:
+
+1. Precise L0 wording is emitted only under clean evidence. — Accepted.
+2. Model-free vs runtime semantics are explicitly separated; no false-credit slip. — Accepted.
+3. L1–L5 locked to not-credited; "PASS" never authorizes a live run. — Accepted.
+4. Schedule/assignment frozen and output-blind; no caller-injected provider content. — Accepted.
+5. Provider-opaque layers honestly ring-fenced with spelled-out residual uncertainty. — Accepted.
+6. Freeze-before-live discipline (contract-freeze before any spawn; canaries archived, not evidence). — Accepted.
+7. Test suite regression pins the record hash/claim mapping/gate counts. — Accepted; updated for the new structure.
+8. **COSMETIC** — "340 tests" was not independently verifiable and feels vague. — **Closed:** this commit pins the exact collected/passed counts (360 adapter, 92 model-free, one `uv run pytest` run) in 08.
+
+Verdict: the dossier survives a cold read as internally consistent, honest, and machine-reproducible; the strongest usable claim is exactly the bounded L0 wording, pending the execution-gate canary.
+
+## Adjudication summary
+
+- **Closed by repair:** B2 (x-request-id mandatory + fail-closed), B3 (all five failure-mode tests), B5 (input-shape allowlist), C8 (pinned test counts), and Review A items 1–2 regression tests (skip-revocation and exit-0 crash teardown).
+- **Accepted as documentation:** B1 (body-vs-wire scope), B6, B8, B10; A2 (crash-exit-0 teardown), A3 (no registry-restore API).
+- **Out of scope by declared threat model:** B4, B7, B9 (host-trusted / freeze authority / whole-package re-presentation).
+- **Deferred to execution gate (Q07/Q13/Q14, see 10):** OS egress allowlist, real provider pin, live canary. These are deployment obligations, not validity repairs.

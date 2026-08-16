@@ -266,8 +266,16 @@ async def test_network_is_unshared_and_unknown_shell_or_tool_commands_are_reject
 
 
 @pytest.mark.asyncio
-async def test_crashed_actor_is_reaped_with_process_group_and_private_root_removed() -> None:
-    """Crash teardown proves the launcher cannot leave a stale worker behind."""
+@pytest.mark.parametrize("exit_code", [0, 73])
+async def test_crashed_actor_is_reaped_with_process_group_and_private_root_removed(
+    exit_code: int,
+) -> None:
+    """Crash teardown proves the launcher cannot leave a stale worker behind.
+
+    The exit-0 case documents that a tolerable exit before replying is still
+    treated as a crash: teardown is mechanically complete (process/group/root
+    removed), but nothing signs a "clean" shutdown on the actor's behalf.
+    """
 
     factory = BubblewrapActorFactory()
     actor = await factory.spawn(_spec())
@@ -275,12 +283,12 @@ async def test_crashed_actor_is_reaped_with_process_group_and_private_root_remov
     launcher_pid = actor.launcher_pid
     try:
         with pytest.raises(ActorProtocolError, match="exited before replying"):
-            await actor.command("crash", exit_code=73)
+            await actor.command("crash", exit_code=exit_code)
         await actor.process.wait()
 
         evidence = await factory.stop(actor)
         actor = None
-        assert evidence.return_code == 73
+        assert evidence.return_code == exit_code
         assert evidence.launcher_pid == launcher_pid
         assert evidence.runtime_process_id == launcher_pid
         assert evidence.process_absent
@@ -401,5 +409,46 @@ async def test_registration_signature_is_bound_to_identity_and_actor_cannot_sign
 
         with pytest.raises(ActorProtocolError, match="unknown command"):
             await actor.command("sign", payload="controller-forged-content")
+    finally:
+        await _stop(factory, actor)
+
+
+@pytest.mark.asyncio
+async def test_teardown_key_invalidation_is_factory_scope_and_revocation_is_a_caller_step() -> None:
+    """``key_invalidated`` is factory evidence; registry revocation is separate.
+
+    The teardown record reports the factory's internal key lifecycle, while
+    authorization lives in the registry.  A controller that tears the actor
+    down but skips the explicit ``registry.revoke`` step still leaves the
+    actor's public identity active in verification terms; only the caller
+    step closes that door.  This documents the split rather than assuming
+    teardown cannot be bypassed.
+    """
+
+    factory = BubblewrapActorFactory()
+    registry = ActionRegistry()
+    actor = None
+    try:
+        actor = await factory.spawn(_spec())
+        registry.register(actor.identity)
+        created = await actor.command(
+            "create_mechanical_carrier",
+            carrier_id="revocation-split-carrier",
+            carrier_class=StateClass.DECLARED_LINEAGE_CARRIER.value,
+            parent_hashes=[],
+        )
+        action = actor.validate_action(created["action"])
+        assert registry.verify(action, consume=False)
+
+        evidence = await factory.stop(actor)
+        actor = None
+        assert evidence.key_invalidated
+        # No registry.revoke() was called: the identity is still active and
+        # sequence verification still succeeds for a stored action.
+        assert registry.active(evidence.lifecycle_id)
+        assert registry.verify(action, consume=False)
+
+        registry.revoke(evidence.lifecycle_id)
+        assert not registry.active(evidence.lifecycle_id)
     finally:
         await _stop(factory, actor)

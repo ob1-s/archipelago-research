@@ -177,7 +177,9 @@ def _fixture(*, policy: ProviderPolicy | None = None) -> RequestFixture:
     )
 
 
-def _resign_request(fixture: RequestFixture, **changes: Any) -> ProviderRequest:
+def _resign_request(
+    fixture: RequestFixture, *, sequence: int = 2, **changes: Any
+) -> ProviderRequest:
     values = {
         "policy": fixture.request.policy,
         "input": fixture.request.input,
@@ -198,7 +200,9 @@ def _resign_request(fixture: RequestFixture, **changes: Any) -> ProviderRequest:
     action_values = fixture.request.action.model_dump(
         mode="python", exclude={"signature_b64"}
     )
-    action_values.update(sequence=2, action_id=f"{fixture.identity.lifecycle_id}:2")
+    action_values.update(
+        sequence=sequence, action_id=f"{fixture.identity.lifecycle_id}:{sequence}"
+    )
     action_values["payload_hash"] = stable_hash(semantic_payload)
     signature = base64.b64encode(
         fixture.private_key.sign(ACTION_DOMAIN + canonical_bytes(action_values))
@@ -255,6 +259,7 @@ def _gateway(
     expected_common_prior_hashes: dict[str, str] | None = None,
     expected_assignment_hashes: dict[str, str] | None = None,
     expected_request_hashes: dict[str, str] | None = None,
+    expected_actor_specs: dict[str, ActorSpec] | None = None,
     ledger_path: Path | None = None,
     receipt_private_key: Ed25519PrivateKey | None | object = _USE_FIXTURE_RECEIPT_KEY,
     max_safe_retries: int = 0,
@@ -271,8 +276,9 @@ def _gateway(
         or {fixture.request.attempt_id: fixture.request.assignment_hash},
         expected_request_hashes=expected_request_hashes
         or {fixture.request.attempt_id: fixture.request.semantic_hash()},
-        expected_actor_specs={fixture.request.attempt_id: fixture.actor_spec},
-        receipt_private_key=receipt_private_key or fixture.receipt_private_key,
+        expected_actor_specs=expected_actor_specs
+        or {fixture.request.attempt_id: fixture.actor_spec},
+        receipt_private_key=receipt_private_key,
         max_safe_retries=max_safe_retries,
     )
 
@@ -545,6 +551,12 @@ async def test_accepted_attempt_replays_in_process_without_reconsuming_actor_seq
         ("provider_storage_observed", True),
         ("status", "failed"),
         ("tool_calls", 1),
+        ("store_requested", True),
+        ("previous_response_id", "response-1"),
+        ("conversation_id", "conversation-1"),
+        ("output_text", "changed"),
+        ("response_id", ""),
+        ("gateway_receipt", None),
     ],
 )
 async def test_durable_replay_revalidates_every_response_contract_field(
@@ -700,6 +712,91 @@ async def test_same_logical_attempt_with_changed_signed_authorization_is_rejecte
     gateway.close()
 
 
+@pytest.mark.asyncio
+async def test_in_flight_reserved_attempt_blocks_redispatch_as_ambiguous(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture()
+    gateway = _gateway(fixture, ledger_path=tmp_path / "attempts.sqlite")
+    gateway.ledger.reserve(fixture.request)
+    backend = _SequenceBackend(RuntimeError("must not call provider"))
+    with pytest.raises(AmbiguousDeliveryError, match="terminal/in-flight"):
+        await gateway.execute(fixture.request, backend)
+    assert backend.calls == 0
+    gateway.close()
+
+
+@pytest.mark.asyncio
+async def test_backend_cannot_present_a_prior_gateway_receipt_on_a_fresh_attempt(
+    tmp_path: Path,
+) -> None:
+    first = _fixture()
+    first_gateway = _gateway(first, ledger_path=tmp_path / "first.sqlite")
+    accepted = await first_gateway.execute(first.request, ScriptedMechanicalBackend())
+    first_gateway.close()
+
+    second = _fixture()
+    second_gateway = _gateway(second, ledger_path=tmp_path / "second.sqlite")
+    # A prior accepted response can never be replayed onto a new request: its
+    # signed request_hash fails the fresh-path contract before any ledger
+    # write, so no cross-attempt response presentation is possible.
+    with pytest.raises(InvalidProviderResponseError, match="request hash mismatch"):
+        await second_gateway.execute(second.request, _SequenceBackend(accepted))
+    second_gateway.close()
+
+
+@pytest.mark.asyncio
+async def test_gateway_rejects_empty_provider_output_text(tmp_path: Path) -> None:
+    fixture = _fixture()
+    empty = _response(fixture.request).model_copy(
+        update={"output_text": "", "output_hash": sha256_bytes(b"")}
+    )
+    gateway = _gateway(fixture, ledger_path=tmp_path / "attempts.sqlite")
+    with pytest.raises(InvalidProviderResponseError, match="empty output text"):
+        await gateway.execute(fixture.request, _SequenceBackend(empty))
+    gateway.close()
+
+
+@pytest.mark.asyncio
+async def test_restarted_gateway_without_receipt_key_cannot_dispatch_a_fresh_attempt(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture()
+    ledger = tmp_path / "attempts.sqlite"
+    first = _gateway(fixture, ledger_path=ledger)
+    await first.execute(fixture.request, ScriptedMechanicalBackend())
+    first.close()
+
+    second_attempt = _resign_request(
+        fixture, attempt_id="attempt-second", sequence=1
+    )
+    restarted_registry = ActionRegistry()
+    restarted_registry.register(fixture.identity)
+    second = _gateway(
+        fixture,
+        registry=restarted_registry,
+        ledger_path=ledger,
+        receipt_private_key=None,
+        expected_assignment_hashes={
+            fixture.request.attempt_id: fixture.request.assignment_hash,
+            second_attempt.attempt_id: second_attempt.assignment_hash,
+        },
+        expected_request_hashes={
+            fixture.request.attempt_id: fixture.request.semantic_hash(),
+            second_attempt.attempt_id: second_attempt.semantic_hash(),
+        },
+        expected_actor_specs={
+            fixture.request.attempt_id: fixture.actor_spec,
+            second_attempt.attempt_id: fixture.actor_spec,
+        },
+    )
+    backend = _SequenceBackend(RuntimeError("must not call provider"))
+    with pytest.raises(RuntimeError, match="no receipt signing key"):
+        await second.execute(second_attempt, backend)
+    assert backend.calls == 0
+    second.close()
+
+
 class _FakeOutputText:
     type = "output_text"
     text = "fake mechanical output"
@@ -793,6 +890,38 @@ async def test_openai_backend_sets_no_store_continuation_tools_or_sdk_retries(mo
     assert response.conversation_id is None
     assert response.tool_calls == 0
     assert client.closed is True
+
+
+@pytest.mark.parametrize(
+    "input_messages",
+    [
+        ({"role": "user", "content": "ok", "extra": "key"},),
+        ({"role": "tool", "content": "ok"},),
+        ({"role": "user", "content": 5},),
+        ("not-an-object",),
+    ],
+)
+def test_provider_request_input_shape_is_restricted_to_declared_plain_messages(
+    input_messages: object,
+) -> None:
+    fixture = _fixture()
+    with pytest.raises(ValidationError):
+        _resign_request(fixture, input=input_messages)
+
+
+@pytest.mark.asyncio
+async def test_openai_backend_requires_server_x_request_id(monkeypatch: pytest.MonkeyPatch) -> None:
+    fixture = _fixture()
+    _FakeOpenAIClient.instances.clear()
+    _FakeOpenAIClient.next_error = None
+    monkeypatch.setattr(_FakeRawResponse, "headers", {})
+    monkeypatch.setattr(
+        "h1_live_runtime_adapter_v1.provider.AsyncOpenAI", _FakeOpenAIClient
+    )
+    with pytest.raises(InvalidProviderResponseError, match="x-request-id"):
+        await OpenAIResponsesBackend(api_key="test-only-key")(
+            fixture.request, f"{fixture.request.attempt_id}:wire:1"
+        )
 
 
 @pytest.mark.asyncio

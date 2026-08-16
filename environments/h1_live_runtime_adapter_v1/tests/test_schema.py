@@ -73,6 +73,45 @@ def test_provider_response_receipt_must_bind_the_same_response() -> None:
         )
 
 
+def test_gateway_receipt_requires_provider_request_id() -> None:
+    values = {
+        "gateway_id": "gateway-0",
+        "public_key_b64": "unused-in-schema-test",
+        "logical_attempt_id": "attempt-0",
+        "assignment_hash": "a" * 64,
+        "request_hash": "b" * 64,
+        "response_id": "response-0",
+        "output_hash": sha256_bytes(b"mechanical-output"),
+        "signature_b64": "unused-in-schema-test",
+    }
+    with pytest.raises(ValidationError, match="provider_request_id"):
+        GatewayReceipt(**values)
+
+
+def test_provider_response_requires_provider_request_id() -> None:
+    output_text = "mechanical-output"
+    with pytest.raises(ValidationError, match="request_id"):
+        ProviderResponse(
+            provider="scripted",
+            model="mechanical",
+            response_id="response-0",
+            output_text=output_text,
+            output_hash=sha256_bytes(output_text.encode()),
+            request_hash="b" * 64,
+            gateway_receipt=GatewayReceipt(
+                gateway_id="gateway-0",
+                public_key_b64="unused-in-schema-test",
+                logical_attempt_id="attempt-0",
+                assignment_hash="a" * 64,
+                request_hash="b" * 64,
+                response_id="response-0",
+                provider_request_id="request-0",
+                output_hash=sha256_bytes(output_text.encode()),
+                signature_b64="unused-in-schema-test",
+            ),
+        )
+
+
 def test_carrier_capability_requires_exactly_one_permission() -> None:
     common = {
         "attempt_id": "attempt-0",

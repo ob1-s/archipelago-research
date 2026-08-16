@@ -27,7 +27,7 @@
       "version": "h1-live-runtime-orchestrator/v1"
     },
     "provider_gateway": {
-      "hash": "3ba6a10b9c9f91a8eb37af9aa3948c79c5ac4ed72c0adccf3f679975c22021cf",
+      "hash": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
       "source": "provider.py",
       "version": "h1-live-runtime-provider/v1"
     },
@@ -37,7 +37,7 @@
       "version": "openai-responses-stateless-policy/v1"
     },
     "state_schema": {
-      "hash": "a06df679dffcad09330b96d1ce5c50cb85840373d390b9a26cdb740508553e02",
+      "hash": "a571b29880cb5ae3e3aef406b7e20cc57cf876af838a0ef243cf8eb8099bc425",
       "source": "models.py",
       "version": "h1-live-runtime-wire-schema/v1"
     },
@@ -755,6 +755,6 @@
       "verification": "multi-surface file canaries and fixture C/F"
     }
   ],
-  "manifest_hash": "e62c034c2523ed4519a2672d7e88110f91fdf6c7d061fa4d1f6afc45bd1ac7d0",
+  "manifest_hash": "def2e21f893bc1ac8514f48780105d134a31ef70a47a92cf8b2cd6989fd03361",
   "manifest_version": "h1-live-runtime-state-manifest/v1"
 }

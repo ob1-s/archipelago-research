@@ -30,5 +30,10 @@ The exact L0 wording supported by a clean record is:
 
 Opaque provider infrastructure remains outside that claim.
 
-Current status is `PASS WITH REPAIRS` for designing/freezing a pilot only.
-It is not authorization to run H1 or collect scientific model state.
+Current status is `PASS` for designing/freezing a pilot only
+(`execution_status = NO — provider/deployment validation remains`). It is not
+authorization to run H1 or collect scientific model state. Four deferred
+execution obligations are recorded in the qualification report and dossier
+(00/10): pin the real provider configuration (Q13), OS-allowlist gateway
+egress (Q07), archive one trivial non-H1 live canary (Q14), and keep provider
+caches/logs/routing/retention OPAQUE/UNVERIFIED (Q15).

@@ -1,18 +1,28 @@
 from h1_live_runtime_adapter_v1.canonical import stable_hash
 from h1_live_runtime_adapter_v1.models import L0_CLAIM
-from h1_live_runtime_adapter_v1.qualification import READINESS_SCOPE
+from h1_live_runtime_adapter_v1.qualification import (
+    EXECUTION_NOT_READY,
+    READINESS_SCOPE,
+)
 
 
-def test_qualification_is_pass_with_repairs_for_design_freeze_only(qualification_report) -> None:
-    assert qualification_report["status"] == "PASS WITH REPAIRS"
+def test_qualification_passes_design_freeze_and_defers_execution(qualification_report) -> None:
+    assert qualification_report["status"] == "PASS"
     assert qualification_report["readiness_scope"] == READINESS_SCOPE
+    assert qualification_report["execution_status"] == EXECUTION_NOT_READY
     assert qualification_report["authorized_to_run_h1"] is False
-    assert len(qualification_report["required_repairs_before_preregistration_or_run"]) == 5
+    assert qualification_report["required_before_design_freeze"] == []
+    assert len(qualification_report["required_before_execution"]) == 4
 
 
 def test_all_mechanical_gates_pass(qualification_report) -> None:
-    assert len(qualification_report["gate_results"]) == 18
+    assert len(qualification_report["gate_results"]) == 19
     assert all(qualification_report["gate_results"].values())
+    assert qualification_report["gate_results"]["provider_response_identity_recorded"] is True
+    assert (
+        qualification_report["runtime_boundary"]["provider_request_id"]
+        and qualification_report["runtime_boundary"]["provider_response_id"]
+    )
 
 
 def test_record_is_nonscientific_and_contains_no_live_calls_or_secret_fields(qualification_report) -> None:
@@ -47,14 +57,28 @@ def test_runtime_fixtures_A_through_F_fail_and_G_pass(qualification_report) -> N
     assert fixtures[names[-1]]["clean"]
 
 
-def test_readiness_has_exactly_nineteen_adjudicated_questions(qualification_report) -> None:
+def test_readiness_has_exactly_nineteen_scoped_adjudicated_questions(qualification_report) -> None:
     questions = qualification_report["readiness_questions"]
     assert [item["question_id"] for item in questions] == [
         f"Q{index:02d}" for index in range(1, 20)
     ]
     assert {item["status"] for item in questions} == {"PASS", "PASS WITH REPAIRS"}
+    assert {item["scope"] for item in questions} == {"design_freeze", "execution"}
     repairs = {item["question_id"] for item in questions if item["status"] != "PASS"}
-    assert repairs == {"Q07", "Q13", "Q14", "Q15"}
+    assert repairs == {"Q07", "Q13", "Q14"}
+    assert all(
+        item["scope"] == "execution" for item in questions if item["question_id"] in repairs
+    )
+    assert all(
+        item["scope"] == "design_freeze"
+        for item in questions
+        if item["question_id"] == "Q15"
+    )
+    assert all(
+        item["scope"] == "design_freeze"
+        for item in questions
+        if item["status"] == "PASS" and item["question_id"] != "Q15"
+    )
 
 
 def test_original_model_free_report_still_has_15_of_15_gates(qualification_report) -> None:
