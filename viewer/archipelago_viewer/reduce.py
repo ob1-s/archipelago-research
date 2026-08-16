@@ -231,14 +231,25 @@ def _match_artifact(
     return None
 
 
-def replay_json(episode: ViewerEpisode, document: dict[str, Any]) -> str:
-    """Bundle episode + replay into one deterministic JSON document."""
-    return json.dumps(
-        {
-            "schema_version": "archipelago-viewer-bundle/v1",
-            "episode": episode.to_dict(),
-            "replay": document,
-        },
-        sort_keys=True,
-        separators=(",", ":"),
-    )
+def replay_json(
+    episode: ViewerEpisode,
+    document: dict[str, Any],
+    scene: dict[str, Any] | None = None,
+) -> str:
+    """Bundle episode + replay (+ optional scene) into one deterministic JSON.
+
+    Version is ``.../v2`` when a scene projection is included, ``.../v1``
+    otherwise (kept for bare-replay callers and tests).
+    """
+    bundle: dict[str, Any] = {
+        "schema_version": (
+            "archipelago-viewer-bundle/v2"
+            if scene is not None
+            else "archipelago-viewer-bundle/v1"
+        ),
+        "episode": episode.to_dict(),
+        "replay": document,
+    }
+    if scene is not None:
+        bundle["scene"] = scene
+    return json.dumps(bundle, sort_keys=True, separators=(",", ":"))

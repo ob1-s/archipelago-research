@@ -17,6 +17,8 @@ from pathlib import Path
 
 from .adapters import load_episodes
 from .reduce import replay_json, reduce
+from .scene import project
+from .scene.fixture import generate_episode
 from .schema import ViewerEpisode
 
 DEFAULT_OUT = Path(__file__).resolve().parent.parent / "demo"
@@ -57,6 +59,14 @@ DEMO_SOURCES: list[dict[str, str]] = [
         "group_mode": "n/a",
         "limit": "220",
     },
+    {
+        "slug": "fixture-megafacility",
+        "title": "VISUALIZATION FIXTURE — NOT SCIENTIFIC DATA · megafacility",
+        "path": "",
+        "group_mode": "n/a",
+        "limit": "",
+        "fixture": True,
+    },
 ]
 
 
@@ -66,26 +76,32 @@ def bake_one(
     out_dir: Path,
     skip_missing: bool = True,
 ) -> dict[str, object] | None:
-    source_path = repo_root / spec["path"]
-    if not source_path.is_file():
-        if skip_missing:
+    if spec.get("fixture"):
+        episode = generate_episode()
+    else:
+        source_path = repo_root / spec["path"]
+        if not source_path.is_file():
+            if skip_missing:
+                return None
+            raise FileNotFoundError(source_path)
+        limit = int(spec["limit"]) if spec.get("limit") else None
+        group_mode = spec.get("group_mode", "community")
+        if group_mode == "n/a":
+            group_mode = "community"
+        episodes = load_episodes(str(source_path), limit=limit, group_mode=group_mode)
+        if not episodes:
             return None
-        raise FileNotFoundError(source_path)
-    limit = int(spec["limit"]) if spec.get("limit") else None
-    group_mode = spec.get("group_mode", "community")
-    if group_mode == "n/a":
-        group_mode = "community"
-    episodes = load_episodes(str(source_path), limit=limit, group_mode=group_mode)
-    if not episodes:
-        return None
-    episode = episodes[0]
-    if isinstance(episode, list):
-        episode = episode[0]
-    if not isinstance(episode, ViewerEpisode):
-        raise TypeError(f"unexpected episode type {type(episode)}")
+        episode = episodes[0]
+        if isinstance(episode, list):
+            episode = episode[0]
+        if not isinstance(episode, ViewerEpisode):
+            raise TypeError(f"unexpected episode type {type(episode)}")
     document = reduce(episode)
+    scene = project(episode)
     out_path = out_dir / f"{spec['slug']}.replay.json"
-    out_path.write_text(replay_json(episode, document), encoding="utf-8")
+    out_path.write_text(
+        replay_json(episode, document, scene), encoding="utf-8"
+    )
     return {
         "slug": spec["slug"],
         "title": episode.title,
@@ -98,6 +114,8 @@ def bake_one(
         "agents": len(episode.agents),
         "artifacts": len(episode.artifacts),
         "carriers": len(episode.carriers),
+        "scene_kind": scene.get("scene_kind", ""),
+        "fixture": bool(episode.meta.get("fixture")),
         "bytes": out_path.stat().st_size,
         "file": out_path.name,
     }
