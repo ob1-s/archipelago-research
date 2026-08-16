@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archipelago · trajectory viewer</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+<header id="topbar">
+  <div class="brand">
+    <span class="logo">◈</span>
+    <span class="brand-name">Archipelago</span>
+    <span class="brand-sub">trajectory viewer</span>
+  </div>
+  <div class="episode-pick">
+    <select id="demo-select" title="baked replay demos"></select>
+    <label class="src-open" title="adapt a source file on the fly (read-only)">
+      <input type="checkbox" id="src-toggle"> sources
+    </label>
+    <select id="src-select" hidden title="source files found under the server roots"></select>
+  </div>
+  <div class="episode-info">
+    <span id="ep-title" class="ep-title">…</span>
+    <span id="ep-sub" class="ep-sub"></span>
+  </div>
+  <div class="status">
+    <span id="ep-status" class="pill">read-only</span>
+    <a id="ep-source-link" class="pill" target="_blank" rel="noreferrer">source</a>
+  </div>
+</header>
+
+<main>
+  <section id="stage">
+    <div id="canvas-wrap">
+      <canvas id="town" width="1000" height="700"></canvas>
+      <div id="hover-tip" hidden></div>
+      <div id="phase-banner" hidden></div>
+    </div>
+    <aside id="side">
+      <div class="panel" id="agents-panel">
+        <div class="panel-head">
+          <h2>Agents</h2>
+          <span class="panel-note" id="agents-note"></span>
+        </div>
+        <div class="panel-body" id="agents-list"></div>
+      </div>
+      <div class="panel" id="log-panel">
+        <div class="panel-head">
+          <h2>Event log</h2>
+          <div class="log-filters" id="log-filters"></div>
+        </div>
+        <div class="panel-body" id="log-list"></div>
+      </div>
+      <div class="panel" id="inspector-panel">
+        <div class="panel-head">
+          <h2 id="inspector-title">Inspector</h2>
+          <button id="inspector-close" title="close">✕</button>
+        </div>
+        <div class="panel-body" id="inspector-body"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<footer id="transport">
+  <div class="controls">
+    <button id="btn-start" title="jump to start">⏮</button>
+    <button id="btn-back" title="step back">◀</button>
+    <button id="btn-play" title="play / pause (space)">▶</button>
+    <button id="btn-fwd" title="step forward">▶|</button>
+    <button id="btn-end" title="jump to end">⏭</button>
+    <select id="speed" title="replay speed">
+      <option value="0.25">0.25×</option>
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+      <option value="4">4×</option>
+      <option value="8">8×</option>
+      <option value="16">16×</option>
+      <option value="64">64×</option>
+    </select>
+  </div>
+  <div class="scrub">
+    <canvas id="timeline" width="1000" height="46"></canvas>
+    <div class="readout">
+      <span id="readout-time">t=0.0s</span>
+      <span id="readout-event">event 0/0</span>
+      <span id="readout-duration"></span>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="lg lg-spawn">spawn</span>
+    <span class="lg lg-teardown">teardown</span>
+    <span class="lg lg-tool">tool</span>
+    <span class="lg lg-artifact">artifact</span>
+    <span class="lg lg-carrier">carrier</span>
+    <span class="lg lg-provider">provider</span>
+    <span class="lg lg-outcome">outcome</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

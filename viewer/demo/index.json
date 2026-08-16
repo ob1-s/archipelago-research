@@ -1,0 +1,79 @@
+{
+  "demos": [
+    {
+      "agents": 10,
+      "artifacts": 1,
+      "bytes": 1217784,
+      "carriers": 0,
+      "environment": "cross-rollout-policy-v1",
+      "events": 316,
+      "file": "verifiers-policy-baseline.replay.json",
+      "id": "6ca502bfe377",
+      "model": "",
+      "slug": "verifiers-policy-baseline",
+      "source": "traces.jsonl (113854 bytes)",
+      "source_kind": "verifiers-traces.jsonl",
+      "title": "cross-rollout-policy-v1 \u00b7 10 rollouts \u00b7 baseline=10"
+    },
+    {
+      "agents": 12,
+      "artifacts": 1,
+      "bytes": 1478793,
+      "carriers": 0,
+      "environment": "cross-rollout-policy-v1",
+      "events": 315,
+      "file": "verifiers-policy-culture-b.replay.json",
+      "id": "cb959e16fab6",
+      "model": "",
+      "slug": "verifiers-policy-culture-b",
+      "source": "traces.jsonl (644041 bytes)",
+      "source_kind": "verifiers-traces.jsonl",
+      "title": "cross-rollout-policy-v1 \u00b7 12 rollouts \u00b7 culture-B=12"
+    },
+    {
+      "agents": 1,
+      "artifacts": 1,
+      "bytes": 19453,
+      "carriers": 0,
+      "environment": "cross-rollout-postcommitment-confirmatory-v1",
+      "events": 18,
+      "file": "verifiers-postcommitment-single.replay.json",
+      "id": "3726f8eb660d",
+      "model": "",
+      "slug": "verifiers-postcommitment-single",
+      "source": "traces.jsonl (298376 bytes)",
+      "source_kind": "verifiers-traces.jsonl",
+      "title": "single-resource-postcommitment-policy-facility-A_first \u2014 f0f3e74e"
+    },
+    {
+      "agents": 3,
+      "artifacts": 2,
+      "bytes": 74289,
+      "carriers": 1,
+      "environment": "h1_live_runtime_adapter_v1",
+      "events": 20,
+      "file": "h1-runtime-turnover.replay.json",
+      "id": "2055d8a382de",
+      "model": "",
+      "slug": "h1-runtime-turnover",
+      "source": "RUNTIME_BOUNDARY_STATE.json (73015 bytes)",
+      "source_kind": "h1-runtime-boundary-state.json",
+      "title": "H1 live-runtime mechanical turnover"
+    },
+    {
+      "agents": 2,
+      "artifacts": 0,
+      "bytes": 2358825,
+      "carriers": 0,
+      "environment": "pre_framework_snapshot_2026-08-15",
+      "events": 220,
+      "file": "pre-framework-corpus.replay.json",
+      "id": "d33cc892bd3b",
+      "model": "",
+      "slug": "pre-framework-corpus",
+      "source": "VISIBLE_HISTORICAL_CORPUS.jsonl (4338219 bytes)",
+      "source_kind": "pre-framework-corpus.jsonl",
+      "title": "pre-framework conversation corpus \u00b7 220 turns"
+    }
+  ]
+}
