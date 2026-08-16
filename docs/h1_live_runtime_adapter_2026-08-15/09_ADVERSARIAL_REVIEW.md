@@ -57,7 +57,7 @@ The interrupted WIP left three final review tracks un-adjudicated; they were re-
 
 ### Review C — cold-read claim audit (all ACCEPTABLE / COSMETIC; verdict APPROVE-AS-DESIGN-AND-QUALIFICATION)
 
-Machine-verified: `record_hash` self-consistency (`7eda6c0b…` at checkpoint; `295fb94e…` after the first completion; regenerated `09d8ec70…` by the final repair pass on branch `fix/h1-live-runtime-final-review`), 9 common-prior hashes identical, `COMMON_INSTRUCTION_CONTRACT` hash `45f0b7d2…`, 47/47 state layers, manifest document fresh == archived, model-free regression hash matches the runner print format, embedded record hash matches. Findings:
+Machine-verified: `record_hash` self-consistency (`7eda6c0b…` at checkpoint; `295fb94e…` after the first completion; regenerated `09d8ec70…` by the final repair pass on branch `fix/h1-live-runtime-final-review`; regenerated `59b3a516…` by the lifecycle-journal durability repair on branch `fix/h1-live-runtime-lifecycle-journal`), 9 common-prior hashes identical, `COMMON_INSTRUCTION_CONTRACT` hash `45f0b7d2…`, 47/47 state layers, manifest document fresh == archived, model-free regression hash matches the runner print format, embedded record hash matches. Findings:
 
 1. Precise L0 wording is emitted only under clean evidence. — Accepted.
 2. Model-free vs runtime semantics are explicitly separated; no false-credit slip. — Accepted.
@@ -70,9 +70,24 @@ Machine-verified: `record_hash` self-consistency (`7eda6c0b…` at checkpoint; `
 
 Verdict: the dossier survives a cold read as internally consistent, honest, and machine-reproducible; the strongest usable claim is exactly the bounded L0 wording, pending the execution-gate canary.
 
+## Final repair: durable lifecycle journal (closed on this commit)
+
+The B11 journal described above existed only inside the mechanical canary: `run_clean_mechanical_canary` accumulated `LifecycleEvent` models in a local in-memory list, so a future H1 runtime had no load-bearing revocation evidence at the reusable `Orchestrator`, and successor admission depended on in-memory controller state that a restart would erase. This commit closes that gap and adds the following verified facts:
+
+- **Durable journal in the reusable controller.** `lifecycle_journal.LifecycleJournal` is the same append-only SQLite journal the runtime's `Orchestrator` uses for every `spawned` / `teardown_complete` / `authorization_revoked` transition (`journal_mode=WAL`, `synchronous=FULL`, immediate transactions, rows committed before the controller proceeds, restart-readable, no rewritten rows, no secrets).
+- **Verified revocation ordering.** On teardown the controller reaps the process, journals `teardown_complete`, calls `registry.revoke()`, verifies the registry reports the lifecycle inactive, and only then journals `authorization_revoked`; any failure in that chain surfaces and leaves no revocation row (fail closed).
+- **Successor admission from durable state.** `Orchestrator.start_actor` blocks any later-generation actor unless every earlier generation in the lineage has committed `teardown_complete` and `authorization_revoked` rows (in strict order) in the journal — the same rule after a controller restart, where the in-memory actor map is empty. A journal/registry disagreement (journal says revoked, registry still active) also fails closed.
+- **Strict per-lifecycle order enforced in L0 evidence.** The assessor now rejects `spawned<teardown_complete<authorization_revoked` violations, duplicate lifecycle events, fabricated rows that map to no recorded runtime identity (binding each row to its frozen assignment attempt/actor/lineage/generation), and multi-predecessor turnovers where any earlier generation is missing or misordered; the existing revocation-before-successor-start check is preserved.
+- **Canary uses the real path.** `run_clean_mechanical_canary` drives the same `Orchestrator` + journal the runtime uses; the evidence journal is the actual durable controller journal, not a canary-local reconstruction.
+- **Fixture H on the real controller path.** A test-only silent-revocation registry runs real Bubblewrap processes through the controller: teardown completes and is journaled, the skipped revocation leaves no `authorization_revoked` row, the controller's own revocation verification fails closed, and the successor is blocked.
+- **Restart tests.** A controller recreated on the same journal admits the successor after a fully journaled turnover and fails closed when revocation was never committed.
+- **Verification.** 378 adapter tests pass (was 368; +10 new), model-free 92 / 15/15 unchanged, `compileall` and `uv build` succeed; artifacts regenerated with `record_hash 59b3a516…`, 21/21 gates, `status=PASS`, `authorized_to_run_h1=false`, zero live calls.
+
+The dossier statement stands: lifecycle revocation evidence is produced by the same durable controller journal used by the reusable runtime.
+
 ## Adjudication summary
 
-- **Closed by repair:** B3 (all five failure-mode tests), B5 (input-shape allowlist), B11 (revocation journal as durable L0 evidence + fixture H), B12 (stage-split re-adjudication of Q07/Q13/Q14), C8 (pinned test counts), and Review A items 1–2 regression tests (skip-revocation and exit-0 crash teardown).
+- **Closed by repair:** B3 (all five failure-mode tests), B5 (input-shape allowlist), B11 (revocation journal as durable L0 evidence + fixture H), B12 (stage-split re-adjudication of Q07/Q13/Q14), C8 (pinned test counts), the lifecycle-journal durability repair (journal moved into the reusable controller, SQLite append-only, verified revocation, restart admission, strict per-lifecycle order, duplicate/fabricated-row rejection, multi-predecessor rule, controller-path fixture H, +10 tests), and Review A items 1–2 regression tests (skip-revocation and exit-0 crash teardown).
 - **Resolved by the generic/provider split:** B2/B22 (provider-issued request ID optional in the generic contract, preserved when present; OpenAI adapter remains fail-closed on `x-request-id`).
 - **Accepted as documentation:** B1 (body-vs-wire scope), B6, B8, B10; A2 (crash-exit-0 teardown), A3 (no registry-restore API).
 - **Out of scope by declared threat model:** B4, B7, B9 (host-trusted / freeze authority / whole-package re-presentation).

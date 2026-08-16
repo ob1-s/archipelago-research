@@ -270,11 +270,18 @@ class LifecycleEvent(StrictModel):
     rather than inferred.  ``authorization_revoked`` is the controller's
     public-key registry revocation and is distinct from
     ``TeardownEvidence.key_invalidated``, which only reports the actor-private
-    signing material's factory lifecycle.
+    signing material's factory lifecycle.  Each row is a durable, append-only
+    controller journal entry tied to the exact frozen assignment that drove
+    the transition, so restart semantics, successor admission, and adversarial
+    revocation skips are all checkable against the evidence.
     """
 
     sequence: int = Field(ge=0)
     lifecycle_id: SafeIdentifier
+    actor_id: SafeIdentifier
+    attempt_id: SafeIdentifier
+    lineage_id: SafeIdentifier
+    generation: int = Field(ge=0)
     event: Literal["spawned", "teardown_complete", "authorization_revoked"]
 
 

@@ -9,7 +9,12 @@ UTS, user, cgroup, and network namespaces; fresh private work/home/tmp/cache
 mounts; a cleared environment; no model-visible predecessor transcript; and an
 internally generated ephemeral Ed25519 action key. A hash-validated frozen
 schedule gives exact actor/lifecycle/attempt-scoped carrier capabilities; the
-only cross-generation path is the declared carrier API. Model/provider traffic, when later enabled,
+only cross-generation path is the declared carrier API. The reusable
+`Orchestrator` control plane journals every lifecycle transition (spawn /
+teardown_complete / authorization_revoked per lifecycle, bound to its frozen
+assignment) into a durable append-only SQLite journal, verifies registry
+revocation before journaling it, and admits a successor only from committed
+journal state that survives a controller restart. Model/provider traffic, when later enabled,
 must use the signed stateless Responses request gateway; actors never receive
 general network access or provider credentials.
 

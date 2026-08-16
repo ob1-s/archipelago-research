@@ -76,7 +76,7 @@
     "provider_transport_identity_recorded": true,
     "state_manifest_valid_and_hash_bound": true
   },
-  "generated_at_utc": "2026-08-16T12:44:35.013578+00:00",
+  "generated_at_utc": "2026-08-16T13:36:33.664237+00:00",
   "live_model_calls": 0,
   "model_free_regression": {
     "apparatus_version": "h1-model-free-apparatus/v1",
@@ -337,7 +337,7 @@
   "recommended_defense_in_depth": [
     "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint (recommended deployment hardening; neither a validity prerequisite nor an execution blocker)."
   ],
-  "record_hash": "09d8ec709e8b470bace6b2a1fb572de7e2407d1c51955cd68cec5a66e46bf10b",
+  "record_hash": "59b3a5164736ed139c61939c9379ea059a484a1967b792fc33631e6573833c8b",
   "required_as_part_of_h1_freeze": [
     "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, data-control configuration, and runtime configuration as part of the H1 design freeze."
   ],
@@ -358,23 +358,23 @@
         "attempt_id": "mechanical-generation-0",
         "can_read": false,
         "can_write": true,
-        "capability_hash": "f7ccf012a8f700130dce1a2be3ad1bc117c09e94b98d1193ede83871a0fb8ccc",
+        "capability_hash": "5680b8430825ba426dfbe5ad93e9377adeeabb6b5c29af0b668d7ebdf7c02fa1",
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
         "generation": 0,
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
         "lineage_id": "mechanical-lineage"
       },
       {
         "actor_id": "generation-1-probe",
-        "attempt_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615",
+        "attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
         "can_read": true,
         "can_write": false,
-        "capability_hash": "da1daace7ebec6914ffc393058f4aceed0eb190fd29be607811fc44752d3b430",
+        "capability_hash": "d041b4b68678bec99f5aa330b6f3407ef6590f290bc9b0e554cea0ae5853c486",
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
         "generation": 1,
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
         "lineage_id": "mechanical-lineage"
       }
     ],
@@ -383,7 +383,7 @@
       {
         "carrier_class": "DECLARED_LINEAGE_CARRIER",
         "carrier_id": "declared-positive",
-        "content_hash": "51042752934090724bd1dfa04dfc8fb548589c34d41c9fdaaecbd024dbe155ca",
+        "content_hash": "09fdf9de22ae0348e365e5473cbcf2bcbc008db4da475c7b76c9879bd87813f7",
         "finalized": true,
         "generation": 0,
         "lineage_id": "mechanical-lineage",
@@ -392,45 +392,45 @@
         "read_actions": [
           {
             "action": "carrier_read",
-            "action_id": "lifecycle-7976a58e265c2f20:3",
+            "action_id": "lifecycle-f29cdd82067284f5:3",
             "actor_id": "generation-1-probe",
             "generation": 1,
-            "lifecycle_id": "lifecycle-7976a58e265c2f20",
+            "lifecycle_id": "lifecycle-f29cdd82067284f5",
             "lineage_id": "mechanical-lineage",
             "parent_hashes": [
-              "51042752934090724bd1dfa04dfc8fb548589c34d41c9fdaaecbd024dbe155ca",
-              "a27ec51cfd27ece4b93fd28dcd3092b20311026da398a8c30c8ef87db5a4f600"
+              "09fdf9de22ae0348e365e5473cbcf2bcbc008db4da475c7b76c9879bd87813f7",
+              "51b960156679ab746dfbbb865c24bbd2f16d8ea8528f9b196a83cefddf05c5bc"
             ],
-            "payload_hash": "51042752934090724bd1dfa04dfc8fb548589c34d41c9fdaaecbd024dbe155ca",
-            "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
+            "payload_hash": "09fdf9de22ae0348e365e5473cbcf2bcbc008db4da475c7b76c9879bd87813f7",
+            "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
             "sequence": 3,
-            "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3",
-            "signature_b64": "jWsr/EkeA71UYdb0DBS2uBJ8tRBqrkkI9TESxFhfukYmqS7rCwlWCDJxxQPt7VTkDQg1gUGNpiCFfNdnzZ1aCQ=="
+            "session_id": "session-dc75303ad5de2887e0c1dc196066c87d",
+            "signature_b64": "VV+j35+DHXzLGMx92vru4Nru9JnjxWt9jasEIaGltL/n/NhuL+fdVl0bDVoR0KnsX58BoPLx5yoJ+wY6GcnyBA=="
           }
         ],
         "read_by": [
           "generation-1-probe"
         ],
         "read_capability_hashes": [
-          "da1daace7ebec6914ffc393058f4aceed0eb190fd29be607811fc44752d3b430"
+          "d041b4b68678bec99f5aa330b6f3407ef6590f290bc9b0e554cea0ae5853c486"
         ],
-        "write_authority": "45c14d8d279f76893ce8286ac5232cf9c27f3067c0e790c7748e3d724f3fa023",
-        "write_capability_hash": "f7ccf012a8f700130dce1a2be3ad1bc117c09e94b98d1193ede83871a0fb8ccc",
+        "write_authority": "016d5249936892c1964d0e0984034b2127405b0f694b9cf25b75e7be4a344e4b",
+        "write_capability_hash": "5680b8430825ba426dfbe5ad93e9377adeeabb6b5c29af0b668d7ebdf7c02fa1",
         "writer": {
           "action": "carrier_write",
-          "action_id": "lifecycle-0d2d9e5b4a3ea10f:2",
+          "action_id": "lifecycle-b2d19751412290d1:2",
           "actor_id": "generation-0-probe",
           "generation": 0,
-          "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+          "lifecycle_id": "lifecycle-b2d19751412290d1",
           "lineage_id": "mechanical-lineage",
           "parent_hashes": [
-            "50b07142154039a29f38903de35e51885880bfcccf987c67cf6a672bde43359c"
+            "6f03d4e8943c941b561e0b928ce2f164ed286b56c8449edf91a4a895de7e6e5c"
           ],
-          "payload_hash": "51042752934090724bd1dfa04dfc8fb548589c34d41c9fdaaecbd024dbe155ca",
-          "public_key_b64": "oHsxnm1Er1oJmqVJhHUk+syLhcPaXYCN1K2t6ALYWyc=",
+          "payload_hash": "09fdf9de22ae0348e365e5473cbcf2bcbc008db4da475c7b76c9879bd87813f7",
+          "public_key_b64": "YLQ99WJhEbobMlYdwmXKWrNDnY1k2xoUQ8USZ/YCYsw=",
           "sequence": 2,
-          "session_id": "session-12340339a347769fd0a9155dc2af8b28",
-          "signature_b64": "NCf3oHHJY8Xvl1RHM6uBCyxZGvxtkx7bYtqfWQVWbrQV6i0ifEDtkGg7DNNbN5AxcCTrzmAVqxO/p0Kj8sccAg=="
+          "session_id": "session-b14a3837230e31bb077f47c52537aa14",
+          "signature_b64": "kQV6IbODHRSJNFe90Gth62H025mHgF7eWqmy2LVQFPvVbOcej21aV49f2pSCfJB/X3lCwhv/kJzZyJZCGE0xDQ=="
         }
       }
     ],
@@ -439,42 +439,66 @@
       "boundary_controller": "169e7f2c880ad6563e081f6358bb45c167223491c1297a49ba42d1520287775b",
       "carrier_protocol": "b61c390529d51bb909b469761093024fcb23caeca231358c45fc13bdb7b4d1f7",
       "common_instructions": "45f0b7d2a039187a89f1aa68f2d95de536b5919696dc92c69cda646782864084",
-      "orchestration_contract": "d1b233de85924c823db517ea6d39cb4973a4aee8860cbeabf0064f23adbc8fca",
+      "orchestration_contract": "6ed77edfebd02a35e4f694ce1e86c647f400587567974c9309889ceb52aebcaf",
       "provider_gateway": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
       "provider_policy": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-      "state_schema": "31ff15979ea497cfdfd82ea8e952f49caabf8aafed15c300402ec1524ef18c58",
+      "state_schema": "8dea5119b5679cb4f45fb014e50f9551689c480900805f3ffc50d1b21747decd",
       "taskset": "e76729bd280adfcb9a95801954b9a2105ba3838e254a36287d5ba40df05b52cd"
     },
     "env_or_cache_reused": false,
     "lifecycle_events": [
       {
+        "actor_id": "generation-0-probe",
+        "attempt_id": "mechanical-generation-0",
         "event": "spawned",
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "generation": 0,
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
+        "lineage_id": "mechanical-lineage",
         "sequence": 0
       },
       {
+        "actor_id": "generation-0-probe",
+        "attempt_id": "mechanical-generation-0",
         "event": "teardown_complete",
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "generation": 0,
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
+        "lineage_id": "mechanical-lineage",
         "sequence": 1
       },
       {
+        "actor_id": "generation-0-probe",
+        "attempt_id": "mechanical-generation-0",
         "event": "authorization_revoked",
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "generation": 0,
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
+        "lineage_id": "mechanical-lineage",
         "sequence": 2
       },
       {
+        "actor_id": "generation-1-probe",
+        "attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
         "event": "spawned",
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
+        "generation": 1,
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
+        "lineage_id": "mechanical-lineage",
         "sequence": 3
       },
       {
+        "actor_id": "generation-1-probe",
+        "attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
         "event": "teardown_complete",
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
+        "generation": 1,
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
+        "lineage_id": "mechanical-lineage",
         "sequence": 4
       },
       {
+        "actor_id": "generation-1-probe",
+        "attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
         "event": "authorization_revoked",
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
+        "generation": 1,
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
+        "lineage_id": "mechanical-lineage",
         "sequence": 5
       }
     ],
@@ -488,44 +512,44 @@
     },
     "network_probe_action": {
       "action": "network_probe",
-      "action_id": "lifecycle-7976a58e265c2f20:2",
+      "action_id": "lifecycle-f29cdd82067284f5:2",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-7976a58e265c2f20",
+      "lifecycle_id": "lifecycle-f29cdd82067284f5",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
       "payload_hash": "3587b915807f7e582eb8dc99e4fe0a678096026e12c92ce080d83735adb11e1b",
-      "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
+      "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
       "sequence": 2,
-      "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3",
-      "signature_b64": "E3G9t3zT7LvrzUKsDqa+vBdOf8oKdQtQUHDKcIz9+B1VeKkq6/PrGaWF17Ftihs7AXOw+pIB0nuvGJWrNEwRAQ=="
+      "session_id": "session-dc75303ad5de2887e0c1dc196066c87d",
+      "signature_b64": "F/JWDrl81HCrwu8RQ99rfzKAcZyHiOs/cg+qs/jniqT9hqdCj+vmgooYsiwzBhaoj2zns2KqsJBNg87LjpA4Dw=="
     },
     "predecessor_attempt_id": "mechanical-generation-0",
     "predecessor_canary": {
       "action": {
         "action": "write_canaries",
-        "action_id": "lifecycle-0d2d9e5b4a3ea10f:1",
+        "action_id": "lifecycle-b2d19751412290d1:1",
         "actor_id": "generation-0-probe",
         "generation": 0,
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
         "lineage_id": "mechanical-lineage",
         "parent_hashes": [],
-        "payload_hash": "110f3855f2b6006fc06bd7f023e53801a8e604602c894915c40f8e022c4124f8",
-        "public_key_b64": "oHsxnm1Er1oJmqVJhHUk+syLhcPaXYCN1K2t6ALYWyc=",
+        "payload_hash": "10f05ce561f13b877c50b68b913c71ec51f385762369f99dafcc494dc8c75630",
+        "public_key_b64": "YLQ99WJhEbobMlYdwmXKWrNDnY1k2xoUQ8USZ/YCYsw=",
         "sequence": 1,
-        "session_id": "session-12340339a347769fd0a9155dc2af8b28",
-        "signature_b64": "pGjiQ+VyWKJSPOjNBUwH9VCXJDx0DvAt7cW+2pyWSsx6XM9xQy7ilbmP1pihaf3/1MAs4ELcTzk4QXdcSZw7Ag=="
+        "session_id": "session-b14a3837230e31bb077f47c52537aa14",
+        "signature_b64": "0+p5Nl37qe64lgsMFYqP1m/mA9HgYMnyAuYK6HO2odALzMWQPJoMZrg7XGAvQAW8DpjI0mgQ+ZaHoQCyhAFyDQ=="
       },
       "actor_id": "generation-0-probe",
-      "environment_value_hash": "ea27d52a54aba77ef87b70f6384acbfea9bdb8914b19288d3698e3e3550e0e46",
+      "environment_value_hash": "16572d1be87b8e69afe25e97040b55316c618c867ebbdd509c5264cfb4520a31",
       "history_length": 1,
       "path_hashes": {
-        "cache": "4d746c6cf1fdd2e21dcde9960714e13b8b763198263af3960df191c42e13979a",
-        "env_path": "77ec35d54e4a6222f05f37f4f89d966e00f25602de6001a149893ca1d02ebc16",
-        "home": "6499560d1728457dcc062dff6f1b2cd7e0bbf47c5e74e88e28b2ee94d49b45f3",
-        "shared_memory": "0671fd80041d150cda3ba0e5c7f8d53f9ec23d32f9f6a6093332402420f96c3d",
-        "tmp": "67678b2532541a752a8124df325fac24f69fc22b969691a1dc9b67450aa41f64",
-        "workdir": "563ac7d7e1cb11f5eb6e2b940a104aceb2525829959c3186cfc8c2c0b87539e9"
+        "cache": "004fabe1bb15b0fe6858c01776125a0a87b23355462dd86945f1f7d69dd8f7f1",
+        "env_path": "c111f9285c9d33999f77b31a8c00c70879b25fc5e94d91291152740aab3dc12a",
+        "home": "b71460165f8d69c27564af6067c83b9fdfc2a852e6f3caedc7eb24987967d6e5",
+        "shared_memory": "badd643f027271d1918673e342a833ff0626b748255783d70e67fa21cb58c7f1",
+        "tmp": "1f8a6be1a3b14ea179aaa7b7310ecb7f85500beb4eeb988e4cb5cb58db0fc6db",
+        "workdir": "2a5c9300820e22bdb99cfeb4e87c4e8d93caed38c75b9495d461b2c46fc1259b"
       },
       "paths": [
         "/work/private-canary.bin",
@@ -541,7 +565,7 @@
         "identity": {
           "actor_id": "generation-0-probe",
           "effective_capabilities_hex": "0000000000000000",
-          "environment_fingerprint": "d829573cc3e3caa72a0816f941868c81eed1c767ed5ee463594c798dabf1a6d3",
+          "environment_fingerprint": "23acf479bb4fbc6fdea486d883f3389015f94795e1c7aafa10ddfef26e0df785",
           "environment_names": [
             "ACTOR_ENV_PATH",
             "ACTOR_ENV_SENTINEL",
@@ -554,51 +578,51 @@
             "TMPDIR",
             "XDG_CACHE_HOME"
           ],
-          "gateway_public_key_b64": "ZDZId75rOa4l4kjOFs87EXBh+GhBPPE/3EnsBYAYosM=",
+          "gateway_public_key_b64": "hpuUWC40Eu6CTMDruqM7xCJfnTXMfg1IPDrVpS2Q/lg=",
           "generation": 0,
-          "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+          "lifecycle_id": "lifecycle-b2d19751412290d1",
           "lineage_id": "mechanical-lineage",
           "namespace_ids": {
-            "cgroup": "cgroup:[4026534197]",
-            "ipc": "ipc:[4026534189]",
-            "mnt": "mnt:[4026534187]",
-            "net": "net:[4026534198]",
-            "pid": "pid:[4026534191]",
-            "user": "user:[4026534363]",
-            "uts": "uts:[4026534188]"
+            "cgroup": "cgroup:[4026535402]",
+            "ipc": "ipc:[4026535400]",
+            "mnt": "mnt:[4026535398]",
+            "net": "net:[4026535458]",
+            "pid": "pid:[4026535401]",
+            "user": "user:[4026535683]",
+            "uts": "uts:[4026535399]"
           },
           "namespace_pid": 1,
-          "namespace_process_start_ticks": 56510078,
+          "namespace_process_start_ticks": 56821963,
           "no_new_privileges": true,
           "open_extra_fd_count": 1,
           "open_extra_fd_targets": {
             "3": "/dev/urandom"
           },
           "position": "boundary-probe",
-          "public_key_b64": "oHsxnm1Er1oJmqVJhHUk+syLhcPaXYCN1K2t6ALYWyc=",
-          "registration_signature_b64": "5Yr/BSLyIS3EZOuBbD/dDpdOHZIrBpDFL/K7nL842P19CXWp/5r49FzBEzreaYOtBiN7MnKnSE2+2SVNu6s6Bw==",
-          "session_id": "session-12340339a347769fd0a9155dc2af8b28"
+          "public_key_b64": "YLQ99WJhEbobMlYdwmXKWrNDnY1k2xoUQ8USZ/YCYsw=",
+          "registration_signature_b64": "DeB/vZMA5NUig961wZUN2OgGA+s1A16R4Oie068KRoiacTtp35G6RFsYiUtDL1ki03RwBWIgIpt0PU5rxaApCA==",
+          "session_id": "session-b14a3837230e31bb077f47c52537aa14"
         },
-        "runtime_process_id": 879171
+        "runtime_process_id": 912561
       }
     ],
     "private_mount_reused": false,
     "process_namespace_fresh": true,
     "provider": "none",
-    "provider_assignment_hash": "91f54b5ff8969052980bce3d7d1e3af9dab803b2d2abe7c3a2d8244f1a34b071",
+    "provider_assignment_hash": "f5f33493ebd728fe9585203980a8690ab05ca1401b9f488ef6ac156951be7de1",
     "provider_continuation_present": false,
     "provider_gateway_receipt": {
-      "assignment_hash": "91f54b5ff8969052980bce3d7d1e3af9dab803b2d2abe7c3a2d8244f1a34b071",
-      "gateway_id": "gateway-6ae15a218f4047e6917f17bd177532a0",
-      "logical_attempt_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615",
-      "output_hash": "2bc7864137739a885f8505a729505be515755c8e8095419109bcd8b6d31c33e3",
-      "provider_request_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615:wire:1",
-      "public_key_b64": "ZDZId75rOa4l4kjOFs87EXBh+GhBPPE/3EnsBYAYosM=",
-      "request_hash": "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c",
+      "assignment_hash": "f5f33493ebd728fe9585203980a8690ab05ca1401b9f488ef6ac156951be7de1",
+      "gateway_id": "gateway-fed0f9f1bc19de5a3a3c0d23f333dd40",
+      "logical_attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
+      "output_hash": "16f75c39707886480820185883a7ce41d9197563f567435f0ea5d980a6b05fa4",
+      "provider_request_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d:wire:1",
+      "public_key_b64": "hpuUWC40Eu6CTMDruqM7xCJfnTXMfg1IPDrVpS2Q/lg=",
+      "request_hash": "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101",
       "response_id": "scripted-response-1",
-      "signature_b64": "UlQbsylZFQSx0q/qwp4qlAx5QHg/HBkwubIVQUJKkNTiOMdnnFAiswHWVKQQ4THkckqFeciSDqYcv3dl/tO3CA=="
+      "signature_b64": "9Luc3rIA9FTgDRPjbwwPDuWbjuIcN6ofBlm7rrc6VE4DIv5pmrNjQmBQD3GDjvy4yEO9Ub8YJ00cOpn8BUqaDQ=="
     },
-    "provider_output_hash": "2bc7864137739a885f8505a729505be515755c8e8095419109bcd8b6d31c33e3",
+    "provider_output_hash": "16f75c39707886480820185883a7ce41d9197563f567435f0ea5d980a6b05fa4",
     "provider_policy": {
       "adapter": "openai_responses_stateless_v1",
       "background": false,
@@ -614,36 +638,36 @@
     },
     "provider_request_action": {
       "action": "provider_request",
-      "action_id": "lifecycle-7976a58e265c2f20:4",
+      "action_id": "lifecycle-f29cdd82067284f5:4",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-7976a58e265c2f20",
+      "lifecycle_id": "lifecycle-f29cdd82067284f5",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
-      "payload_hash": "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c",
-      "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
+      "payload_hash": "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101",
+      "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
       "sequence": 4,
-      "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3",
-      "signature_b64": "wSsBRA8jpX8IlxUFA3ntn8itWgc/1kqxCpl7uz98Cv1XDLgVAcJRM8/qY/BGe3yAtyF0TOELTN5lntBImkk0Cw=="
+      "session_id": "session-dc75303ad5de2887e0c1dc196066c87d",
+      "signature_b64": "BdE5xrMiufKZE1alA15oNDvtSZUqQ1vBDb7GkN7ajHXuqYQDXkYZrUzdQ1jsLdAw/DAe4pKLi2UVB30tT5UWDg=="
     },
-    "provider_request_hash": "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c",
-    "provider_request_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615:wire:1",
+    "provider_request_hash": "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101",
+    "provider_request_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d:wire:1",
     "provider_response_acceptance": {
       "action": "provider_response_accept",
-      "action_id": "lifecycle-7976a58e265c2f20:5",
+      "action_id": "lifecycle-f29cdd82067284f5:5",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-7976a58e265c2f20",
+      "lifecycle_id": "lifecycle-f29cdd82067284f5",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [
-        "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c",
-        "3af3595a32cdae823f75197fd218604beb9bb097d764f64485c3fe8a122a9c17"
+        "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101",
+        "79a25e96ea938b0b654d318bfcf9d4c1ca22c8410b4527c99cfc0a121189659f"
       ],
-      "payload_hash": "2bc7864137739a885f8505a729505be515755c8e8095419109bcd8b6d31c33e3",
-      "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
+      "payload_hash": "16f75c39707886480820185883a7ce41d9197563f567435f0ea5d980a6b05fa4",
+      "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
       "sequence": 5,
-      "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3",
-      "signature_b64": "fp0MRMTWEwrsZrTpQddQXIMEmjW8u255BoJrQLroS8kGljuxPT875+kgUJkFd7Cx6YWuzyPasFRNBEJkUGRECQ=="
+      "session_id": "session-dc75303ad5de2887e0c1dc196066c87d",
+      "signature_b64": "da8V4du/QZXzUe64eZFrOiWPP9qo+E144ZBuZUH+33TAevx5sSKm1IgpMEt2XSj6yZk1c2K1InsFW7Ew4bo7DA=="
     },
     "provider_response_id": "scripted-response-1",
     "provider_status": "completed",
@@ -659,15 +683,15 @@
       {
         "actor_id": "generation-1-probe",
         "dispatch_phase": "response_received",
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
-        "logical_attempt_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615",
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
+        "logical_attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
         "outcome": "accepted_completed",
-        "provider_request_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615:wire:1",
+        "provider_request_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d:wire:1",
         "provider_response_id": "scripted-response-1",
-        "request_hash": "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c",
+        "request_hash": "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101",
         "retryable": false,
         "transport_attempt": 1,
-        "wire_attempt_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615:wire:1"
+        "wire_attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d:wire:1"
       }
     ],
     "runtime": "bubblewrap-unshare-all",
@@ -682,22 +706,22 @@
     "schedule_contract": {
       "assignments": [
         {
-          "actor_spec_hash": "1adce1f1701e3291552b3f715f90993d79e65cf8af10c43edf3a250dbc0c7b14",
-          "assignment_hash": "bb2b87ee068d0f6c7af41823b6e49a6d6c235e577f6a5eca087613879b1b40fc",
+          "actor_spec_hash": "aee3dee84421d57297c2e2c1847ecc3fc5124a747b16ff574b3f0df81e005530",
+          "assignment_hash": "f373fc703761a92f53d7b481891da420aa3750d807af8e77286529bf60ecceb1",
           "attempt_id": "mechanical-generation-0",
           "capability_hashes": [
-            "f7ccf012a8f700130dce1a2be3ad1bc117c09e94b98d1193ede83871a0fb8ccc"
+            "5680b8430825ba426dfbe5ad93e9377adeeabb6b5c29af0b668d7ebdf7c02fa1"
           ],
           "request_hash": null
         },
         {
-          "actor_spec_hash": "5e42c198dff7ee1cf7f4475244e9d52db6c51df61dfe3bb876cdcde558408b65",
-          "assignment_hash": "91f54b5ff8969052980bce3d7d1e3af9dab803b2d2abe7c3a2d8244f1a34b071",
-          "attempt_id": "attempt-cee7668f2358f75a8c4d2d46ac83c615",
+          "actor_spec_hash": "c2246423403d79d6ad8ee6be1358bd380602c146b34b6a1ba1bd8492e330aa63",
+          "assignment_hash": "f5f33493ebd728fe9585203980a8690ab05ca1401b9f488ef6ac156951be7de1",
+          "attempt_id": "attempt-68ac79c7b5ac40a727bee00efa3d220d",
           "capability_hashes": [
-            "da1daace7ebec6914ffc393058f4aceed0eb190fd29be607811fc44752d3b430"
+            "d041b4b68678bec99f5aa330b6f3407ef6590f290bc9b0e554cea0ae5853c486"
           ],
-          "request_hash": "53675b8993db600a2a66bfb197332c95dbc8b9b4ea198aa180a367e4365ac74c"
+          "request_hash": "8a67ac94cdc0cb87a6ddf3f151feeeb636ace9f4b39a505b53bc96cf31e77101"
         }
       ],
       "common_prior_hashes": {
@@ -705,35 +729,35 @@
         "boundary_controller": "169e7f2c880ad6563e081f6358bb45c167223491c1297a49ba42d1520287775b",
         "carrier_protocol": "b61c390529d51bb909b469761093024fcb23caeca231358c45fc13bdb7b4d1f7",
         "common_instructions": "45f0b7d2a039187a89f1aa68f2d95de536b5919696dc92c69cda646782864084",
-        "orchestration_contract": "d1b233de85924c823db517ea6d39cb4973a4aee8860cbeabf0064f23adbc8fca",
+        "orchestration_contract": "6ed77edfebd02a35e4f694ce1e86c647f400587567974c9309889ceb52aebcaf",
         "provider_gateway": "6d7e024137691a6bfce4b5f1985670f4f3c80950bb9242c7076ef80eafb52b8c",
         "provider_policy": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-        "state_schema": "31ff15979ea497cfdfd82ea8e952f49caabf8aafed15c300402ec1524ef18c58",
+        "state_schema": "8dea5119b5679cb4f45fb014e50f9551689c480900805f3ffc50d1b21747decd",
         "taskset": "e76729bd280adfcb9a95801954b9a2105ba3838e254a36287d5ba40df05b52cd"
       },
-      "gateway_public_key_b64": "ZDZId75rOa4l4kjOFs87EXBh+GhBPPE/3EnsBYAYosM=",
+      "gateway_public_key_b64": "hpuUWC40Eu6CTMDruqM7xCJfnTXMfg1IPDrVpS2Q/lg=",
       "provider_policy_hash": "79fc0bf1884b811c8bd10e70f92de8392600826a29c8a047a65d31d773d951bf",
-      "schedule_hash": "1af6032865d903f169f5ce4b0d611fcf24942717abf289fa453e832dfa0e8624",
+      "schedule_hash": "027feb6dad9f7e0eb3c40563141a60f1f0fb59f165bc1ad61c8461bdfb581fdb",
       "version": "h1-runtime-schedule-pin/v1"
     },
     "scientific_result": false,
     "signing_key_reused": false,
     "stale_worker_reused": false,
-    "successor_environment_value_hash": "072a6653586afc3747becb2d66f0837001210bf97ac4d561debc2be08124e4d2",
+    "successor_environment_value_hash": "892b7948790d55d523c8278b099a9412d8499931ecc1d75a1716a909b8adac15",
     "successor_history_length_at_spawn": 0,
     "successor_path_probe_action": {
       "action": "probe_paths",
-      "action_id": "lifecycle-7976a58e265c2f20:1",
+      "action_id": "lifecycle-f29cdd82067284f5:1",
       "actor_id": "generation-1-probe",
       "generation": 1,
-      "lifecycle_id": "lifecycle-7976a58e265c2f20",
+      "lifecycle_id": "lifecycle-f29cdd82067284f5",
       "lineage_id": "mechanical-lineage",
       "parent_hashes": [],
-      "payload_hash": "a132f1cb7f60390203238eab24f1452a9d916e60f4a5fbfd41c168e194937698",
-      "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
+      "payload_hash": "687f7740137644c6a8699f830cf2f8a5ea20e133f142e539b88cda859be99e19",
+      "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
       "sequence": 1,
-      "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3",
-      "signature_b64": "kmSUxzSqpQuLQfMOtf+nvktLGTXyR1A9t4HshwvkKX0qriAV+myNPuWagYPJerkfw7r48wupmTrSFzgaUxW7CQ=="
+      "session_id": "session-dc75303ad5de2887e0c1dc196066c87d",
+      "signature_b64": "xSca9F3T8IL/X50KR8PKTwGkrq0+B735C7aI6VjMnJY3BZLrphVAZr4pWP8uM3Bp33ttXpQYpkh6hV2L2bIRBg=="
     },
     "successor_path_probes": {
       "/cache/private-canary.bin": false,
@@ -748,7 +772,7 @@
         "identity": {
           "actor_id": "generation-1-probe",
           "effective_capabilities_hex": "0000000000000000",
-          "environment_fingerprint": "3b0ddb43e0320a3e51c76b07747e7719577c6b7127f585c3d83d4135363a50af",
+          "environment_fingerprint": "de58d394faac57cbba65aa46ecc248d82d203eb5fae5fc516e336218672d4cc2",
           "environment_names": [
             "ACTOR_ENV_PATH",
             "ACTOR_ENV_SENTINEL",
@@ -761,56 +785,56 @@
             "TMPDIR",
             "XDG_CACHE_HOME"
           ],
-          "gateway_public_key_b64": "ZDZId75rOa4l4kjOFs87EXBh+GhBPPE/3EnsBYAYosM=",
+          "gateway_public_key_b64": "hpuUWC40Eu6CTMDruqM7xCJfnTXMfg1IPDrVpS2Q/lg=",
           "generation": 1,
-          "lifecycle_id": "lifecycle-7976a58e265c2f20",
+          "lifecycle_id": "lifecycle-f29cdd82067284f5",
           "lineage_id": "mechanical-lineage",
           "namespace_ids": {
-            "cgroup": "cgroup:[4026534365]",
-            "ipc": "ipc:[4026534362]",
-            "mnt": "mnt:[4026534188]",
-            "net": "net:[4026534366]",
-            "pid": "pid:[4026534364]",
-            "user": "user:[4026534189]",
-            "uts": "uts:[4026534197]"
+            "cgroup": "cgroup:[4026535685]",
+            "ipc": "ipc:[4026535682]",
+            "mnt": "mnt:[4026535399]",
+            "net": "net:[4026535687]",
+            "pid": "pid:[4026535684]",
+            "user": "user:[4026535400]",
+            "uts": "uts:[4026535402]"
           },
           "namespace_pid": 1,
-          "namespace_process_start_ticks": 56510267,
+          "namespace_process_start_ticks": 56822144,
           "no_new_privileges": true,
           "open_extra_fd_count": 1,
           "open_extra_fd_targets": {
             "3": "/dev/urandom"
           },
           "position": "boundary-probe",
-          "public_key_b64": "TyWZuxUrnJsmpRAQBGQABcAjVlpgQNwrQwqQQUDPPQU=",
-          "registration_signature_b64": "XrsBjeWw6Y0Dr9/gARMH4elUO60ttM0o+laIA5xaJLa2vJCbDe+5wi88MIyDIbE6S1ik3AMfeph9eh/Xc9TxBw==",
-          "session_id": "session-4b97c0e92bdb2a34ad70576e7cc1eaa3"
+          "public_key_b64": "gKvL/FkoOoGvjVQQROJZVIMqYNrnP2CfvpK6WNObPzM=",
+          "registration_signature_b64": "aIzdyM/Eg8bFCAi0p+9Y6i3R/YJVFHmSst/SGGIcBgVceMZfxgr10TGYi9aS9hd7X61JGVyhk5ITDc30kTX6Cg==",
+          "session_id": "session-dc75303ad5de2887e0c1dc196066c87d"
         },
-        "runtime_process_id": 879202
+        "runtime_process_id": 912584
       }
     ],
     "teardowns": [
       {
         "actor_id": "generation-0-probe",
         "key_invalidated": true,
-        "launcher_pid": 879171,
-        "lifecycle_id": "lifecycle-0d2d9e5b4a3ea10f",
+        "launcher_pid": 912561,
+        "lifecycle_id": "lifecycle-b2d19751412290d1",
         "private_root_removed": true,
         "process_absent": true,
         "process_group_absent": true,
         "return_code": 0,
-        "runtime_process_id": 879171
+        "runtime_process_id": 912561
       },
       {
         "actor_id": "generation-1-probe",
         "key_invalidated": true,
-        "launcher_pid": 879202,
-        "lifecycle_id": "lifecycle-7976a58e265c2f20",
+        "launcher_pid": 912584,
+        "lifecycle_id": "lifecycle-f29cdd82067284f5",
         "private_root_removed": true,
         "process_absent": true,
         "process_group_absent": true,
         "return_code": 0,
-        "runtime_process_id": 879202
+        "runtime_process_id": 912584
       }
     ],
     "undeclared_external_carrier": false
@@ -953,7 +977,7 @@
         "version": "h1-live-runtime-common-priors/v1"
       },
       "orchestration_contract": {
-        "hash": "d1b233de85924c823db517ea6d39cb4973a4aee8860cbeabf0064f23adbc8fca",
+        "hash": "6ed77edfebd02a35e4f694ce1e86c647f400587567974c9309889ceb52aebcaf",
         "source": "orchestrator.py",
         "version": "h1-live-runtime-orchestrator/v1"
       },
@@ -968,7 +992,7 @@
         "version": "openai-responses-stateless-policy/v1"
       },
       "state_schema": {
-        "hash": "31ff15979ea497cfdfd82ea8e952f49caabf8aafed15c300402ec1524ef18c58",
+        "hash": "8dea5119b5679cb4f45fb014e50f9551689c480900805f3ffc50d1b21747decd",
         "source": "models.py",
         "version": "h1-live-runtime-wire-schema/v1"
       },
@@ -1686,7 +1710,7 @@
         "verification": "multi-surface file canaries and fixture C/F"
       }
     ],
-    "manifest_hash": "3bb0679707b79562133e3f576e90d68c4f504f247915b7ec8917208f4eb4e2ba",
+    "manifest_hash": "5b58d73b8d5cd17be1ecb6ed82fea5db6a5a851e3d0e7caebe3e403ac766c2df",
     "manifest_version": "h1-live-runtime-state-manifest/v1"
   },
   "status": "PASS"

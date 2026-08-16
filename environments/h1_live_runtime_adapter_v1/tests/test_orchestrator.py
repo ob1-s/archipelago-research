@@ -18,8 +18,10 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from pydantic import ValidationError
 
+from h1_live_runtime_adapter_v1.attribution import ActionRegistry
 from h1_live_runtime_adapter_v1.canonical import canonical_bytes, stable_hash
 from h1_live_runtime_adapter_v1.isolation import BubblewrapActorFactory
+from h1_live_runtime_adapter_v1.lifecycle_journal import LifecycleJournal
 from h1_live_runtime_adapter_v1.models import (
     ActorIdentity,
     ActorSpec,
@@ -316,3 +318,153 @@ async def test_real_bubblewrap_start_stop_has_no_model_or_provider_call() -> Non
         assert teardown.private_root_removed
     finally:
         await orchestrator.stop_all()
+        orchestrator.close()
+
+
+class _BlindRevocationRegistry(ActionRegistry):
+    """Test-only adversarial registry whose revocation silently never happens."""
+
+    def revoke(self, lifecycle_id: str) -> None:
+        return None
+
+
+@pytest.mark.asyncio
+async def test_durable_journal_admission_survives_controller_restart(tmp_path) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule()
+    first = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
+    )
+    predecessor = await first.start_actor("attempt-0")
+    teardown = await first.stop_actor("attempt-0")
+    assert teardown.key_invalidated
+    assert [event.event for event in first.lifecycle_events] == [
+        "spawned",
+        "teardown_complete",
+        "authorization_revoked",
+    ]
+    first.close()
+
+    second = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
+    )
+    successor = await second.start_actor("attempt-1")
+    assert successor.identity.generation == 1
+    spawned = [
+        event for event in second.lifecycle_events if event.event == "spawned"
+    ]
+    assert len(spawned) == 2
+    assert spawned[-1].lifecycle_id == successor.identity.lifecycle_id
+    second.close()
+
+
+@pytest.mark.asyncio
+async def test_missing_revocation_blocks_successor_after_restart(tmp_path) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule()
+    journal = LifecycleJournal(journal_path)
+    assignment = schedule.assignments[0]
+    journal.append(
+        lifecycle_id=assignment.actor_spec.lifecycle_id,
+        actor_id=assignment.actor_spec.actor_id,
+        attempt_id=assignment.attempt_id,
+        lineage_id=assignment.actor_spec.lineage_id,
+        generation=assignment.actor_spec.generation,
+        event="teardown_complete",
+    )
+    orchestrator = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=journal
+    )
+    with pytest.raises(RuntimeError, match="durable teardown and revocation evidence"):
+        await orchestrator.start_actor("attempt-1")
+    orchestrator.close()
+
+
+@pytest.mark.asyncio
+async def test_skipped_revocation_fails_closed_on_real_controller_path(tmp_path) -> None:
+    if shutil.which("bwrap") is None:
+        pytest.skip("Bubblewrap is unavailable")
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    factory = BubblewrapActorFactory()
+    orchestrator = Orchestrator(
+        _schedule(),
+        factory=factory,
+        registry=_BlindRevocationRegistry(),
+        journal=LifecycleJournal(journal_path),
+    )
+    try:
+        await orchestrator.start_actor("attempt-0")
+        with pytest.raises(RuntimeError, match="did not take effect"):
+            await orchestrator.stop_actor("attempt-0")
+        assert [event.event for event in orchestrator.lifecycle_events] == [
+            "spawned",
+            "teardown_complete",
+        ]
+        with pytest.raises(RuntimeError, match="predecessor lifecycle"):
+            await orchestrator.start_actor("attempt-1")
+    finally:
+        await factory.close()
+        orchestrator.close()
+
+
+@pytest.mark.asyncio
+async def test_journal_registry_disagreement_fails_closed(tmp_path) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule()
+    first = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
+    )
+    predecessor = await first.start_actor("attempt-0")
+    await first.stop_actor("attempt-0")
+    first.close()
+
+    second = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
+    )
+    second.registry.register(predecessor.identity)
+    with pytest.raises(RuntimeError, match="still authorized by the registry"):
+        await second.start_actor("attempt-1")
+    second.close()
+
+
+@pytest.mark.asyncio
+async def test_all_earlier_generations_must_be_durably_revoked_before_successor(
+    tmp_path,
+) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule(generations=(0, 1, 2))
+    journal = LifecycleJournal(journal_path)
+    for assignment in schedule.assignments[:2]:
+        journal.append(
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+            actor_id=assignment.actor_spec.actor_id,
+            attempt_id=assignment.attempt_id,
+            lineage_id=assignment.actor_spec.lineage_id,
+            generation=assignment.actor_spec.generation,
+            event="teardown_complete",
+        )
+    journal.append(
+        lifecycle_id=schedule.assignments[0].actor_spec.lifecycle_id,
+        actor_id=schedule.assignments[0].actor_spec.actor_id,
+        attempt_id=schedule.assignments[0].attempt_id,
+        lineage_id=schedule.assignments[0].actor_spec.lineage_id,
+        generation=schedule.assignments[0].actor_spec.generation,
+        event="authorization_revoked",
+    )
+    orchestrator = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=journal
+    )
+    with pytest.raises(RuntimeError, match="durable teardown and revocation evidence"):
+        await orchestrator.start_actor("attempt-2")
+    journal.append(
+        lifecycle_id=schedule.assignments[1].actor_spec.lifecycle_id,
+        actor_id=schedule.assignments[1].actor_spec.actor_id,
+        attempt_id=schedule.assignments[1].attempt_id,
+        lineage_id=schedule.assignments[1].actor_spec.lineage_id,
+        generation=schedule.assignments[1].actor_spec.generation,
+        event="authorization_revoked",
+    )
+    successor = await orchestrator.start_actor("attempt-2")
+    assert successor.identity.generation == 2
+    await orchestrator.stop_all()
+    orchestrator.close()

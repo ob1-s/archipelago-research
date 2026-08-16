@@ -24,6 +24,7 @@ from h1_live_runtime_adapter_v1.boundary import (
 )
 from h1_live_runtime_adapter_v1.models import (
     ActorRuntimeRecord,
+    LifecycleEvent,
     RuntimeBoundaryEvidence,
 )
 
@@ -145,25 +146,43 @@ def test_revocation_before_successor_start_is_required_and_verified() -> None:
         record.identity.lifecycle_id for record in evidence.predecessors
     }
     successor_ids = {record.identity.lifecycle_id for record in evidence.successors}
-    events = list(evidence.lifecycle_events)
-    successor_spawn_events = [
+    by_event: dict[str, list[LifecycleEvent]] = {}
+    for event in evidence.lifecycle_events:
+        by_event.setdefault(event.lifecycle_id, []).append(event)
+    predecessor_events = [
         event
+        for lifecycle_id, events in by_event.items()
+        if lifecycle_id in predecessor_ids
         for event in events
-        if event.event == "spawned" and event.lifecycle_id in successor_ids
     ]
-    predecessor_revocation_events = [
+    successor_events = [
         event
+        for lifecycle_id, events in by_event.items()
+        if lifecycle_id in successor_ids
         for event in events
-        if event.event == "authorization_revoked"
-        and event.lifecycle_id in predecessor_ids
     ]
-    rest = [
-        event
-        for event in events
-        if event not in successor_spawn_events
-        and event not in predecessor_revocation_events
+    # Restore strict per-lifecycle order (spawned < teardown_complete <
+    # authorization_revoked) but move the successor spawn between the
+    # predecessor's teardown and its revocation so revocation no longer
+    # precedes successor exposure.
+    predecessor_order = {
+        event.event: event.sequence for event in predecessor_events
+    }
+    predecessor_ordered = sorted(
+        predecessor_events, key=lambda event: predecessor_order[event.event]
+    )
+    successor_spawn = next(
+        event for event in successor_events if event.event == "spawned"
+    )
+    successor_rest = [
+        event for event in successor_events if event.event != "spawned"
     ]
-    reordered = successor_spawn_events + predecessor_revocation_events + rest
+    reordered = (
+        predecessor_ordered[:2]
+        + [successor_spawn]
+        + predecessor_ordered[2:]
+        + successor_rest
+    )
     reordered = [
         event.model_copy(update={"sequence": index})
         for index, event in enumerate(reordered)
@@ -184,6 +203,100 @@ def test_lifecycle_event_sequences_must_be_contiguous_and_unique() -> None:
     )
     assert assessment.clean is False
     assert "lifecycle_event_order_invalid" in assessment.violations
+
+
+def _event_indices(
+    evidence: RuntimeBoundaryEvidence, event: str, side: str
+) -> list[int]:
+    return [
+        index
+        for index, item in enumerate(evidence.lifecycle_events)
+        if item.event == event
+        and item.lifecycle_id
+        in {record.identity.lifecycle_id for record in getattr(evidence, side)}
+    ]
+
+
+def _renumber(events: list[LifecycleEvent]) -> tuple[LifecycleEvent, ...]:
+    return tuple(
+        event.model_copy(update={"sequence": index})
+        for index, event in enumerate(events)
+    )
+
+
+def test_revocation_before_teardown_fails_l0() -> None:
+    evidence = _clean()
+    events = list(evidence.lifecycle_events)
+    teardown_index = _event_indices(evidence, "teardown_complete", "predecessors")[0]
+    revoked_index = _event_indices(evidence, "authorization_revoked", "predecessors")[0]
+    events[teardown_index] = events[teardown_index].model_copy(
+        update={"event": "authorization_revoked"}
+    )
+    events[revoked_index] = events[revoked_index].model_copy(
+        update={"event": "teardown_complete"}
+    )
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "predecessor_lifecycle_order_invalid" in assessment.violations
+
+
+def test_teardown_before_spawn_fails_l0() -> None:
+    evidence = _clean()
+    events = list(evidence.lifecycle_events)
+    spawn_index = _event_indices(evidence, "spawned", "predecessors")[0]
+    teardown_index = _event_indices(evidence, "teardown_complete", "predecessors")[0]
+    spawn_event = events[spawn_index]
+    events[spawn_index] = events[teardown_index]
+    events[teardown_index] = spawn_event
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "predecessor_lifecycle_order_invalid" in assessment.violations
+    assert "lifecycle_event_duplicate" not in assessment.violations
+
+
+def test_missing_teardown_event_fails_l0() -> None:
+    evidence = _clean()
+    events = [
+        item
+        for index, item in enumerate(evidence.lifecycle_events)
+        if index not in _event_indices(evidence, "teardown_complete", "predecessors")
+    ]
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "predecessor_authorization_not_revoked" in assessment.violations
+
+
+def test_duplicate_lifecycle_event_fails_l0() -> None:
+    evidence = _clean()
+    events = list(evidence.lifecycle_events)
+    duplicate = events[-1].model_copy()
+    events.append(duplicate)
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "lifecycle_event_duplicate" in assessment.violations
+    assert "lifecycle_event_order_invalid" not in assessment.violations
+
+
+def test_fabricated_journal_row_fails_l0() -> None:
+    evidence = _clean()
+    events = list(evidence.lifecycle_events)
+    fabricated = events[-1].model_copy(
+        update={"actor_id": "fabricated-actor", "attempt_id": "fabricated-attempt"}
+    )
+    events.append(fabricated)
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "lifecycle_event_inconsistent_with_runtime_records" in assessment.violations
 
 
 def test_receipt_provider_request_id_is_signature_bound() -> None:

@@ -21,6 +21,7 @@ from .carrier import (
 )
 from .crypto import verify_action, verify_gateway_receipt, verify_registration
 from .isolation import BubblewrapActorFactory
+from .lifecycle_journal import LifecycleJournal
 from .models import (
     ActorIdentity,
     ActorRuntimeRecord,
@@ -37,6 +38,12 @@ from .models import (
     ScheduleContractPin,
     SignedAction,
     StateClass,
+)
+from .orchestrator import (
+    FrozenAssignment,
+    FrozenCommonConfig,
+    Orchestrator,
+    PredeclaredSchedule,
 )
 from .provider import (
     ProviderGateway,
@@ -100,6 +107,57 @@ def _actor_spec_hash(identity: ActorIdentity) -> str:
             gateway_public_key_b64=identity.gateway_public_key_b64,
         ).model_dump(mode="json")
     )
+
+
+def _journal_consistent_with_runtime_records(
+    evidence: RuntimeBoundaryEvidence,
+) -> bool:
+    """Every journal row must map to a recorded runtime identity.
+
+    Journal rows are durable controller entries bound to the frozen
+    assignment that drove each transition: each row's attempt identifier,
+    actor identity, lineage, and generation must match the recorded runtime
+    identity.  A row that matches no record (fabricated lifecycle, actor,
+    attempt, lineage, or generation) invalidates the whole lifecycle chain.
+    """
+
+    expected: list[tuple[str, str | None, str, str, int]] = []
+    for record in evidence.predecessors:
+        expected.append(
+            (
+                record.identity.lifecycle_id,
+                evidence.predecessor_attempt_id,
+                record.identity.actor_id,
+                record.identity.lineage_id,
+                record.identity.generation,
+            )
+        )
+    schedule = evidence.schedule_contract
+    successor_attempts: dict[str, str] = {}
+    if isinstance(schedule, ScheduleContractPin):
+        for assignment in schedule.assignments:
+            successor_attempts[assignment.actor_spec_hash] = assignment.attempt_id
+    for record in evidence.successors:
+        expected.append(
+            (
+                record.identity.lifecycle_id,
+                successor_attempts.get(_actor_spec_hash(record.identity)),
+                record.identity.actor_id,
+                record.identity.lineage_id,
+                record.identity.generation,
+            )
+        )
+    for event in evidence.lifecycle_events:
+        if not any(
+            entry[0] == event.lifecycle_id
+            and entry[2] == event.actor_id
+            and entry[3] == event.lineage_id
+            and entry[4] == event.generation
+            and (entry[1] is None or entry[1] == event.attempt_id)
+            for entry in expected
+        ):
+            return False
+    return True
 
 
 def _retained_action_log_is_contiguous(actions: tuple[object, ...]) -> bool:
@@ -224,42 +282,66 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
     # Controller-side lifecycle journal: revocation of a predecessor's
     # public-key authorization is L0 evidence distinct from the teardown's
     # factory-scoped key_invalidated flag.  A skipped registry.revoke() must
-    # fail L0 even when every teardown record is mechanically complete.
+    # fail L0 even when every teardown record is mechanically complete.  The
+    # journal is the same durable, append-only controller journal the reusable
+    # runtime produces, so rows carry the frozen assignment identity, must be
+    # globally ordered and unique, must appear exactly once per lifecycle
+    # event, and must be falsifiable against the recorded runtime identities.
     event_sequences = [item.sequence for item in evidence.lifecycle_events]
     if len(event_sequences) != len(set(event_sequences)) or any(
         sequence != index for index, sequence in enumerate(event_sequences)
     ):
         violations.append("lifecycle_event_order_invalid")
     else:
-        events_by_lifecycle: dict[str, set[str]] = {}
+        events_by_lifecycle: dict[str, list[LifecycleEvent]] = {}
         for event in evidence.lifecycle_events:
-            events_by_lifecycle.setdefault(event.lifecycle_id, set()).add(
-                event.event
-            )
+            events_by_lifecycle.setdefault(event.lifecycle_id, []).append(event)
+        if any(
+            len({item.event for item in items}) != len(items)
+            for items in events_by_lifecycle.values()
+        ):
+            violations.append("lifecycle_event_duplicate")
+        if not _journal_consistent_with_runtime_records(evidence):
+            violations.append("lifecycle_event_inconsistent_with_runtime_records")
+        predecessor_chain_ok = True
         for lifecycle_id in predecessor_lifecycles:
+            by_event = {
+                event.event: event.sequence
+                for event in events_by_lifecycle.get(lifecycle_id, ())
+            }
             if not {"spawned", "teardown_complete", "authorization_revoked"}.issubset(
-                events_by_lifecycle.get(lifecycle_id, set())
+                by_event
             ):
                 violations.append("predecessor_authorization_not_revoked")
+                predecessor_chain_ok = False
                 break
-        revoked_sequences = {
-            event.sequence
-            for event in evidence.lifecycle_events
-            if event.event == "authorization_revoked"
-            and event.lifecycle_id in predecessor_lifecycles
-        }
-        successor_spawn_sequences = [
-            event.sequence
-            for event in evidence.lifecycle_events
-            if event.event == "spawned"
-            and event.lifecycle_id
-            in {record.identity.lifecycle_id for record in evidence.successors}
-        ]
-        if successor_spawn_sequences and revoked_sequences and not all(
-            revoked < successor_spawn_sequences[0]
-            for revoked in revoked_sequences
-        ):
-            violations.append("predecessor_revocation_not_before_successor_start")
+            if not (
+                by_event["spawned"]
+                < by_event["teardown_complete"]
+                < by_event["authorization_revoked"]
+            ):
+                violations.append("predecessor_lifecycle_order_invalid")
+                predecessor_chain_ok = False
+                break
+        if predecessor_chain_ok:
+            revoked_sequences = {
+                event.sequence
+                for event in evidence.lifecycle_events
+                if event.event == "authorization_revoked"
+                and event.lifecycle_id in predecessor_lifecycles
+            }
+            successor_spawn_sequences = [
+                event.sequence
+                for event in evidence.lifecycle_events
+                if event.event == "spawned"
+                and event.lifecycle_id
+                in {record.identity.lifecycle_id for record in evidence.successors}
+            ]
+            if successor_spawn_sequences and revoked_sequences and not all(
+                revoked < successor_spawn_sequences[0]
+                for revoked in revoked_sequences
+            ):
+                violations.append("predecessor_revocation_not_before_successor_start")
     canary = evidence.predecessor_canary
     canary_payload = {
         "actor_id": canary.actor_id,
@@ -753,23 +835,49 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         registry,
         capabilities=(writer_capability, reader_capability),
     )
-    predecessor = await factory.spawn(predecessor_spec)
-    registry.register(predecessor.identity)
+    common_config = FrozenCommonConfig.from_mapping(
+        config_id="mechanical-boundary-canary",
+        config_version="v1",
+        content={
+            "boundary": "mechanical-canary",
+            "common_prior_hashes": priors,
+            "policy": policy.model_dump(mode="json"),
+        },
+    )
+    predecessor_assignment = FrozenAssignment.from_input(
+        attempt_id=predecessor_attempt_id,
+        actor_spec=predecessor_spec,
+        input=(),
+        instructions="Mechanical boundary canary generation 0; not a scientific experiment.",
+        common_config_hash=common_config.content_hash,
+        declared_carrier_ids=("declared-positive",),
+        carrier_capabilities=(writer_capability,),
+    )
+    successor_assignment = FrozenAssignment.from_input(
+        attempt_id=attempt_id,
+        actor_spec=successor_spec,
+        input=provider_input,
+        instructions=provider_instructions,
+        common_config_hash=common_config.content_hash,
+        declared_carrier_ids=("declared-positive",),
+        carrier_capabilities=(reader_capability,),
+    )
+    schedule = PredeclaredSchedule.from_assignments(
+        common_config=common_config,
+        assignments=(predecessor_assignment, successor_assignment),
+    )
+    orchestrator = Orchestrator(
+        schedule,
+        factory=factory,
+        carrier_store=carrier,
+        registry=registry,
+        journal=LifecycleJournal(),
+    )
+    await orchestrator.start_actor(predecessor_attempt_id)
+    predecessor = orchestrator.live_actor(predecessor_attempt_id)
     predecessor_record = ActorRuntimeRecord(
         identity=predecessor.identity, runtime_process_id=predecessor.launcher_pid
     )
-    lifecycle_events: list[LifecycleEvent] = []
-
-    def _log(event: str, lifecycle_id: str) -> None:
-        lifecycle_events.append(
-            LifecycleEvent(
-                sequence=len(lifecycle_events),
-                lifecycle_id=lifecycle_id,
-                event=event,
-            )
-        )
-
-    _log("spawned", predecessor_spec.lifecycle_id)
     try:
         await predecessor.command("append_history", value=secrets.token_hex(32))
         raw_canary = await predecessor.command("write_canaries")
@@ -804,10 +912,7 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
     except BaseException:
         await factory.close()
         raise
-    predecessor_teardown = await factory.stop(predecessor)
-    _log("teardown_complete", predecessor_spec.lifecycle_id)
-    registry.revoke(predecessor.identity.lifecycle_id)
-    _log("authorization_revoked", predecessor_spec.lifecycle_id)
+    predecessor_teardown = await orchestrator.stop_actor(predecessor_attempt_id)
 
     provider_assignment_hash = stable_hash(
         {
@@ -865,9 +970,8 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         expected_actor_specs={attempt_id: successor_spec},
         receipt_private_key=gateway_private_key,
     )
-    successor = await factory.spawn(successor_spec)
-    registry.register(successor.identity)
-    _log("spawned", successor_spec.lifecycle_id)
+    await orchestrator.start_actor(attempt_id)
+    successor = orchestrator.live_actor(attempt_id)
     successor_record = ActorRuntimeRecord(
         identity=successor.identity, runtime_process_id=successor.launcher_pid
     )
@@ -928,11 +1032,9 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
     except BaseException:
         await factory.close()
         raise
-    successor_teardown = await factory.stop(successor)
-    _log("teardown_complete", successor_spec.lifecycle_id)
-    registry.revoke(successor.identity.lifecycle_id)
-    _log("authorization_revoked", successor_spec.lifecycle_id)
+    successor_teardown = await orchestrator.stop_actor(attempt_id)
     carrier_records = carrier.enumerate(capability=reader_capability)
+    lifecycle_events = orchestrator.lifecycle_events
     evidence = RuntimeBoundaryEvidence(
         adapter_version=ADAPTER_VERSION,
         backend="scripted-mechanical-through-live-request-boundary",
@@ -954,7 +1056,7 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         predecessors=(predecessor_record,),
         successors=(successor_record,),
         teardowns=(predecessor_teardown, successor_teardown),
-        lifecycle_events=tuple(lifecycle_events),
+        lifecycle_events=lifecycle_events,
         predecessor_attempt_id=predecessor_attempt_id,
         predecessor_canary=canary,
         successor_path_probes=successor_path_probes,
@@ -1008,6 +1110,7 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         residual_opaque_state=RESIDUAL_OPAQUE_STATE,
     )
     gateway.close()
+    orchestrator.close()
     carrier.close()
     return evidence
 
