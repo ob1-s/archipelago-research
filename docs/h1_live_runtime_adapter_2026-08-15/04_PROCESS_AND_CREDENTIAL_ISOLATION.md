@@ -1,0 +1,15 @@
+# Process and credential isolation
+
+Each actor is launched by Bubblewrap 0.11.2 with `--unshare-all`, an explicit fresh user namespace, nested user namespaces disabled, `--as-pid-1`, a new session, die-with-parent behavior, and all capabilities dropped. `/usr`, Python, dependencies, and adapter code are read-only. The only writable mounts are newly created mode-0700 actor paths. The controller fixes their host backing location under `/tmp`; a hostile/inherited `TMPDIR` cannot redirect it.
+
+The factory records namespace inode display IDs, namespace PID, process start ticks, exact environment names/fingerprint, capabilities, no-new-privileges, and every open descriptor enumerated through `/proc/self/fd`. The clean canary proved the fixed fresh unshare/exec path, PID 1 and a complete namespace inventory in each lifecycle, distinct process-start identities, no capabilities, no-new-privileges, and no inherited mutable file/socket/pipe handle. Linux may recycle namespace inode numbers after predecessor destruction, so numeric inequality is not used as a turnover oracle. `/dev/urandom` is recorded as fresh OS entropy, not predecessor state.
+
+Teardown asks the actor to sign shutdown, waits, then kills the process group if needed. Evidence requires the launcher process and process group to be absent and the private root removed. Crash handling still produces teardown evidence. This is process-group assurance, not a claim that a malicious host or kernel cannot preserve memory.
+
+The actor generates an Ed25519 private key after isolation. Only its public key and a domain-separated self-registration proof leave the process. Actions are separately domain-separated and bind actor/lifecycle/session/generation/lineage, public key, monotone sequence, action, content hash, and parent hashes. The registry verifies signatures, prevents key/lifecycle reuse, consumes sequences, and revokes on turnover; it contains no private key or signing operation.
+
+The controller authorizes the exact actor it launches and may verify its actions. This resists ordinary controller misuse through the exposed API. The read-only runtime image still contains ordinary binaries such as a shell because `/usr` is mounted for Python dependencies, but the trusted actor worker exposes no shell, subprocess, browser, MCP, arbitrary-file, or arbitrary-network command. Thus the qualification covers the narrow worker protocol, not containment of arbitrary hostile code injected into the sandbox. Teardown similarly proves absence of the launched trusted worker and its process group; it is not a proof against deliberately daemonized hostile descendants.
+
+The boundary does not claim cryptographic independence from malicious host-root/controller code that can replace binaries or inspect memory; that stronger threat model requires a separate trusted-computing boundary.
+
+Provider credentials exist only in the provider gateway constructor. They are absent from the actor's environment, mounts, request payload, carrier records, and durable qualification JSON.
