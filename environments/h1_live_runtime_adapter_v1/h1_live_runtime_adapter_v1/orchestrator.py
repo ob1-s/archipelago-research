@@ -24,7 +24,11 @@ from .attribution import ActionRegistry
 from .canonical import canonical_bytes, sha256_bytes, stable_hash
 from .carrier import DeclaredCarrierStore, carrier_read_binding
 from .isolation import BubblewrapActorFactory, IsolatedActor
-from .lifecycle_journal import LifecycleJournal
+from .lifecycle_journal import (
+    LifecycleJournal,
+    lifecycle_chain_outcome,
+    teardown_evidence_complete,
+)
 from .models import (
     ActorRuntimeRecord,
     ActorSpec,
@@ -69,26 +73,6 @@ def _canonical_json_array(value: str, *, field: str) -> list[Any]:
     if canonical_bytes(decoded).decode() != value:
         raise ValueError(f"{field} must be canonical JSON")
     return decoded
-
-
-def _durable_turnover_complete(journal: LifecycleJournal, lifecycle_id: str) -> bool:
-    """Admit a successor only when teardown and revocation are journaled in order.
-
-    This is the durable, restart-readable form of the lifecycle rule: both
-    events must exist as committed rows and the revocation must strictly
-    follow the teardown.  Absence of journal entries is always treated as
-    incomplete turnover (fail closed).
-    """
-
-    by_event: dict[str, int] = {}
-    for event in journal.events():
-        if event.lifecycle_id == lifecycle_id:
-            by_event[event.event] = event.sequence
-    return (
-        "teardown_complete" in by_event
-        and "authorization_revoked" in by_event
-        and by_event["teardown_complete"] < by_event["authorization_revoked"]
-    )
 
 
 class FrozenCommonConfig(StrictModel):
@@ -558,12 +542,13 @@ class Orchestrator:
         if attempt_id in self._actors:
             raise ValueError("attempt already has a live actor")
         # A successor cannot start until every earlier generation in its
-        # lineage has been stopped *and* durably revoked.  This is a
-        # schedule/lifecycle rule, never a reaction to a behavioral or
-        # provider outcome.  Absence from the in-memory actor map is not
-        # enough: a controller restart must arrive at the same answer from
-        # the durable journal, so admission requires committed teardown and
-        # revocation evidence for every earlier generation.
+        # lineage satisfies the complete, durable lifecycle predicate —
+        # the same predicate the L0 verifier applies.  Absence from the
+        # in-memory actor map and registry inactivity are necessary but not
+        # sufficient: the durable journal must carry the exact frozen chain
+        # (one spawned < one teardown_complete < one authorization_revoked,
+        # all bound to the frozen assignment) and that rule must survive a
+        # controller restart.
         for other in self.schedule.assignments:
             other_id = other.attempt_id
             if (
@@ -576,11 +561,18 @@ class Orchestrator:
                     raise RuntimeError(
                         "predecessor lifecycle is still authorized by the registry"
                     )
-                if not _durable_turnover_complete(
-                    self._journal, other.actor_spec.lifecycle_id
-                ):
+                outcome = lifecycle_chain_outcome(
+                    self._journal.events(),
+                    lifecycle_id=other.actor_spec.lifecycle_id,
+                    attempt_id=other.attempt_id,
+                    actor_id=other.actor_spec.actor_id,
+                    lineage_id=other.actor_spec.lineage_id,
+                    generation=other.actor_spec.generation,
+                )
+                if outcome != "complete":
                     raise RuntimeError(
-                        "predecessor lifecycle lacks durable teardown and revocation evidence"
+                        "predecessor lifecycle lacks a complete durable turnover chain: "
+                        f"{outcome}"
                     )
         actor = await self._factory.spawn(assignment.actor_spec)
         try:
@@ -609,12 +601,14 @@ class Orchestrator:
     async def stop_actor(self, attempt_id: str) -> TeardownEvidence:
         """Stop and revoke one scheduled actor with durable journaled evidence.
 
-        The teardown is journaled after the process is actually reaped, then
-        the public-key authorization is revoked, and the revocation event is
-        journaled only after the registry confirms the lifecycle is no longer
-        active.  Any failure in that chain surfaces to the caller and leaves
-        the journal without a revocation row, so a later-generation actor can
-        never start without committed spare evidence of both events.
+        The returned teardown evidence is validated against the qualified
+        turnover predicate *before* any ``teardown_complete`` row is
+        journaled; unqualified teardown evidence fails closed with no journal
+        row at all.  After the teardown is durably recorded, the public-key
+        authorization is revoked, and the revocation event is journaled only
+        after the registry confirms the lifecycle is no longer active.  Any
+        failure in that chain surfaces to the caller, so a later-generation
+        actor can never start without the complete durable chain.
         """
 
         try:
@@ -623,6 +617,15 @@ class Orchestrator:
             raise KeyError(f"attempt has no live actor: {attempt_id}") from exc
         assignment = self.predeclared_assignment(attempt_id)
         evidence = await self._factory.stop(actor)
+        if not teardown_evidence_complete(
+            evidence,
+            actor_id=assignment.actor_spec.actor_id,
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+        ):
+            del self._actors[attempt_id]
+            raise RuntimeError(
+                "teardown evidence does not satisfy the qualified turnover predicate"
+            )
         self._journal.append(
             lifecycle_id=actor.identity.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,

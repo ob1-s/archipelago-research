@@ -13,8 +13,12 @@ only cross-generation path is the declared carrier API. The reusable
 `Orchestrator` control plane journals every lifecycle transition (spawn /
 teardown_complete / authorization_revoked per lifecycle, bound to its frozen
 assignment) into a durable append-only SQLite journal, verifies registry
-revocation before journaling it, and admits a successor only from committed
-journal state that survives a controller restart. Model/provider traffic, when later enabled,
+revocation before journaling it, persists `teardown_complete` only after the
+returned teardown evidence itself satisfies the qualified teardown predicate,
+and will not expose a successor unless every required predecessor lifecycle
+already satisfies the same durable lifecycle predicate later required for L0
+qualification (a complete, contiguous `spawned` < `teardown_complete` <
+`authorization_revoked` chain surviving a controller restart). Model/provider traffic, when later enabled,
 must use the signed stateless Responses request gateway; actors never receive
 general network access or provider credentials.
 

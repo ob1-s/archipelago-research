@@ -22,6 +22,7 @@ from h1_live_runtime_adapter_v1.boundary import (
     adversarial_fixture,
     run_clean_mechanical_canary,
 )
+from h1_live_runtime_adapter_v1.lifecycle_journal import lifecycle_chain_outcome
 from h1_live_runtime_adapter_v1.models import (
     ActorRuntimeRecord,
     LifecycleEvent,
@@ -297,6 +298,145 @@ def test_fabricated_journal_row_fails_l0() -> None:
     )
     assert assessment.clean is False
     assert "lifecycle_event_inconsistent_with_runtime_records" in assessment.violations
+
+
+_LIFECYCLE_VIOLATIONS = frozenset(
+    {
+        "lifecycle_event_order_invalid",
+        "lifecycle_event_duplicate",
+        "lifecycle_event_inconsistent_with_runtime_records",
+        "predecessor_authorization_not_revoked",
+        "predecessor_lifecycle_order_invalid",
+        "predecessor_revocation_not_before_successor_start",
+    }
+)
+
+
+def _successor_expected(evidence: RuntimeBoundaryEvidence) -> dict[str, Any]:
+    successor_spawn = next(
+        event
+        for event in evidence.lifecycle_events
+        if event.event == "spawned"
+        and event.lifecycle_id == evidence.successors[0].identity.lifecycle_id
+    )
+    return {
+        "lifecycle_id": successor_spawn.lifecycle_id,
+        "attempt_id": successor_spawn.attempt_id,
+        "actor_id": successor_spawn.actor_id,
+        "lineage_id": successor_spawn.lineage_id,
+        "generation": successor_spawn.generation,
+    }
+
+
+@pytest.mark.parametrize(
+    "predecessor_events, admission_ok, break_field",
+    [
+        (["spawned", "teardown_complete", "authorization_revoked"], True, None),
+        (["teardown_complete", "authorization_revoked"], False, None),
+        (["spawned", "authorization_revoked"], False, None),
+        (["spawned", "teardown_complete"], False, None),
+        (
+            ["spawned", "spawned", "teardown_complete", "authorization_revoked"],
+            False,
+            None,
+        ),
+        (["spawned", "authorization_revoked", "teardown_complete"], False, None),
+        (
+            ["spawned", "teardown_complete", "authorization_revoked"],
+            False,
+            "actor_id",
+        ),
+    ],
+)
+def test_successor_admission_verdict_matches_l0_lifecycle_portion(
+    predecessor_events: list[str], admission_ok: bool, break_field: str | None
+) -> None:
+    """The runtime admits a successor only when the L0 lifecycle portion would.
+
+    The reusable runtime and the assessor consume the same shared
+    ``lifecycle_chain_outcome`` predicate (per predecessor record at the
+    evidence level, per earlier generation at the admission level), so a
+    journal state that opens admission must satisfy every L0 lifecycle check,
+    and any state the predicate rejects must fail L0 with a mapped violation.
+    """
+
+    evidence = _clean()
+    record = evidence.predecessors[0]
+    expected: dict[str, Any] = {
+        "lifecycle_id": record.identity.lifecycle_id,
+        "attempt_id": evidence.predecessor_attempt_id,
+        "actor_id": record.identity.actor_id,
+        "lineage_id": record.identity.lineage_id,
+        "generation": record.identity.generation,
+    }
+    rows = [
+        LifecycleEvent(sequence=0, event=event, **expected)
+        for event in predecessor_events
+    ]
+    if break_field is not None:
+        rows[0] = rows[0].model_copy(update={break_field: "fabricated"})
+    for event in ("spawned", "teardown_complete", "authorization_revoked"):
+        rows.append(
+            LifecycleEvent(sequence=0, event=event, **_successor_expected(evidence))
+        )
+    rows = list(_renumber(rows))
+
+    outcome = lifecycle_chain_outcome(
+        tuple(rows),
+        lifecycle_id=expected["lifecycle_id"],
+        attempt_id=expected["attempt_id"],
+        actor_id=expected["actor_id"],
+        lineage_id=expected["lineage_id"],
+        generation=expected["generation"],
+    )
+    assert (outcome == "complete") == admission_ok
+
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": tuple(rows)})
+    )
+    lifecycle_violations = _LIFECYCLE_VIOLATIONS & set(assessment.violations)
+    assert (not lifecycle_violations) == admission_ok, assessment.violations
+
+
+def test_teardown_evidence_predicate_matches_l0_teardown_conditions() -> None:
+    from h1_live_runtime_adapter_v1.lifecycle_journal import teardown_evidence_complete
+
+    evidence = _clean()
+    teardown = evidence.teardowns[0]
+    expected = (teardown.actor_id, teardown.lifecycle_id)
+    assert teardown_evidence_complete(
+        teardown, actor_id=expected[0], lifecycle_id=expected[1]
+    )
+    flawed_fields = {
+        "process_absent": "predecessor_teardown_incomplete",
+        "process_group_absent": "predecessor_teardown_incomplete",
+        "private_root_removed": "predecessor_teardown_incomplete",
+        "key_invalidated": "predecessor_teardown_incomplete",
+        "return_code": "predecessor_crash_unqualified",
+    }
+    for field, violation in flawed_fields.items():
+        flawed = teardown.model_copy(
+            update={field: False if field != "return_code" else 70}
+        )
+        assert not teardown_evidence_complete(
+            flawed, actor_id=expected[0], lifecycle_id=expected[1]
+        )
+        assessment = _assessment(
+            evidence.model_copy(
+                update={"teardowns": (flawed, *evidence.teardowns[1:])}
+            )
+        )
+        assert violation in assessment.violations
+    wrong_id = teardown.model_copy(update={"actor_id": "fabricated-actor"})
+    assert not teardown_evidence_complete(
+        wrong_id, actor_id=expected[0], lifecycle_id=expected[1]
+    )
+    assessment = _assessment(
+        evidence.model_copy(
+            update={"teardowns": (wrong_id, *evidence.teardowns[1:])}
+        )
+    )
+    assert assessment.clean is False
 
 
 def test_receipt_provider_request_id_is_signature_bound() -> None:

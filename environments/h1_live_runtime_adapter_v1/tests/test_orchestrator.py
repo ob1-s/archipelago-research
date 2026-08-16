@@ -364,19 +364,155 @@ async def test_missing_revocation_blocks_successor_after_restart(tmp_path) -> No
     schedule = _schedule()
     journal = LifecycleJournal(journal_path)
     assignment = schedule.assignments[0]
-    journal.append(
-        lifecycle_id=assignment.actor_spec.lifecycle_id,
-        actor_id=assignment.actor_spec.actor_id,
-        attempt_id=assignment.attempt_id,
-        lineage_id=assignment.actor_spec.lineage_id,
-        generation=assignment.actor_spec.generation,
-        event="teardown_complete",
-    )
+    for event in ("spawned", "teardown_complete"):
+        journal.append(
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+            actor_id=assignment.actor_spec.actor_id,
+            attempt_id=assignment.attempt_id,
+            lineage_id=assignment.actor_spec.lineage_id,
+            generation=assignment.actor_spec.generation,
+            event=event,
+        )
     orchestrator = Orchestrator(
         schedule, factory=_FakeFactory(), journal=journal
     )
-    with pytest.raises(RuntimeError, match="durable teardown and revocation evidence"):
+    with pytest.raises(RuntimeError, match="complete durable turnover chain"):
         await orchestrator.start_actor("attempt-1")
+    orchestrator.close()
+
+
+def _append_chain(journal: LifecycleJournal, assignment: FrozenAssignment) -> None:
+    for event in ("spawned", "teardown_complete", "authorization_revoked"):
+        journal.append(
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+            actor_id=assignment.actor_spec.actor_id,
+            attempt_id=assignment.attempt_id,
+            lineage_id=assignment.actor_spec.lineage_id,
+            generation=assignment.actor_spec.generation,
+            event=event,
+        )
+
+
+@pytest.mark.asyncio
+async def test_teardown_and_revocation_without_spawn_block_successor(tmp_path) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule()
+    journal = LifecycleJournal(journal_path)
+    assignment = schedule.assignments[0]
+    for event in ("teardown_complete", "authorization_revoked"):
+        journal.append(
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+            actor_id=assignment.actor_spec.actor_id,
+            attempt_id=assignment.attempt_id,
+            lineage_id=assignment.actor_spec.lineage_id,
+            generation=assignment.actor_spec.generation,
+            event=event,
+        )
+    orchestrator = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=journal
+    )
+    with pytest.raises(RuntimeError, match="missing_spawn"):
+        await orchestrator.start_actor("attempt-1")
+    orchestrator.close()
+
+
+@pytest.mark.parametrize(
+    "field, wrong",
+    [
+        ("attempt_id", "attempt-999"),
+        ("actor_id", "actor-999"),
+        ("lineage_id", "lineage-999"),
+        ("generation", 99),
+    ],
+)
+@pytest.mark.asyncio
+async def test_mismatched_journal_metadata_blocks_successor(
+    tmp_path, field: str, wrong: Any
+) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    schedule = _schedule()
+    assignment = schedule.assignments[0]
+    journal = LifecycleJournal(journal_path)
+    for event in ("spawned", "teardown_complete", "authorization_revoked"):
+        values: dict[str, Any] = {
+            "lifecycle_id": assignment.actor_spec.lifecycle_id,
+            "actor_id": assignment.actor_spec.actor_id,
+            "attempt_id": assignment.attempt_id,
+            "lineage_id": assignment.actor_spec.lineage_id,
+            "generation": assignment.actor_spec.generation,
+            "event": event,
+        }
+        if event == "spawned":
+            values[field] = wrong
+        journal.append(**values)
+    orchestrator = Orchestrator(
+        schedule, factory=_FakeFactory(), journal=journal
+    )
+    with pytest.raises(RuntimeError, match="complete durable turnover chain"):
+        await orchestrator.start_actor("attempt-1")
+    orchestrator.close()
+
+
+class _FlawedTeardownFactory(_FakeFactory):
+    """Test-only factory that returns one unqualified teardown field."""
+
+    def __init__(self, field: str) -> None:
+        super().__init__()
+        self.field = field
+
+    async def stop(self, actor: _FakeActor) -> TeardownEvidence:
+        evidence = await super().stop(actor)
+        value: Any = 73 if self.field == "return_code" else False
+        return evidence.model_copy(update={self.field: value})
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "process_absent",
+        "process_group_absent",
+        "private_root_removed",
+        "key_invalidated",
+        "return_code",
+    ],
+)
+@pytest.mark.asyncio
+async def test_incomplete_teardown_evidence_fails_closed_before_journaling(
+    tmp_path, field: str
+) -> None:
+    journal_path = tmp_path / "lifecycle-journal.sqlite"
+    orchestrator = Orchestrator(
+        _schedule(),
+        factory=_FlawedTeardownFactory(field),
+        journal=LifecycleJournal(journal_path),
+    )
+    await orchestrator.start_actor("attempt-0")
+    with pytest.raises(RuntimeError, match="qualified turnover predicate"):
+        await orchestrator.stop_actor("attempt-0")
+    assert [event.event for event in orchestrator.lifecycle_events] == ["spawned"]
+    with pytest.raises(
+        RuntimeError,
+        match="complete durable turnover chain|still authorized by the registry",
+    ):
+        await orchestrator.start_actor("attempt-1")
+    with pytest.raises(KeyError):
+        orchestrator.live_actor("attempt-0")
+    orchestrator.close()
+
+
+@pytest.mark.asyncio
+async def test_exact_valid_chain_still_admits_successor() -> None:
+    orchestrator = Orchestrator(_schedule(), factory=_FakeFactory())
+    await orchestrator.start_actor("attempt-0")
+    await orchestrator.stop_actor("attempt-0")
+    await orchestrator.start_actor("attempt-1")
+    assert [event.event for event in orchestrator.lifecycle_events] == [
+        "spawned",
+        "teardown_complete",
+        "authorization_revoked",
+        "spawned",
+    ]
+    await orchestrator.stop_all()
     orchestrator.close()
 
 
@@ -428,42 +564,19 @@ async def test_journal_registry_disagreement_fails_closed(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_all_earlier_generations_must_be_durably_revoked_before_successor(
+async def test_all_earlier_generations_require_complete_chains_before_successor(
     tmp_path,
 ) -> None:
     journal_path = tmp_path / "lifecycle-journal.sqlite"
     schedule = _schedule(generations=(0, 1, 2))
     journal = LifecycleJournal(journal_path)
-    for assignment in schedule.assignments[:2]:
-        journal.append(
-            lifecycle_id=assignment.actor_spec.lifecycle_id,
-            actor_id=assignment.actor_spec.actor_id,
-            attempt_id=assignment.attempt_id,
-            lineage_id=assignment.actor_spec.lineage_id,
-            generation=assignment.actor_spec.generation,
-            event="teardown_complete",
-        )
-    journal.append(
-        lifecycle_id=schedule.assignments[0].actor_spec.lifecycle_id,
-        actor_id=schedule.assignments[0].actor_spec.actor_id,
-        attempt_id=schedule.assignments[0].attempt_id,
-        lineage_id=schedule.assignments[0].actor_spec.lineage_id,
-        generation=schedule.assignments[0].actor_spec.generation,
-        event="authorization_revoked",
-    )
+    _append_chain(journal, schedule.assignments[0])
     orchestrator = Orchestrator(
         schedule, factory=_FakeFactory(), journal=journal
     )
-    with pytest.raises(RuntimeError, match="durable teardown and revocation evidence"):
+    with pytest.raises(RuntimeError, match="complete durable turnover chain"):
         await orchestrator.start_actor("attempt-2")
-    journal.append(
-        lifecycle_id=schedule.assignments[1].actor_spec.lifecycle_id,
-        actor_id=schedule.assignments[1].actor_spec.actor_id,
-        attempt_id=schedule.assignments[1].attempt_id,
-        lineage_id=schedule.assignments[1].actor_spec.lineage_id,
-        generation=schedule.assignments[1].actor_spec.generation,
-        event="authorization_revoked",
-    )
+    _append_chain(journal, schedule.assignments[1])
     successor = await orchestrator.start_actor("attempt-2")
     assert successor.identity.generation == 2
     await orchestrator.stop_all()

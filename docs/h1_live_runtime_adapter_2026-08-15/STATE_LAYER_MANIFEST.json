@@ -22,7 +22,7 @@
       "version": "h1-live-runtime-common-priors/v1"
     },
     "orchestration_contract": {
-      "hash": "6ed77edfebd02a35e4f694ce1e86c647f400587567974c9309889ceb52aebcaf",
+      "hash": "4ec7c5927b5bc27ff79fdfa847242564a4aa83b44fd49c1164a1c553acbdb443",
       "source": "orchestrator.py",
       "version": "h1-live-runtime-orchestrator/v1"
     },
@@ -755,6 +755,6 @@
       "verification": "multi-surface file canaries and fixture C/F"
     }
   ],
-  "manifest_hash": "5b58d73b8d5cd17be1ecb6ed82fea5db6a5a851e3d0e7caebe3e403ac766c2df",
+  "manifest_hash": "0f7dc3f6199cdc8dcc30d9531279b59b5e1ea8aeeacbb7bc778425c6de91268e",
   "manifest_version": "h1-live-runtime-state-manifest/v1"
 }

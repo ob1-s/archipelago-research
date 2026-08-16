@@ -21,7 +21,11 @@ from .carrier import (
 )
 from .crypto import verify_action, verify_gateway_receipt, verify_registration
 from .isolation import BubblewrapActorFactory
-from .lifecycle_journal import LifecycleJournal
+from .lifecycle_journal import (
+    LifecycleChainOutcome,
+    LifecycleJournal,
+    lifecycle_chain_outcome,
+)
 from .models import (
     ActorIdentity,
     ActorRuntimeRecord,
@@ -107,6 +111,17 @@ def _actor_spec_hash(identity: ActorIdentity) -> str:
             gateway_public_key_b64=identity.gateway_public_key_b64,
         ).model_dump(mode="json")
     )
+
+
+_LIFECYCLE_OUTCOME_VIOLATIONS: dict[LifecycleChainOutcome, str] = {
+    "journal_sequence_invalid": "lifecycle_event_order_invalid",
+    "missing_spawn": "predecessor_authorization_not_revoked",
+    "missing_teardown": "predecessor_authorization_not_revoked",
+    "missing_revocation": "predecessor_authorization_not_revoked",
+    "duplicate_event": "lifecycle_event_duplicate",
+    "out_of_order": "predecessor_lifecycle_order_invalid",
+    "mismatched_metadata": "lifecycle_event_inconsistent_with_runtime_records",
+}
 
 
 def _journal_consistent_with_runtime_records(
@@ -304,24 +319,20 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
         if not _journal_consistent_with_runtime_records(evidence):
             violations.append("lifecycle_event_inconsistent_with_runtime_records")
         predecessor_chain_ok = True
-        for lifecycle_id in predecessor_lifecycles:
-            by_event = {
-                event.event: event.sequence
-                for event in events_by_lifecycle.get(lifecycle_id, ())
-            }
-            if not {"spawned", "teardown_complete", "authorization_revoked"}.issubset(
-                by_event
-            ):
-                violations.append("predecessor_authorization_not_revoked")
+        for record in evidence.predecessors:
+            outcome = lifecycle_chain_outcome(
+                evidence.lifecycle_events,
+                lifecycle_id=record.identity.lifecycle_id,
+                attempt_id=evidence.predecessor_attempt_id,
+                actor_id=record.identity.actor_id,
+                lineage_id=record.identity.lineage_id,
+                generation=record.identity.generation,
+            )
+            if outcome != "complete":
                 predecessor_chain_ok = False
-                break
-            if not (
-                by_event["spawned"]
-                < by_event["teardown_complete"]
-                < by_event["authorization_revoked"]
-            ):
-                violations.append("predecessor_lifecycle_order_invalid")
-                predecessor_chain_ok = False
+                violation = _LIFECYCLE_OUTCOME_VIOLATIONS[outcome]
+                if violation not in violations:
+                    violations.append(violation)
                 break
         if predecessor_chain_ok:
             revoked_sequences = {
