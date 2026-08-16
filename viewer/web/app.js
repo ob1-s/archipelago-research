@@ -292,6 +292,19 @@ async function init() {
     if (state.srcPath) selectSource(state.srcPath);
   });
   window.addEventListener("resize", renderAll);
+  window.addEventListener("hashchange", async () => {
+    const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+    const params = new URLSearchParams(hash);
+    const slug = params.get("demo");
+    const seqParam = params.get("seq");
+    const seq = seqParam !== null ? parseInt(seqParam, 10) : null;
+    if (slug && el.demoSelect.value !== slug) {
+      el.demoSelect.value = slug;
+      await selectDemo(slug, seq ?? 0);
+    } else if (seq !== null && seq !== state.seq) {
+      goto(seq);
+    }
+  });
 
   buildFilters();
   buildLegend();
@@ -308,25 +321,29 @@ async function init() {
   const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
   const params = new URLSearchParams(hash);
   const slug = params.get("demo") ?? state.demos[0]?.slug;
+  const seqParam = params.get("seq");
+  const initSeq = seqParam !== null ? parseInt(seqParam, 10) : 0;
   if (slug && state.demos.some((d) => d.slug === slug)) {
     el.demoSelect.value = slug;
-    await selectDemo(slug);
+    await selectDemo(slug, initSeq);
   } else if (state.demos[0]) {
-    await selectDemo(state.demos[0].slug);
+    await selectDemo(state.demos[0].slug, initSeq);
   }
-  const seq = parseInt(params.get("seq") ?? "", 10);
-  if (isFinite(seq) && seq >= 0 && seq < eventCount()) goto(seq);
-  Lab.load(() => renderAll());
   startClock();
 }
 
 function $(id) { return document.getElementById(id); }
 
-async function selectDemo(slug) {
+async function selectDemo(slug, initialSeq) {
   const bundle = await fetchJSON(`/api/demo/${slug}`);
   state.srcPath = null;
   applyBundle(bundle);
-  history.replaceState(null, "", `#demo=${slug}${state.seq > 0 ? `&seq=${state.seq}` : ""}`);
+  if (typeof initialSeq === "number" && initialSeq >= 0) {
+    goto(initialSeq);
+  } else {
+    goto(0);
+  }
+  history.replaceState(null, "", `#demo=${slug}${state.seq >= 0 ? `&seq=${state.seq}` : ""}`);
 }
 
 async function selectSource(path) {
@@ -334,6 +351,7 @@ async function selectSource(path) {
   if (data.error) { el.epSub.textContent = `source error: ${data.error}`; return; }
   state.srcPath = path;
   applyBundle(data);
+  goto(0);
   el.srcOpen.textContent = shortName(path, 34);
   el.srcOpen.hidden = false;
   history.replaceState(null, "", `#demo=${el.demoSelect.value || "src"}`);
@@ -355,7 +373,7 @@ function applyBundle(bundle) {
     `artifacts: ${episode.artifacts.length}`,
     `carriers: ${episode.carriers.length}`,
     `events: ${episode.events.length}`,
-    `duration: ${fmtDuration(replay.duration)}s`,
+    `duration: ${fmtDuration(replay.duration)}`,
   ].filter(Boolean);
   el.epSub.textContent = metaBits.join(" · ");
   const isFixture = episode.meta?.fixture === true;
@@ -383,8 +401,6 @@ function applyBundle(bundle) {
     el.canvas.style.height = '700px';
     el.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  goto(parseInt(decodeURIComponent(location.hash.replace(/^#/, "")).match(/seq=(\d+)/)?.[1] ?? "-1", 10));
-  renderAll();
 }
 
 function eventCount() { return state.bundle ? state.bundle.episode.events.length : 0; }
@@ -491,7 +507,10 @@ function updateReadout() {
 
 function drawTown() {
   const ctx = el.ctx;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, el.canvas.width, el.canvas.height);
+  ctx.restore();
   if (sceneDoc()) {
     drawSceneScene();
   } else {
@@ -503,10 +522,7 @@ function drawSceneScene() {
   const scene = sceneDoc();
   const ctx = el.ctx;
   const { w, h } = scene.bounds;
-  ctx.fillStyle = "#202724";
-  ctx.fillRect(0, 0, w, h);
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
   if (scene.scene_kind === "h1_megafacility") drawMegafacility(scene, ctx);
   else if (scene.scene_kind === "parallel_cells") drawCells(scene, ctx);
   else if (scene.scene_kind === "conversation_hall") drawHall(scene, ctx);
@@ -522,46 +538,48 @@ function drawSceneScene() {
 
 /* ---------------------------------------------- h1 megafacility renderer */
 
+const H1_ROOM_CONFIG = {
+  workcell_a: { accent: "#38bdf8", tag: "[SEC-01 · GEN-0 BAY]" },
+  workcell_b: { accent: "#f59e0b", tag: "[SEC-02 · GEN-1 BAY]" },
+  lifecycle:  { accent: "#10b981", tag: "[SYS-L0 · CONTROL]" },
+  hall:       { accent: "#14b8a6", tag: "[COMMAND · OPS DESK]" },
+  archive:    { accent: "#0ea5e9", tag: "[VAULT · STATE STORE]" },
+  gateway:    { accent: "#a855f7", tag: "[GATEWAY · LLM BUS]" },
+  network:    { accent: "#22c55e", tag: "[BENCH · PROBE ARRAY]" },
+};
+
 function drawMegafacility(scene, ctx) {
   const { w, h } = scene.bounds;
-  // campus flooring
-  tileFloor(ctx, 0, 0, w, h, Lab.tile("floor_plain"), (tx, ty) => {
-    if ((tx / 16 + ty / 16) % 9 === 4) return "floor_variant";
-    return "floor_plain";
-  });
-  // center corridor band
-  ctx.fillStyle = "rgba(0,0,0,0.18)";
-  ctx.fillRect(0, 300, w, 130);
-  tileFloor(ctx, 0, 304, w, 24, Lab.tile("floor_stripe"), () => "floor_stripe");
-  tileFloor(ctx, 0, 380, w, 16, Lab.tile("floor_variant"), (tx) => tx % 48 === 0 ? "floor_stripe" : "floor_variant");
+  drawCampusGrid(ctx, 0, 0, w, h);
 
+  // Central Transit Corridor (Dark reinforced deck with caution borders)
+  ctx.save();
+  ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+  roundRect(ctx, 40, 290, w - 80, 140, 6);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.15)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, 40, 290, w - 80, 140, 6);
+  ctx.stroke();
+
+  // Yellow hazard strips along corridor edges
+  ctx.strokeStyle = "rgba(245, 158, 11, 0.4)";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([12, 10]);
+  ctx.beginPath();
+  ctx.moveTo(50, 295); ctx.lineTo(w - 50, 295);
+  ctx.moveTo(50, 425); ctx.lineTo(w - 50, 425);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Rooms
   for (const room of scene.rooms) {
-    const { x, y, ww, hh } = { x: room.x, y: room.y, ww: room.w, hh: room.h };
-    let paint = floorPaintPlain;
-    let edge = false;
-    if (room.kind === "workcell") { paint = () => "floor_cell"; edge = true; }
-    else if (room.kind === "control") { paint = floorPaintPlain; }
-    else if (room.kind === "hall") { paint = floorPaintPlain; }
-    else { paint = floorPaintPlain; }
-    tileFloor(ctx, x, y, ww, hh, Lab.tile("floor_cell"), (tx, ty) => {
-      if (room.kind === "workcell") {
-        if ((tx === 0 && Lab.has("deco_yellow")) || (tx === ww - 16 && Lab.has("deco_yellow"))) return "deco_yellow";
-        if (ty === 0 && tx % 48 === 0) return "deco_yellow";
-        return "floor_cell";
-      }
-      return null;
-    });
-    // wall strip on the top edge
-    drawWallStrip(ctx, x + 8, y + 4, ww - 16, room.kind === "control" ? "wall_gray" : "wall_window");
-    // room tag: plaque under the top wall strip inside the room; rooms whose
-    // lower half holds stations get the plaque at the bottom-left corner
-    ctx.font = "600 11px system-ui";
-    ctx.textAlign = "left";
-    ctx.fillStyle = "rgba(232,230,216,0.85)";
-    const cornerRoom = room.kind === "archive" || room.kind === "gateway" || room.kind === "network";
-    ctx.fillText(room.label, x + 12, cornerRoom ? y + hh - 10 : y + 26);
+    const cfg = H1_ROOM_CONFIG[room.id] || { accent: "#38bdf8", tag: `[${room.kind.toUpperCase()}]` };
+    drawRoomContainer(ctx, room, cfg.accent, cfg.tag);
   }
 
+  // Stations
   for (const station of Object.values(scene.stations)) {
     if (station.kind === "waypoint") continue;
     drawStation(station, ctx);
@@ -570,99 +588,72 @@ function drawMegafacility(scene, ctx) {
 
 function drawStation(station, ctx) {
   const cx = station.x, cy = station.y;
+  const w = station.w || 40, h = station.h || 30;
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
   switch (station.kind) {
     case "door":
-      drawGate(ctx, cx, cy, Math.max(24, station.w), Math.max(46, station.h));
-      ctx.fillStyle = "rgba(232,230,216,0.5)";
-      ctx.font = "600 9px system-ui";
-      ctx.textAlign = "center";
-      ctx.fillText(station.id === "exit" ? "EXIT" : "ENTRANCE", cx, cy + 12);
+      drawSecurityPortal(ctx, cx, cy, Math.max(26, w), Math.max(48, h), station.id === "exit");
       break;
     case "workbench":
-      drawTileProp(ctx, Lab.has("prop_terminal") ? "prop_terminal" : null, cx, cy, station.w, station.h);
-      fillRectShade(ctx, cx - station.w / 2 + 4, cy + station.h / 2 - 10, station.w - 8, 7, "#2e3934", 2);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label, "#38bdf8");
       break;
     case "terminal":
-      drawTileProp(ctx, Lab.has("prop_terminal") ? "prop_terminal" : null, cx, cy, station.w, station.h);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label, "#0ea5e9");
       break;
     case "panel":
-      drawPanel(ctx, cx, cy, station.w, station.h);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label, "#10b981");
       break;
     case "gate":
-      drawGate(ctx, cx, cy, station.w, station.h);
+      drawSecurityPortal(ctx, cx, cy, w, h, false);
       break;
     case "desk":
-      drawTileProp(ctx, Lab.has("prop_terminal") ? "prop_terminal" : null, cx, cy, station.w, station.h);
-      drawPanel(ctx, cx + station.w * 0.18, cy - 14, 60, 34);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label, "#f59e0b");
       break;
     case "archive":
-      drawTileProp(ctx, Lab.has("prop_rack") ? "prop_rack" : null, cx, cy, station.w, station.h);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawCarrierVault(ctx, cx, cy, w, h, station.label);
       break;
     case "rack":
-      drawTileProp(ctx, Lab.has("prop_rack") ? "prop_rack" : null, cx, cy, station.w, station.h);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawServerRack(ctx, cx, cy, w, h, station.label, "#a855f7");
       break;
     case "bench":
-      drawTileProp(ctx, Lab.has("prop_locker") ? "prop_locker" : null, cx, cy, station.w, station.h);
-      ctx.fillStyle = "#86b56a";
-      ctx.beginPath();
-      ctx.arc(cx + station.w / 2 + 3, cy - station.h / 2 - 4, 3, 0, Math.PI * 2);
-      ctx.fill();
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label, "#10b981");
       break;
     case "shelf":
-      drawTileProp(ctx, Lab.has("prop_locker") ? "prop_locker" : null, cx, cy, station.w, station.h);
-      labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawCarrierVault(ctx, cx, cy, w, h, station.label);
       break;
     case "lamp":
-      ctx.fillStyle = "#86b56a";
+      ctx.fillStyle = "#10b981";
+      ctx.shadowColor = "#10b981";
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
       break;
     default:
-      drawTileProp(ctx, null, cx, cy, station.w, station.h);
-      if (station.label) labelUnder(ctx, station.label, cx, cy + station.h / 2 + 12);
+      drawConsoleStation(ctx, cx, cy, w, h, station.label || "", "#64748b");
   }
   ctx.restore();
-}
-
-function labelUnder(ctx, text, x, y) {
-  ctx.font = "600 9px system-ui";
-  ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(232,230,216,0.6)";
-  ctx.fillText(text, x, y);
 }
 
 /* ---------------------------------------------- parallel cells renderer */
 
 function drawCells(scene, ctx) {
   const { w, h } = scene.bounds;
-  tileFloor(ctx, 0, 0, w, h, Lab.tile("floor_variant"), () => "floor_variant");
-  for (const room of scene.rooms) {
-    tileFloor(ctx, room.x, room.y, room.w, room.h, Lab.tile("floor_plain"), (tx, ty) => {
-      if (tx % 64 === 32 && ty % 64 === 32) return "floor_variant";
-      return "floor_plain";
-    });
-    // cell frame
-    ctx.strokeStyle = "rgba(200,163,78,0.5)";
-    ctx.lineWidth = 2;
-    roundRect(ctx, room.x + 2, room.y + 2, room.w - 4, room.h - 4, 8);
-    ctx.stroke();
-    drawWallStrip(ctx, room.x + 10, room.y + 4, room.w - 20, "wall_window");
-    ctx.font = "600 10px system-ui";
-    ctx.textAlign = "left";
-    ctx.fillStyle = "rgba(232,230,216,0.55)";
-    ctx.fillText(room.label, room.x + 14, room.y + 30);
+  drawCampusGrid(ctx, 0, 0, w, h);
+
+  for (let i = 0; i < scene.rooms.length; i++) {
+    const room = scene.rooms[i];
+    const agent = state.bundle.episode.agents[i];
+    const hue = state.actors.get(agent?.id)?.hue ?? 190;
+    const accent = `hsl(${hue}, 80%, 55%)`;
+    const tag = `[BAY-${String(i + 1).padStart(2, '0')}] · ${agent ? esc(shortName(agent.id, 8)) : 'ACTIVE'}`;
+    
+    drawRoomContainer(ctx, room, accent, tag);
   }
+
   for (const station of Object.values(scene.stations)) {
+    if (station.kind === "waypoint") continue;
     drawStation(station, ctx);
   }
 }
@@ -671,57 +662,63 @@ function drawCells(scene, ctx) {
 
 function drawHall(scene, ctx) {
   const { w, h } = scene.bounds;
-  tileFloor(ctx, 0, 0, w, h, Lab.tile("floor_variant"), () => "floor_variant");
+  drawCampusGrid(ctx, 0, 0, w, h);
   const studio = scene.rooms.find((r) => r.kind === "studio") ?? scene.rooms[0];
-  tileFloor(ctx, studio.x, studio.y, studio.w, studio.h, Lab.tile("floor_plain"), floorPaintPlain);
-  // carpet
-  ctx.fillStyle = "rgba(120,96,64,0.35)";
-  roundRect(ctx, 320, 200, 260, 180, 14);
-  ctx.fill();
-  drawWallStrip(ctx, studio.x + 10, studio.y + 4, studio.w - 20, "wall_window");
+  drawRoomContainer(ctx, studio, "#38bdf8", "[CONVERSATION FORUM · ARCHIPELAGO TREE]");
+
   for (const station of Object.values(scene.stations)) {
     if (station.kind === "screen") {
-      fillRectShade(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, "#0d1513", 6);
-      ctx.strokeStyle = "rgba(125,167,224,0.5)";
-      ctx.lineWidth = 1.5;
-      roundRect(ctx, station.x - station.w / 2 + 5, station.y - station.h / 2 + 5, station.w - 10, station.h - 10, 4);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(125,167,224,0.28)";
-      ctx.beginPath();
-      ctx.moveTo(station.x - 90, station.y - 20);
-      ctx.lineTo(station.x - 40, station.y + 20);
-      ctx.lineTo(station.x + 10, station.y - 10);
-      ctx.lineTo(station.x + 70, station.y + 26);
-      ctx.lineTo(station.x + 90, station.y - 14);
-      ctx.stroke();
-      labelUnder(ctx, station.label, station.x, station.y + station.h / 2 + 14);
-    } else if (station.kind === "table") {
-      drawTileProp(ctx, null, station.x, station.y, station.w, station.h);
-      ctx.fillStyle = "rgba(232,230,216,0.35)";
-      ctx.beginPath();
-      ctx.arc(station.x, station.y, 8, 0, Math.PI * 2);
+      ctx.save();
+      ctx.fillStyle = "#090d10";
+      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 6);
       ctx.fill();
-      ctx.strokeStyle = "#49554f";
-      ctx.beginPath();
-      ctx.arc(station.x, station.y, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 6);
       ctx.stroke();
-      labelUnder(ctx, station.label, station.x, station.y + station.h / 2 + 14);
-    } else if (station.kind === "seat") {
-      ctx.strokeStyle = "rgba(232,230,216,0.4)";
+
+      // Oscilloscope thread line
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.75)";
       ctx.lineWidth = 2;
-      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 10);
+      ctx.beginPath();
+      ctx.moveTo(station.x - 110, station.y - 15);
+      ctx.lineTo(station.x - 50, station.y + 15);
+      ctx.lineTo(station.x + 10, station.y - 10);
+      ctx.lineTo(station.x + 70, station.y + 20);
+      ctx.lineTo(station.x + 110, station.y - 8);
       ctx.stroke();
-      labelUnder(ctx, station.label, station.x, station.y + station.h / 2 + 14);
+
+      drawStationLabel(ctx, station.label, station.x, station.y + station.h / 2 + 14);
+      ctx.restore();
+    } else if (station.kind === "table") {
+      ctx.save();
+      ctx.fillStyle = "#1e293b";
+      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 8);
+      ctx.fill();
+      ctx.strokeStyle = "#334155";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 8);
+      ctx.stroke();
+      drawStationLabel(ctx, station.label, station.x, station.y + station.h / 2 + 14);
+      ctx.restore();
+    } else if (station.kind === "seat") {
+      ctx.save();
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.5)";
+      ctx.lineWidth = 2;
+      roundRect(ctx, station.x - station.w / 2, station.y - station.h / 2, station.w, station.h, 6);
+      ctx.stroke();
+      drawStationLabel(ctx, station.label, station.x, station.y + station.h / 2 + 14);
+      ctx.restore();
     } else {
       drawStation(station, ctx);
     }
   }
 }
 
-/* fallback scratch renderer for unknown scene kinds (never hides facts) */
+/* fallback scratch renderer for unknown scene kinds */
 function drawScratch(scene, ctx) {
   const { w, h } = scene.bounds;
-  tileFloor(ctx, 0, 0, w, h, Lab.tile("floor_plain"), () => "floor_plain");
+  drawCampusGrid(ctx, 0, 0, w, h);
   for (const station of Object.values(scene.stations)) {
     if (station.kind !== "waypoint" && station.kind !== "door") drawStation(station, ctx);
   }
@@ -745,19 +742,15 @@ function drawArtifacts(ctx, scene) {
     if (snap && !snap.live && !fadingIn) continue;
     const pos = stationPoint(scene, art.station);
     const slot = art.slot ?? 0;
-    const sx = pos.x + (slot % 3 - 1) * 16;
-    const sy = pos.y + Math.floor(slot / 3) * 14;
+    const sx = pos.x + (slot % 3 - 1) * 18;
+    const sy = pos.y + Math.floor(slot / 3) * 16;
     ctx.save();
     ctx.globalAlpha = fadingIn ? Math.min(1, age / 4 + 0.25) : 1;
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
-    ctx.beginPath();
-    ctx.ellipse(sx + 2, sy + 12, 9, 4.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    drawArtifactIcon(ctx, art.kind, sx, sy);
-    ctx.font = "600 9px system-ui";
+    drawArtifactIcon(ctx, art.kind, sx, sy, 1.1);
+    ctx.font = "600 10px ui-monospace, 'SF Mono', monospace";
     ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(232,230,216,0.85)";
-    ctx.fillText(shortName(ART_SHORT[art.kind] ?? art.label, 12), sx, sy + 24);
+    ctx.fillStyle = "#f1f5f9";
+    ctx.fillText(shortName(ART_SHORT[art.kind] ?? art.label, 14), sx, sy + 24);
     ctx.restore();
   }
 }
@@ -770,39 +763,36 @@ function drawCarriers(ctx, scene) {
     if (!snap || !snap.active) continue;
     const fromPos = actorPoint(carrier.from) ?? stationPoint(scene, carrier.station || "archive_shelf");
     const toPos = actorPoint(carrier.to) ?? stationPoint(scene, carrier.station || "archive_shelf");
-    // stagger shared endpoints (many carriers converge on the archive shelf)
     const offs = Object.keys(scene.carriers).indexOf(carrierId) - Object.keys(scene.carriers).length / 2;
     const target = carrier.station === "archive_shelf" ? toPos : toPos;
     const p1 = { x: fromPos.x, y: fromPos.y };
     const p2 = { x: target.x + offs * 10, y: target.y + Math.abs(offs) * 4 };
-    const kind = carrier.kind === "provider" ? "#c05ad9" : "#5ad0d9";
-    ctx.strokeStyle = "rgba(220,240,245,0.30)";
-    ctx.lineWidth = 8;
+    const kind = carrier.kind === "provider" ? "#a855f7" : "#0ea5e9";
+
+    // Subterranean glowing conduit line
+    ctx.save();
+    ctx.strokeStyle = "rgba(15, 23, 42, 0.8)";
+    ctx.lineWidth = 10;
     ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-    ctx.setLineDash([8, 7]);
-    ctx.lineDashOffset = -(state.seq * 2 % 16);
+
+    // Animated energy conduit
     ctx.strokeStyle = kind;
-    ctx.lineWidth = 2.6;
-    ctx.stroke();
+    ctx.shadowColor = kind;
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.lineDashOffset = -(state.pos * 18 % 36);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
     ctx.setLineDash([]);
-    // direction: animated arrowhead + flow dots
-    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-    ctx.fillStyle = kind;
-    ctx.beginPath();
-    ctx.moveTo(p2.x, p2.y);
-    ctx.lineTo(p2.x - 16 * Math.cos(angle - 0.42), p2.y - 16 * Math.sin(angle - 0.42));
-    ctx.lineTo(p2.x - 16 * Math.cos(angle + 0.42), p2.y - 16 * Math.sin(angle + 0.42));
-    ctx.closePath(); ctx.fill();
-    for (const off of [0.62, 0.85]) {
-      const phase = ((state.seq * 0.7 + off * 4) % 4) / 4;
-      const flow = 0.15 + phase * 0.7;
-      const dotX = p1.x + (p2.x - p1.x) * flow;
-      const dotY = p1.y + (p2.y - p1.y) * flow;
-      ctx.fillStyle = kind;
-      ctx.beginPath(); ctx.arc(dotX, dotY, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
-      ctx.beginPath(); ctx.arc(dotX, dotY, 1.6, 0, Math.PI * 2); ctx.fill();
-    }
+    ctx.shadowBlur = 0;
+
+    // Moving encrypted carrier capsule payload
+    const flowPhase = (state.pos * 0.4) % 1;
+    const capX = p1.x + (p2.x - p1.x) * flowPhase;
+    const capY = p1.y + (p2.y - p1.y) * flowPhase;
+    drawArtifactIcon(ctx, "carrier", capX, capY, 1.2);
+
+    ctx.restore();
   }
 }
 
@@ -840,11 +830,24 @@ function drawChoreography(ctx, scene) {
       busy,
       dead: snap ? !snap.alive && snap.spawn_seq >= 0 : false,
       alpha: fading,
+      label: agent.name,
     });
-    ctx.font = "600 11px system-ui";
+
+    // Operator Name HUD Tag
+    ctx.font = "600 11px ui-monospace, 'SF Mono', monospace";
     ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(232,230,216,0.95)";
-    ctx.fillText(shortName(agent.name, 15), move.x, move.y + 26);
+    const tw = ctx.measureText(agent.name).width;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+    roundRect(ctx, move.x - tw / 2 - 5, move.y + 18, tw + 10, 16, 3);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.3)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, move.x - tw / 2 - 5, move.y + 18, tw + 10, 16, 3);
+    ctx.stroke();
+
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillText(agent.name, move.x, move.y + 30);
+
     ctx.restore();
   }
 }
@@ -1455,16 +1458,14 @@ function inspectStation(stationId) {
 
 /* ------------------------------------------------------------- interaction */
 
-function canvasScale() {
-  const dpr = window.devicePixelRatio || 1;
-  return dpr;
-}
-
 function onCanvasMove(event) {
   if (!state.bundle) return;
+  const scene = sceneDoc();
+  const bounds = scene?.bounds || { w: el.canvas.width, h: el.canvas.height };
   const rect = el.canvas.getBoundingClientRect();
-  const x = (event.clientX - rect.left) * canvasScale();
-  const y = (event.clientY - rect.top) * canvasScale();
+  if (rect.width === 0 || rect.height === 0) return;
+  const x = (event.clientX - rect.left) * (bounds.w / rect.width);
+  const y = (event.clientY - rect.top) * (bounds.h / rect.height);
   state.hover = hitTest(x, y);
   if (!state.hover) { el.tip.hidden = true; return; }
   el.tip.hidden = false;
