@@ -53,6 +53,30 @@ def test_demo_bundle_served(demo_server: str) -> None:
     assert data["episode"]["schema_version"] == "archipelago-viewer-episode/v1"
 
 
+def test_asset_served(demo_server: str) -> None:
+    content = _get(f"{demo_server}/assets/lab/floor_plain.png")
+    assert content.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_asset_traversal_rejected(demo_server: str) -> None:
+    import urllib.error
+
+    with pytest.raises(urllib.error.HTTPError) as exc:
+        _get(f"{demo_server}/assets/../web/index.html")
+    assert exc.value.code == 404
+
+
+def test_source_api_includes_scene_projection(demo_server: str) -> None:
+    sources_data = json.loads(_get(f"{demo_server}/api/sources"))
+    if not sources_data["sources"]:
+        pytest.skip("no sources available for source api test")
+    first_rel = sources_data["sources"][0]["rel"]
+    encoded_rel = urllib.parse.quote(first_rel)
+    bundle = json.loads(_get(f"{demo_server}/api/source?path={encoded_rel}"))
+    assert "scene" in bundle
+    assert bundle["schema_version"] == "archipelago-viewer-bundle/v2"
+
+
 def test_source_api_rejects_traversal(demo_server: str) -> None:
     import urllib.error
 

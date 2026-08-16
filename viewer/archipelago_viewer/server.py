@@ -24,9 +24,11 @@ from pathlib import Path
 
 from .adapters import AdapterError, load_episodes
 from .reduce import replay_json, reduce
+from .scene import project
 from .schema import ViewerEpisode
 
 VIEWER_ROOT = Path(__file__).resolve().parent.parent / "web"
+ASSET_ROOT = Path(__file__).resolve().parent.parent / "assets"
 DEMO_ROOT = Path(__file__).resolve().parent.parent / "demo"
 
 CONTENT_TYPES = {
@@ -83,13 +85,24 @@ class ViewerHandler(BaseHTTPRequestHandler):
         if path in ("/", ""):
             path = "/index.html"
         file_path = (VIEWER_ROOT / path.lstrip("/")).resolve()
-        if not file_path.is_relative_to(VIEWER_ROOT.resolve()) or not file_path.is_file():
-            self._send(404, b"not found", "text/plain; charset=utf-8")
+        if file_path.is_relative_to(VIEWER_ROOT.resolve()) and file_path.is_file():
+            content_type = CONTENT_TYPES.get(
+                file_path.suffix.lower(), "application/octet-stream"
+            )
+            self._send(200, file_path.read_bytes(), content_type)
             return
-        content_type = CONTENT_TYPES.get(
-            file_path.suffix.lower(), "application/octet-stream"
-        )
-        self._send(200, file_path.read_bytes(), content_type)
+
+        if path.lstrip("/").startswith("assets/"):
+            rel_asset = path.lstrip("/")[len("assets/") :]
+            asset_file = (ASSET_ROOT / rel_asset).resolve()
+            if asset_file.is_relative_to(ASSET_ROOT.resolve()) and asset_file.is_file():
+                content_type = CONTENT_TYPES.get(
+                    asset_file.suffix.lower(), "application/octet-stream"
+                )
+                self._send(200, asset_file.read_bytes(), content_type)
+                return
+
+        self._send(404, b"not found", "text/plain; charset=utf-8")
 
     def _api(self, route: str) -> None:
         try:
@@ -127,7 +140,7 @@ class ViewerHandler(BaseHTTPRequestHandler):
                         except AdapterError:
                             continue
                 self._send_json(200, {"sources": found})
-            elif route.startswith("source?"):
+            elif route == "source" or route.startswith("source?"):
                 query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
                 rel = (query.get("path") or [""])[0]
                 target = self._resolve_source(rel)
@@ -148,7 +161,10 @@ class ViewerHandler(BaseHTTPRequestHandler):
                     if isinstance(episode, list):
                         episode = episode[0]
                     assert isinstance(episode, ViewerEpisode)
-                    self._send_json(200, json.loads(replay_json(episode, reduce(episode))))
+                    scene = project(episode)
+                    self._send_json(
+                        200, json.loads(replay_json(episode, reduce(episode), scene))
+                    )
                 except (AdapterError, AssertionError) as exc:
                     self._send_json(400, {"error": str(exc)})
             else:

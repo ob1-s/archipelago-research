@@ -27,7 +27,7 @@ const GROUP_STYLE = {
   info:      { chip: "g-info",      color: "#8b948b", label: "info" },
 };
 
-const BASE_EVENTS_PER_SEC = 9;
+const BASE_EVENTS_PER_SEC = 2.5;  // comfortable watching speed
 const EFFECT_WINDOW = 10;
 
 /* fractional playback position inside an event where a return-home walk
@@ -42,6 +42,7 @@ const state = {
   playing: false,
   speed: 1,
   pos: 0,
+  eventsPerSec: BASE_EVENTS_PER_SEC,
   selected: null,
   hover: null,
   filters: new Set(Object.keys(GROUP_STYLE)),
@@ -360,10 +361,28 @@ function applyBundle(bundle) {
   const isFixture = episode.meta?.fixture === true;
   el.fixtureBanner.hidden = !isFixture;
   el.pillFixture.hidden = !isFixture;
-  const scene = replay.scene;
+  el.fixtureBanner.classList.toggle('hidden', !isFixture);
+  el.pillFixture.classList.toggle('hidden', !isFixture);
+  const scene = sceneDoc();
   el.sceneTag.textContent = scene ? scene.scene_kind.replace("_", " · ") : "legacy town";
   el.sceneTag.className = "pill" + (scene ? " scene-" + scene.scene_kind : " scene-legacy");
   buildActorIndex();
+  const bounds = sceneDoc()?.bounds;
+  if (bounds) {
+    const dpr = window.devicePixelRatio || 1;
+    el.canvas.width = Math.ceil(bounds.w * dpr);
+    el.canvas.height = Math.ceil(bounds.h * dpr);
+    el.canvas.style.width = bounds.w + 'px';
+    el.canvas.style.height = bounds.h + 'px';
+    el.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  } else {
+    const dpr = window.devicePixelRatio || 1;
+    el.canvas.width = 1000 * dpr;
+    el.canvas.height = 700 * dpr;
+    el.canvas.style.width = '1000px';
+    el.canvas.style.height = '700px';
+    el.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
   goto(parseInt(decodeURIComponent(location.hash.replace(/^#/, "")).match(/seq=(\d+)/)?.[1] ?? "-1", 10));
   renderAll();
 }
@@ -374,36 +393,44 @@ function snapshotAt(seq) {
   if (!state.bundle) return null;
   const replay = state.bundle.replay;
   if (seq < 0) return replay.sequences[0];
-  if (seq >= replay.sequences.length) return null;
-  return replay.sequences[seq];
+  const idx = seq + 1;
+  if (idx >= replay.sequences.length) return replay.sequences[replay.sequences.length - 1];
+  return replay.sequences[idx];
 }
 
 /* ------------------------------------------------------------- playback */
 
 function startClock() {
   let last = performance.now();
-  setInterval(() => {
-    if (!state.playing || !state.bundle) { last = performance.now(); return; }
-    const now = performance.now();
+  function tick(now) {
+    requestAnimationFrame(tick);
+    if (!state.playing || !state.bundle) { last = now; return; }
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
-    state.pos += dt * BASE_EVENTS_PER_SEC * state.speed;
+    // Advance the fractional position
+    state.pos += dt * state.eventsPerSec * state.speed;
     const target = Math.min(Math.floor(state.pos), eventCount() - 1);
-    if (target !== state.seq) {
-      goto(target);
-      if (target >= eventCount() - 1) togglePlay();
+    if (target >= eventCount() - 1) {
+      state.pos = eventCount() - 1;
+      state.seq = eventCount() - 1;
+      togglePlay();
     }
-  }, 50);
+    if (target !== state.seq) {
+      state.seq = Math.max(-1, target);
+    }
+    renderAll();
+  }
+  requestAnimationFrame(tick);
 }
 
 function togglePlay() {
   if (!state.bundle) return;
   state.playing = !state.playing;
   if (state.playing) {
-    state.pos = state.seq < 0 ? 0 : state.seq;
+    if (state.seq >= eventCount() - 1) state.pos = 0;
+    else state.pos = state.seq < 0 ? 0 : state.seq;
     el.btnPlay.textContent = "⏸";
   } else {
-    state.pos = state.seq;
     el.btnPlay.textContent = "▶";
   }
 }
@@ -412,7 +439,9 @@ function goto(seq) {
   const count = eventCount();
   if (count === 0) return;
   state.seq = Math.max(-1, Math.min(count - 1, seq));
-  state.pos = state.seq;
+  if (!state.playing) {
+    state.pos = state.seq;
+  }
   renderAll();
 }
 
@@ -454,15 +483,15 @@ function renderAll() {
 }
 
 function updateReadout() {
-  el.readoutTime.textContent = `t=${state.seq < 0 ? 0.0 : state.bundle.replay.sequences[state.seq].t}s`;
+  const snap = snapshotAt(state.seq);
+  el.readoutTime.textContent = snap ? `t=${snap.t}s` : 't=0.0s';
   el.readoutEvent.textContent = `event ${state.seq + 1}/${eventCount()}`;
   el.readoutDuration.textContent = `total ${fmtDuration(state.bundle.replay.duration)} · ${eventCount()} events`;
 }
 
 function drawTown() {
   const ctx = el.ctx;
-  const bounds = sceneDoc()?.bounds;
-  ctx.clearRect(0, 0, bounds?.w ?? 1000, bounds?.h ?? 700);
+  ctx.clearRect(0, 0, el.canvas.width, el.canvas.height);
   if (sceneDoc()) {
     drawSceneScene();
   } else {
@@ -1427,7 +1456,8 @@ function inspectStation(stationId) {
 /* ------------------------------------------------------------- interaction */
 
 function canvasScale() {
-  return el.canvas.width / el.canvas.clientWidth;
+  const dpr = window.devicePixelRatio || 1;
+  return dpr;
 }
 
 function onCanvasMove(event) {

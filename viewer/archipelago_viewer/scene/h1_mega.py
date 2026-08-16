@@ -2,8 +2,8 @@
 
 A grounded, industrial campus for the H1 runtime semantics:
 
-    Workcell A (encoder)         Lifecycle Control
-    Workcell B (checker)         Coordination Hall
+    Subject Bay (Generation 0)   Lifecycle Control
+    Subject Bay (Generation 1)   Coordination Hall
     Carrier Archive / State Store
     Provider Gateway             Network / Canary Bench
     Entrance (west)              Exit (east)
@@ -36,9 +36,9 @@ from .project import (
 WORLD = {"w": 1400.0, "h": 760.0}
 
 ROOMS: list[dict[str, Any]] = [
-    {"id": "workcell_a", "label": "Workcell A · Encoder",
+    {"id": "workcell_a", "label": "Subject Bay · Generation 0",
      "x": 80, "y": 120, "w": 380, "h": 280, "kind": "workcell"},
-    {"id": "workcell_b", "label": "Workcell B · Checker",
+    {"id": "workcell_b", "label": "Subject Bay · Generation 1",
      "x": 940, "y": 120, "w": 380, "h": 280, "kind": "workcell"},
     {"id": "lifecycle", "label": "Lifecycle Control",
      "x": 600, "y": 55, "w": 200, "h": 80, "kind": "control"},
@@ -57,10 +57,10 @@ STATIONS: list[Station] = [
     Station("exit", "door", "Exit", 1340, 265, 26, 70),
     Station("corridor_a", "waypoint", "", 280, 340, 8, 8),
     Station("corridor_b", "waypoint", "", 1120, 340, 8, 8),
-    Station("workcell_a_post", "workbench", "Encoder post", 280, 260, 96, 62),
-    Station("encoder_terminal", "terminal", "Encoder terminal", 180, 190, 56, 44),
-    Station("workcell_b_post", "workbench", "Checker post", 1120, 260, 96, 62),
-    Station("checker_terminal", "terminal", "Checker terminal", 1220, 190, 56, 44),
+    Station("workcell_a_post", "workbench", "Actor station", 280, 260, 96, 62),
+    Station("encoder_terminal", "terminal", "Work terminal A", 180, 190, 56, 44),
+    Station("workcell_b_post", "workbench", "Actor station", 1120, 260, 96, 62),
+    Station("checker_terminal", "terminal", "Work terminal B", 1220, 190, 56, 44),
     Station("lifecycle_panel", "panel", "Lifecycle panel", 620, 95, 90, 40),
     Station("auth_gate", "gate", "Authorization gate", 770, 95, 30, 40),
     Station("coordination_desk", "desk", "Coordination desk", 700, 470, 110, 56),

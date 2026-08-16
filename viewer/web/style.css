@@ -93,7 +93,7 @@ main { display: flex; height: calc(100vh - 152px); padding: 10px 14px 0; gap: 12
   min-width: 0;
   background: #20261f;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: var(--shadow);
   border: 1px solid var(--line);
   display: flex;

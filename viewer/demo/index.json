@@ -54,7 +54,7 @@
     {
       "agents": 3,
       "artifacts": 2,
-      "bytes": 83339,
+      "bytes": 83351,
       "carriers": 1,
       "environment": "h1_live_runtime_adapter_v1",
       "events": 20,
@@ -88,7 +88,7 @@
     {
       "agents": 4,
       "artifacts": 3,
-      "bytes": 80198,
+      "bytes": 80210,
       "carriers": 1,
       "environment": "visualization-fixture-v1",
       "events": 30,
