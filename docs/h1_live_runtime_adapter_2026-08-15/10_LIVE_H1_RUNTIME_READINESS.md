@@ -1,8 +1,8 @@
 # Live H1 runtime readiness
 
-Overall adjudication: **PASS (design/freeze)**. The apparatus is ready only to **DESIGN/FREEZE a bounded H1 pilot**. It is not ready or authorized to run H1: `execution_status = NO — provider/deployment validation remains`.
+Overall adjudication: **PASS (design/freeze)**. The apparatus is ready to **BEGIN/DESIGN a bounded H1 pilot**. It is not ready or authorized to run H1: `execution_status = NO — provider/deployment validation remains`, and the pre-execution trivial canary on a frozen configuration is still required.
 
-Status meanings: **design_freeze** scope = mechanically established for freezing a pilot; **execution** scope = deferred deployment/validation obligations that never become scientific evidence.
+Status meanings: **design_freeze** scope = mechanically established for freezing a pilot; stage obligations for freeze/execution are recorded in the qualification report (see 00 and 08) and never become scientific evidence.
 
 | ID | Readiness question | Status | Scope |
 |---|---|---|---|
@@ -12,28 +12,30 @@ Status meanings: **design_freeze** scope = mechanically established for freezing
 | Q04 | Provider continuation/conversation disabled; input shape allowlisted? | PASS | design_freeze |
 | Q05 | Worker/thread/fork/session reuse excluded? | PASS | design_freeze |
 | Q06 | Actor shell/tools/MCP/DNS/network denied? | PASS | design_freeze |
-| Q07 | Gateway OS egress allowlisted to pinned endpoint? | PASS WITH REPAIRS | execution |
+| Q07 | Provider-gateway egress restricted to pinned endpoint at OS layer? | PASS — defense-in-depth, recommended hardening, not a validity prerequisite | design_freeze |
 | Q08 | Provider credentials absent from actors? | PASS | design_freeze |
 | Q09 | Orchestrator unable to forge/reuse actor actions? | PASS | design_freeze |
 | Q10 | Only declared carrier/backup crosses generations? | PASS | design_freeze |
 | Q11 | Carrier attributable, idempotent, crash-recoverable? | PASS | design_freeze |
 | Q12 | Retry nested; ambiguous delivery terminal? | PASS | design_freeze |
-| Q13 | Real provider/model/project/auth pinned and qualified? | PASS WITH REPAIRS | execution |
-| Q14 | Frozen-endpoint response/session mechanics live-checked? | PASS WITH REPAIRS | execution |
+| Q13 | Real provider/model/project/auth pinned and qualified? | PASS — pinning real configuration is a deliverable of the H1 freeze stage, not a repair | design_freeze |
+| Q14 | Frozen-endpoint response/session mechanics live-checked? | PASS — live check is the required_before_h1_execution canary, never a retroactive invalidation | design_freeze |
 | Q15 | Provider cache/log/routing/retention/weights handled? | PASS (carried OPAQUE/UNVERIFIED) | design_freeze |
-| Q16 | A–F fail and G pass? | PASS | design_freeze |
+| Q16 | A–F and H fail and G pass? | PASS | design_freeze |
 | Q17 | Original model-free 15/15 qualification preserved? | PASS | design_freeze |
 | Q18 | Runtime evidence cannot earn L1–L5? | PASS | design_freeze |
 | Q19 | Next step design/freeze only; no H1/model-state collection? | PASS | design_freeze |
 
-Required before design/freeze: **none** — every design_freeze-scope question is PASS and all 19 mechanical gates pass.
+All 19 questions are PASS at scope `design_freeze`; all 21 mechanical gates pass.
 
-Required before execution (not scientific evidence):
+Stage obligations:
 
-1. Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration (Q13).
-2. Run the gateway in an OS network boundary that allowlists only that endpoint — defense-in-depth hardening (Q07).
-3. Run/archive one fixed semantically trivial non-H1 live Responses canary; it must return a nonempty response-body ID and server `x-request-id`, a completed status, and no continuation/conversation/tools. The nonempty server `x-request-id` requirement is now mechanized in the evidence contract (Q14).
-4. Preserve provider caches, logs, routing, retention, and serving state as `OPAQUE/UNVERIFIED`; do not broaden L0 (Q15).
+- **required_before_h1_design:** none.
+- **required_as_part_of_h1_freeze:** pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, data-control configuration, and runtime configuration (Q13).
+- **required_before_h1_execution (not scientific evidence):**
+  1. Run/archive one fixed semantically trivial non-H1 live Responses canary on the frozen configuration; it must return a nonempty response-body ID (and a provider-issued request identifier when the provider emits one), a completed status, and no continuation/conversation/tools. A canary failure blocks execution and never retroactively invalidates this generic qualification (Q14).
+  2. Preserve provider caches, logs, routing, retention, and serving state as `OPAQUE/UNVERIFIED`; do not broaden L0 (Q15).
+- **recommended_defense_in_depth:** run the gateway in an OS network boundary that allowlists only the pinned provider endpoint — recommended hardening, neither a validity prerequisite nor an execution blocker (Q07).
 
 Strongest allowed result after the current qualification:
 

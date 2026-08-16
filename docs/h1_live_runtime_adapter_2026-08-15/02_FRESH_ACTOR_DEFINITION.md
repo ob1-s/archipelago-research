@@ -5,7 +5,7 @@ A successor counts as structurally fresh only if all controlled state surfaces s
 1. A new operating-system process is exec'd; no worker, thread pool, fork/COW image, heap, or interpreter is borrowed.
 2. It has new actor, lifecycle, session, process-start, and public-key identities.
 3. It is PID 1 in fresh PID, mount, IPC, UTS, user, cgroup, and network namespaces.
-4. Its predecessor has exited, its process group is absent, its private root is removed, and its public key is revoked before successor exposure.
+4. Its predecessor has exited, its process group is absent, its private root is removed, and its public key is revoked before successor exposure. Revocation is recorded in the durable controller lifecycle journal (`spawn` / `teardown_complete` / `authorization_revoked` per lifecycle) and is mechanically required L0 evidence before any successor spawn, independent of the teardown episode's factory-scope `key_invalidated` snapshot.
 5. It starts with empty actor history and receives no provider `previous_response_id` or Conversation object.
 6. It receives fresh private `/work`, `/home`, `/tmp`, `/dev/shm`, `/cache`, and environment-derived storage; predecessor secret-byte canaries are absent.
 7. Its environment is cleared and rebuilt from an exact allowlist with a fresh sentinel. Provider credentials are absent.

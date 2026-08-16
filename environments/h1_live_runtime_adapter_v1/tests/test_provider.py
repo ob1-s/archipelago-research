@@ -684,6 +684,38 @@ async def test_gateway_receipt_key_is_pinned_across_restart_and_required_for_new
 
 
 @pytest.mark.asyncio
+async def test_gateway_accepts_provider_response_without_issued_request_id() -> None:
+    fixture = _fixture()
+    gateway = _gateway(fixture)
+    response = await gateway.execute(
+        fixture.request,
+        _SequenceBackend(_response(fixture.request, request_id=None)),
+    )
+    assert response.request_id is None
+    assert response.gateway_receipt is not None
+    assert response.gateway_receipt.provider_request_id is None
+    assert response.gateway_receipt.signature_b64
+    assert gateway.attempts[0].outcome == "accepted_completed"
+    assert gateway.attempts[0].provider_request_id is None
+    gateway.close()
+
+
+@pytest.mark.asyncio
+async def test_gateway_preserves_provider_issued_request_id() -> None:
+    fixture = _fixture()
+    gateway = _gateway(fixture)
+    response = await gateway.execute(
+        fixture.request,
+        _SequenceBackend(_response(fixture.request, request_id="request-77")),
+    )
+    assert response.request_id == "request-77"
+    assert response.gateway_receipt is not None
+    assert response.gateway_receipt.provider_request_id == "request-77"
+    assert gateway.attempts[0].provider_request_id == "request-77"
+    gateway.close()
+
+
+@pytest.mark.asyncio
 async def test_same_logical_attempt_with_changed_signed_body_is_rejected(
     tmp_path: Path,
 ) -> None:

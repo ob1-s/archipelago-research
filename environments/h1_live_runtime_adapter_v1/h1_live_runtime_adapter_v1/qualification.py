@@ -32,7 +32,11 @@ from .state_manifest import (
 
 
 QUALIFICATION_VERSION = "h1-live-runtime-qualification/v1"
-READINESS_SCOPE = "ready only to DESIGN/FREEZE a bounded H1 pilot"
+READINESS_SCOPE = (
+    "ready to BEGIN/DESIGN a bounded H1 pilot; the H1 design freeze "
+    "(provider/model/endpoint/auth/data-control/runtime config) and the "
+    "pre-execution trivial canary remain before any H1 run"
+)
 EXECUTION_NOT_READY = "NO — provider/deployment validation remains"
 
 
@@ -76,10 +80,8 @@ def _claim_mapping(l0_supported: bool) -> tuple[ClaimBoundary, ...]:
 
 
 def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
-    repair = Readiness.PASS_WITH_REPAIRS
     passed = Readiness.PASS
     design_freeze = "design_freeze"
-    execution = "execution"
     return (
         ReadinessQuestion(
             question_id="Q01",
@@ -132,10 +134,10 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
         ReadinessQuestion(
             question_id="Q07",
             question="Is provider-gateway egress restricted to a pinned endpoint at the OS layer?",
-            status=repair,
-            scope=execution,
-            answer="Not yet on a deployment host. Code pins the HTTPS base_url in the signed policy and records the policy hash. Under the qualified threat model (no actor egress, small trusted gateway, pinned and logged request contract, no causal route from predecessor to successor through arbitrary gateway networking) OS egress allowlisting is defense-in-depth rather than a validity prerequisite; it remains recommended deployment hardening before live execution.",
-            evidence=("gateway policy hash", "no actor egress", "defense-in-depth deployment hardening"),
+            status=passed,
+            scope=design_freeze,
+            answer="No OS-level endpoint allowlist is configured on any deployment host. Code pins the HTTPS base_url in the signed policy and records the policy hash. Under the qualified threat model (no actor egress; actors cannot address arbitrary provider endpoints; provider credentials exist only in the trusted gateway; gateway request policy/base URL is frozen and logged; the gateway is trusted experiment infrastructure; malicious host/gateway-binary compromise is out of scope) there is no causal false-positive path for L0 through arbitrary gateway networking, so OS endpoint allowlisting is defense-in-depth: recommended hardening available to deployments that want it, not a scientific execution blocker and not a repair to this qualification.",
+            evidence=("gateway policy hash", "no actor egress", "recommended defense-in-depth hardening"),
         ),
         ReadinessQuestion(
             question_id="Q08",
@@ -180,18 +182,18 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
         ReadinessQuestion(
             question_id="Q13",
             question="Is a real provider/model/project/auth configuration pinned and qualified?",
-            status=repair,
-            scope=execution,
-            answer="No; choosing and pinning the real endpoint/model snapshot/auth scope is part of the H1 design/freeze itself, and live qualification deliberately used a no-model backend (zero live calls). The mechanical boundary is ready to freeze such a pin; the frozen configuration must be exercised before execution.",
-            evidence=("provider=none", "model=mechanical-no-model", "live_model_calls=0"),
+            status=passed,
+            scope=design_freeze,
+            answer="No real configuration exists in this qualification, and none is claimed to be qualified: qualifying deliberately used a no-model backend with zero live calls. Specifying and pinning the real provider HTTPS endpoint, exact model snapshot, project/auth scope, data-control configuration, and runtime configuration is a deliverable OF the H1 design freeze (its own stage, recorded as required_as_part_of_h1_freeze), not a repair to this mechanical qualification. The frozen configuration is exercised by the pre-execution canary.",
+            evidence=("provider=none", "model=mechanical-no-model", "live_model_calls=0", "freeze-stage deliverable"),
         ),
         ReadinessQuestion(
             question_id="Q14",
-            question="Have provider response/session semantics been mechanically checked on the frozen endpoint?",
-            status=repair,
-            scope=execution,
-            answer="No live request was made; the request/response contract is mechanically enforced and documented, and a nonempty server x-request-id is now required in the evidence contract. The trivial live canary on the frozen endpoint remains an execution gate.",
-            evidence=("documentation-supported", "trivial live canary remains"),
+question="Have provider response/session semantics been mechanically checked on the frozen endpoint?",
+            status=passed,
+            scope=design_freeze,
+            answer="Not yet on any live or pinned configuration, and none is claimed. The request/response contract is mechanically enforced and documented, with gateway-owned wire attempt identity recorded and any provider-issued request identifier preserved when the provider emits one. The trivial live canary on the frozen configuration is a pre-execution step recorded under required_before_h1_execution: its failure blocks execution (contract repair or re-freeze) and never retroactively invalidates this generic qualification.",
+            evidence=("documentation-supported", "trivial live canary gates execution"),
         ),
         ReadinessQuestion(
             question_id="Q15",
@@ -203,7 +205,7 @@ def _readiness_questions() -> tuple[ReadinessQuestion, ...]:
         ),
         ReadinessQuestion(
             question_id="Q16",
-            question="Do known-bad runtime fixtures A-F fail while clean fixture G passes?",
+            question="Do known-bad runtime fixtures A-F and H fail while clean fixture G passes?",
             status=passed,
             scope=design_freeze,
             answer="Yes.",
@@ -262,8 +264,10 @@ async def async_run_qualification() -> dict[str, Any]:
     gates = {
         "clean_runtime_boundary": clean.clean,
         "exact_bounded_l0_language": clean.l0_claim == L0_CLAIM,
-        "known_bad_A_through_F_rejected": all(
-            not fixture_assessments[name].clean for name in RUNTIME_FIXTURES[:6]
+        "known_bad_A_through_F_and_H_rejected": all(
+            not fixture_assessments[name].clean
+            for name in RUNTIME_FIXTURES
+            if name != "G-clean-declared-carrier"
         ),
         "clean_G_accepted": fixture_assessments[RUNTIME_FIXTURES[6]].clean,
         "state_manifest_valid_and_hash_bound": (
@@ -280,6 +284,36 @@ async def async_run_qualification() -> dict[str, Any]:
             and item.private_root_removed
             and item.key_invalidated
             for item in evidence.teardowns
+        ),
+        "predecessor_authorization_revoked": all(
+            any(
+                event.lifecycle_id == lifecycle_id
+                and event.event == "authorization_revoked"
+                for event in evidence.lifecycle_events
+            )
+            for lifecycle_id in {
+                record.identity.lifecycle_id for record in evidence.predecessors
+            }
+        ),
+        "predecessor_revocation_precedes_successor_start": (
+            not {
+                record.identity.lifecycle_id for record in evidence.predecessors
+            }
+            or not evidence.successors
+            or max(
+                event.sequence
+                for event in evidence.lifecycle_events
+                if event.event == "authorization_revoked"
+                and event.lifecycle_id
+                in {record.identity.lifecycle_id for record in evidence.predecessors}
+            )
+            < min(
+                event.sequence
+                for event in evidence.lifecycle_events
+                if event.event == "spawned"
+                and event.lifecycle_id
+                in {record.identity.lifecycle_id for record in evidence.successors}
+            )
         ),
         "actor_network_and_tools_denied": (
             evidence.actor_network_mode == "unshared-deny"
@@ -307,8 +341,17 @@ async def async_run_qualification() -> dict[str, Any]:
             and evidence.provider_store_requested is False
             and not evidence.provider_continuation_present
         ),
-        "provider_response_identity_recorded": bool(
-            evidence.provider_request_id and evidence.provider_response_id
+        "provider_transport_identity_recorded": bool(
+            evidence.retry_attempts
+            and evidence.retry_attempts[-1].wire_attempt_id
+            and evidence.provider_gateway_receipt is not None
+            and evidence.provider_request_hash
+            and evidence.provider_output_hash
+            and (
+                evidence.provider_request_id is None
+                or evidence.provider_request_id
+                == evidence.provider_gateway_receipt.provider_request_id
+            )
         ),
         "durable_retry_record_present": bool(evidence.retry_attempts),
         "no_live_model_call": evidence.live_model_calls == 0,
@@ -323,16 +366,22 @@ async def async_run_qualification() -> dict[str, Any]:
         ),
     }
     # The L0 window is the frozen-state boundary, not a billing or transport
-    # claim.  A deployment that cannot obtain these identifiers proves only
-    # that its provider contract differs from the qualified one; it cannot
-    # broaden the claim.
+    # claim.  A provider that does not emit a request identifier still fits the
+    # generic contract: the gateway records its own wire attempt identity,
+    # request/output hashes, and response identity, and a provider-issued
+    # identifier is preserved when present.  No identifier or response body may
+    # be spliced across attempts or imports, and a deployment whose provider
+    # contract differs from the qualified one cannot broaden the claim.
+    design_freeze_repairs = (
+        "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, data-control configuration, and runtime configuration as part of the H1 design freeze.",
+    )
     execution_repairs = (
-        "Pin the real provider HTTPS endpoint, exact model snapshot, project/auth scope, and data-control configuration as part of the H1 freeze.",
-        "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint (defense-in-depth; recommended before execution).",
-        "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration; it must return a nonempty response-body ID and server x-request-id, a completed status, and no continuation/conversation/tools.",
+        "Run and archive one semantically trivial, non-H1 live Responses canary on the frozen configuration; it must return a nonempty response-body ID (and a provider-issued request identifier when the provider emits one), a completed status, and no continuation/conversation/tools.",
         "Carry provider caches, logs, routing, retention, and serving state as OPAQUE/UNVERIFIED; never broaden L0 with a canary result.",
     )
-    design_freeze_repairs: tuple[str, ...] = ()
+    defense_in_depth_recommendations = (
+        "Run the gateway in an OS network boundary that allowlists only the pinned provider endpoint (recommended deployment hardening; neither a validity prerequisite nor an execution blocker).",
+    )
     report: dict[str, Any] = {
         "qualification_version": QUALIFICATION_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
@@ -355,8 +404,10 @@ async def async_run_qualification() -> dict[str, Any]:
         "readiness_questions": [
             item.model_dump(mode="json") for item in questions
         ],
-        "required_before_design_freeze": list(design_freeze_repairs),
-        "required_before_execution": list(execution_repairs),
+        "required_before_h1_design": [],
+        "required_as_part_of_h1_freeze": list(design_freeze_repairs),
+        "required_before_h1_execution": list(execution_repairs),
+        "recommended_defense_in_depth": list(defense_in_depth_recommendations),
         "model_free_regression": {
             "apparatus_version": original.apparatus_version,
             "readiness": original.readiness,
@@ -370,22 +421,23 @@ async def async_run_qualification() -> dict[str, Any]:
         },
     }
     report["contains_secret_field"] = _contains_secret_field(report)
-    # The mechanical boundary's readiness splits into two gates.  Every
-    # design/freeze question must pass and every mechanical gate must pass
-    # before the runtime may be frozen for a live pilot; execution additionally
-    # requires the deployment/response validation listed above.
+    # The mechanical boundary's readiness splits into two conclusions.  Every
+    # design/freeze question and every mechanical gate must pass before the
+    # runtime may be frozen for a live pilot; execution additionally requires
+    # the pre-execution trivial canary on the frozen configuration and the
+    # OPAQUE-carrying discipline listed under required_before_h1_execution.
     design_freeze_questions = tuple(
         item for item in questions if item.scope == "design_freeze"
     )
-    execution_questions = tuple(item for item in questions if item.scope == "execution")
     if not all(gates.values()) or report["contains_secret_field"]:
         report["status"] = Readiness.FAIL
     elif any(item.status is not Readiness.PASS for item in design_freeze_questions):
         report["status"] = Readiness.PASS_WITH_REPAIRS
-    if any(item.status is not Readiness.PASS for item in execution_questions):
-        report["execution_status"] = EXECUTION_NOT_READY
-    else:
-        report["execution_status"] = "YES — deployment-validated contract"
+    report["execution_status"] = (
+        EXECUTION_NOT_READY
+        if execution_repairs
+        else "YES — deployment-validated contract"
+    )
     report["record_hash"] = stable_hash(report)
     return report
 

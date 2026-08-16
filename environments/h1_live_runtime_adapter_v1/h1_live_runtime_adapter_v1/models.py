@@ -262,6 +262,22 @@ class TeardownEvidence(StrictModel):
     key_invalidated: bool
 
 
+class LifecycleEvent(StrictModel):
+    """One ordered controller-visible lifecycle event for an actor lifecycle.
+
+    ``sequence`` is strictly increasing across the whole evidence record so
+    that ordering facts (revocation before successor exposure) are auditable
+    rather than inferred.  ``authorization_revoked`` is the controller's
+    public-key registry revocation and is distinct from
+    ``TeardownEvidence.key_invalidated``, which only reports the actor-private
+    signing material's factory lifecycle.
+    """
+
+    sequence: int = Field(ge=0)
+    lifecycle_id: SafeIdentifier
+    event: Literal["spawned", "teardown_complete", "authorization_revoked"]
+
+
 class ProviderPolicy(StrictModel):
     adapter: Literal["openai_responses_stateless_v1"] = "openai_responses_stateless_v1"
     base_url: str = Field(min_length=1)
@@ -347,7 +363,7 @@ class GatewayReceipt(StrictModel):
     assignment_hash: Sha256Digest
     request_hash: Sha256Digest
     response_id: str = Field(min_length=1)
-    provider_request_id: NonEmptyString
+    provider_request_id: NonEmptyString | None = None
     output_hash: Sha256Digest
     signature_b64: str
 
@@ -360,7 +376,7 @@ class ProviderResponse(StrictModel):
     model: str
     status: Literal["completed"] = "completed"
     response_id: str = Field(min_length=1)
-    request_id: NonEmptyString
+    request_id: NonEmptyString | None = None
     output_text: str
     output_hash: Sha256Digest
     request_hash: Sha256Digest
@@ -526,6 +542,7 @@ class RuntimeBoundaryEvidence(StrictModel):
     predecessors: tuple[ActorRuntimeRecord, ...]
     successors: tuple[ActorRuntimeRecord, ...]
     teardowns: tuple[TeardownEvidence, ...]
+    lifecycle_events: tuple[LifecycleEvent, ...] = ()
     predecessor_attempt_id: SafeIdentifier
     predecessor_canary: CanaryEvidence
     successor_path_probes: dict[str, bool]
@@ -544,7 +561,7 @@ class RuntimeBoundaryEvidence(StrictModel):
     provider_gateway_receipt: GatewayReceipt
     provider_response_acceptance: SignedAction
     provider_response_id: NonEmptyString
-    provider_request_id: NonEmptyString
+    provider_request_id: NonEmptyString | None = None
     provider_status: Literal["completed"]
     provider_store_requested: Literal[False]
     provider_storage_observed: bool | None

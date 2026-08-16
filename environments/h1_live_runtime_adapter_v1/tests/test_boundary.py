@@ -118,7 +118,7 @@ def test_clean_real_canary_supports_only_exact_mechanical_l0() -> None:
 
 
 @pytest.mark.parametrize("case", RUNTIME_FIXTURES)
-def test_original_a_to_g_runtime_fixture_matrix(case: str) -> None:
+def test_original_a_to_h_runtime_fixture_matrix(case: str) -> None:
     assessment = _assessment(adversarial_fixture(_clean(), case))
     if case == "G-clean-declared-carrier":
         assert assessment.clean is True
@@ -127,6 +127,75 @@ def test_original_a_to_g_runtime_fixture_matrix(case: str) -> None:
         assert assessment.clean is False, (case, assessment.violations)
         assert assessment.l0_supported is False
         assert assessment.l0_claim is None
+
+
+def test_skipped_predecessor_revocation_fails_l0() -> None:
+    evidence = _clean()
+    assessment = _assessment(adversarial_fixture(evidence, "H-skip-revocation"))
+    assert assessment.clean is False
+    assert "predecessor_authorization_not_revoked" in assessment.violations
+    missing_journal = _assessment(evidence.model_copy(update={"lifecycle_events": ()}))
+    assert missing_journal.clean is False
+    assert "predecessor_authorization_not_revoked" in missing_journal.violations
+
+
+def test_revocation_before_successor_start_is_required_and_verified() -> None:
+    evidence = _clean()
+    predecessor_ids = {
+        record.identity.lifecycle_id for record in evidence.predecessors
+    }
+    successor_ids = {record.identity.lifecycle_id for record in evidence.successors}
+    events = list(evidence.lifecycle_events)
+    successor_spawn_events = [
+        event
+        for event in events
+        if event.event == "spawned" and event.lifecycle_id in successor_ids
+    ]
+    predecessor_revocation_events = [
+        event
+        for event in events
+        if event.event == "authorization_revoked"
+        and event.lifecycle_id in predecessor_ids
+    ]
+    rest = [
+        event
+        for event in events
+        if event not in successor_spawn_events
+        and event not in predecessor_revocation_events
+    ]
+    reordered = successor_spawn_events + predecessor_revocation_events + rest
+    reordered = [
+        event.model_copy(update={"sequence": index})
+        for index, event in enumerate(reordered)
+    ]
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": tuple(reordered)})
+    )
+    assert assessment.clean is False
+    assert "predecessor_revocation_not_before_successor_start" in assessment.violations
+
+
+def test_lifecycle_event_sequences_must_be_contiguous_and_unique() -> None:
+    evidence = _clean()
+    events = list(evidence.lifecycle_events)
+    events[1] = events[1].model_copy(update={"sequence": events[0].sequence})
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": tuple(events)})
+    )
+    assert assessment.clean is False
+    assert "lifecycle_event_order_invalid" in assessment.violations
+
+
+def test_receipt_provider_request_id_is_signature_bound() -> None:
+    evidence = _clean()
+    receipt = evidence.provider_gateway_receipt.model_copy(
+        update={"provider_request_id": "forged-provider-request-id"}
+    )
+    assessment = _assessment(
+        evidence.model_copy(update={"provider_gateway_receipt": receipt})
+    )
+    assert assessment.clean is False
+    assert "provider_response_acceptance_invalid" in assessment.violations
 
 
 def test_empty_carrier_surface_is_not_clean() -> None:

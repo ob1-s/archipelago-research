@@ -11,18 +11,52 @@ def test_qualification_passes_design_freeze_and_defers_execution(qualification_r
     assert qualification_report["readiness_scope"] == READINESS_SCOPE
     assert qualification_report["execution_status"] == EXECUTION_NOT_READY
     assert qualification_report["authorized_to_run_h1"] is False
-    assert qualification_report["required_before_design_freeze"] == []
-    assert len(qualification_report["required_before_execution"]) == 4
+    assert qualification_report["required_before_h1_design"] == []
+    assert len(qualification_report["required_before_h1_execution"]) == 2
+    assert len(qualification_report["required_as_part_of_h1_freeze"]) == 1
+    assert len(qualification_report["recommended_defense_in_depth"]) == 1
 
 
 def test_all_mechanical_gates_pass(qualification_report) -> None:
-    assert len(qualification_report["gate_results"]) == 19
+    assert len(qualification_report["gate_results"]) == 21
     assert all(qualification_report["gate_results"].values())
-    assert qualification_report["gate_results"]["provider_response_identity_recorded"] is True
+    assert qualification_report["gate_results"]["provider_transport_identity_recorded"] is True
+    assert qualification_report["gate_results"]["predecessor_authorization_revoked"] is True
     assert (
-        qualification_report["runtime_boundary"]["provider_request_id"]
-        and qualification_report["runtime_boundary"]["provider_response_id"]
+        qualification_report["gate_results"]["predecessor_revocation_precedes_successor_start"]
+        is True
     )
+    assert (
+        qualification_report["runtime_boundary"]["provider_response_id"]
+        and qualification_report["runtime_boundary"]["retry_attempts"][-1][
+            "wire_attempt_id"
+        ]
+    )
+    evidence = qualification_report["runtime_boundary"]
+    assert evidence["lifecycle_events"]
+    sequencer = [
+        (item["sequence"], item["lifecycle_id"], item["event"])
+        for item in evidence["lifecycle_events"]
+    ]
+    assert [item[0] for item in sequencer] == list(range(len(sequencer)))
+    for predecessor in evidence["predecessors"]:
+        lifecycle_id = predecessor["identity"]["lifecycle_id"]
+        events = {
+            event for _, candidate, event in sequencer if candidate == lifecycle_id
+        }
+        assert {"spawned", "teardown_complete", "authorization_revoked"} <= events
+    for successor in evidence["successors"]:
+        lifecycle_id = successor["identity"]["lifecycle_id"]
+        spawned_at = min(
+            sequence
+            for sequence, candidate, event in sequencer
+            if candidate == lifecycle_id and event == "spawned"
+        )
+        assert all(
+            sequence < spawned_at
+            for sequence, candidate, event in sequencer
+            if candidate != lifecycle_id and event == "authorization_revoked"
+        )
 
 
 def test_record_is_nonscientific_and_contains_no_live_calls_or_secret_fields(qualification_report) -> None:
@@ -41,7 +75,7 @@ def test_exact_claim_mapping_blocks_L1_through_L5(qualification_report) -> None:
     assert all(item["scientific_evidence"] is False for item in claims.values())
 
 
-def test_runtime_fixtures_A_through_F_fail_and_G_pass(qualification_report) -> None:
+def test_runtime_fixtures_A_through_F_and_H_fail_and_G_passes(qualification_report) -> None:
     fixtures = qualification_report["runtime_fixture_assessments"]
     names = list(fixtures)
     assert names == [
@@ -52,9 +86,10 @@ def test_runtime_fixtures_A_through_F_fail_and_G_pass(qualification_report) -> N
         "E-signing-key-reuse",
         "F-undeclared-carrier",
         "G-clean-declared-carrier",
+        "H-skip-revocation",
     ]
-    assert all(not fixtures[name]["clean"] for name in names[:6])
-    assert fixtures[names[-1]]["clean"]
+    assert all(not fixtures[name]["clean"] for name in names if name != "G-clean-declared-carrier")
+    assert fixtures["G-clean-declared-carrier"]["clean"]
 
 
 def test_readiness_has_exactly_nineteen_scoped_adjudicated_questions(qualification_report) -> None:
@@ -62,22 +97,11 @@ def test_readiness_has_exactly_nineteen_scoped_adjudicated_questions(qualificati
     assert [item["question_id"] for item in questions] == [
         f"Q{index:02d}" for index in range(1, 20)
     ]
-    assert {item["status"] for item in questions} == {"PASS", "PASS WITH REPAIRS"}
-    assert {item["scope"] for item in questions} == {"design_freeze", "execution"}
-    repairs = {item["question_id"] for item in questions if item["status"] != "PASS"}
-    assert repairs == {"Q07", "Q13", "Q14"}
-    assert all(
-        item["scope"] == "execution" for item in questions if item["question_id"] in repairs
-    )
+    assert {item["status"] for item in questions} == {"PASS"}
+    assert {item["scope"] for item in questions} == {"design_freeze"}
     assert all(
         item["scope"] == "design_freeze"
         for item in questions
-        if item["question_id"] == "Q15"
-    )
-    assert all(
-        item["scope"] == "design_freeze"
-        for item in questions
-        if item["status"] == "PASS" and item["question_id"] != "Q15"
     )
 
 

@@ -31,6 +31,7 @@ from .models import (
     CarrierCapability,
     GatewayReceipt,
     L0_CLAIM,
+    LifecycleEvent,
     ProviderPolicy,
     RuntimeBoundaryEvidence,
     ScheduleContractPin,
@@ -220,6 +221,45 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
         observed_teardowns
     ) != expected_teardowns:
         violations.append("teardown_actor_correspondence_invalid")
+    # Controller-side lifecycle journal: revocation of a predecessor's
+    # public-key authorization is L0 evidence distinct from the teardown's
+    # factory-scoped key_invalidated flag.  A skipped registry.revoke() must
+    # fail L0 even when every teardown record is mechanically complete.
+    event_sequences = [item.sequence for item in evidence.lifecycle_events]
+    if len(event_sequences) != len(set(event_sequences)) or any(
+        sequence != index for index, sequence in enumerate(event_sequences)
+    ):
+        violations.append("lifecycle_event_order_invalid")
+    else:
+        events_by_lifecycle: dict[str, set[str]] = {}
+        for event in evidence.lifecycle_events:
+            events_by_lifecycle.setdefault(event.lifecycle_id, set()).add(
+                event.event
+            )
+        for lifecycle_id in predecessor_lifecycles:
+            if not {"spawned", "teardown_complete", "authorization_revoked"}.issubset(
+                events_by_lifecycle.get(lifecycle_id, set())
+            ):
+                violations.append("predecessor_authorization_not_revoked")
+                break
+        revoked_sequences = {
+            event.sequence
+            for event in evidence.lifecycle_events
+            if event.event == "authorization_revoked"
+            and event.lifecycle_id in predecessor_lifecycles
+        }
+        successor_spawn_sequences = [
+            event.sequence
+            for event in evidence.lifecycle_events
+            if event.event == "spawned"
+            and event.lifecycle_id
+            in {record.identity.lifecycle_id for record in evidence.successors}
+        ]
+        if successor_spawn_sequences and revoked_sequences and not all(
+            revoked < successor_spawn_sequences[0]
+            for revoked in revoked_sequences
+        ):
+            violations.append("predecessor_revocation_not_before_successor_start")
     canary = evidence.predecessor_canary
     canary_payload = {
         "actor_id": canary.actor_id,
@@ -718,6 +758,18 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
     predecessor_record = ActorRuntimeRecord(
         identity=predecessor.identity, runtime_process_id=predecessor.launcher_pid
     )
+    lifecycle_events: list[LifecycleEvent] = []
+
+    def _log(event: str, lifecycle_id: str) -> None:
+        lifecycle_events.append(
+            LifecycleEvent(
+                sequence=len(lifecycle_events),
+                lifecycle_id=lifecycle_id,
+                event=event,
+            )
+        )
+
+    _log("spawned", predecessor_spec.lifecycle_id)
     try:
         await predecessor.command("append_history", value=secrets.token_hex(32))
         raw_canary = await predecessor.command("write_canaries")
@@ -753,7 +805,9 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         await factory.close()
         raise
     predecessor_teardown = await factory.stop(predecessor)
+    _log("teardown_complete", predecessor_spec.lifecycle_id)
     registry.revoke(predecessor.identity.lifecycle_id)
+    _log("authorization_revoked", predecessor_spec.lifecycle_id)
 
     provider_assignment_hash = stable_hash(
         {
@@ -813,6 +867,7 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
     )
     successor = await factory.spawn(successor_spec)
     registry.register(successor.identity)
+    _log("spawned", successor_spec.lifecycle_id)
     successor_record = ActorRuntimeRecord(
         identity=successor.identity, runtime_process_id=successor.launcher_pid
     )
@@ -874,7 +929,9 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         await factory.close()
         raise
     successor_teardown = await factory.stop(successor)
+    _log("teardown_complete", successor_spec.lifecycle_id)
     registry.revoke(successor.identity.lifecycle_id)
+    _log("authorization_revoked", successor_spec.lifecycle_id)
     carrier_records = carrier.enumerate(capability=reader_capability)
     evidence = RuntimeBoundaryEvidence(
         adapter_version=ADAPTER_VERSION,
@@ -897,6 +954,7 @@ async def run_clean_mechanical_canary() -> RuntimeBoundaryEvidence:
         predecessors=(predecessor_record,),
         successors=(successor_record,),
         teardowns=(predecessor_teardown, successor_teardown),
+        lifecycle_events=tuple(lifecycle_events),
         predecessor_attempt_id=predecessor_attempt_id,
         predecessor_canary=canary,
         successor_path_probes=successor_path_probes,
@@ -970,6 +1028,23 @@ def adversarial_fixture(
         "E-signing-key-reuse": {"signing_key_reused": True},
         "F-undeclared-carrier": {"undeclared_external_carrier": True},
         "G-clean-declared-carrier": {},
+        "H-skip-revocation": {
+            "lifecycle_events": tuple(
+                event.model_copy(update={"sequence": index})
+                for index, event in enumerate(
+                    candidate
+                    for candidate in clean.lifecycle_events
+                    if not (
+                        candidate.event == "authorization_revoked"
+                        and candidate.lifecycle_id
+                        in {
+                            record.identity.lifecycle_id
+                            for record in clean.predecessors
+                        }
+                    )
+                )
+            )
+        },
     }
     if case not in mutations:
         raise KeyError(case)
@@ -984,4 +1059,5 @@ RUNTIME_FIXTURES = (
     "E-signing-key-reuse",
     "F-undeclared-carrier",
     "G-clean-declared-carrier",
+    "H-skip-revocation",
 )

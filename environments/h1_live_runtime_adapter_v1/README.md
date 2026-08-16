@@ -30,10 +30,14 @@ The exact L0 wording supported by a clean record is:
 
 Opaque provider infrastructure remains outside that claim.
 
-Current status is `PASS` for designing/freezing a pilot only
+Current status is `PASS` for beginning/designing a bounded pilot only
 (`execution_status = NO — provider/deployment validation remains`). It is not
-authorization to run H1 or collect scientific model state. Four deferred
-execution obligations are recorded in the qualification report and dossier
-(00/10): pin the real provider configuration (Q13), OS-allowlist gateway
-egress (Q07), archive one trivial non-H1 live canary (Q14), and keep provider
-caches/logs/routing/retention OPAQUE/UNVERIFIED (Q15).
+authorization to run H1 or collect scientific model state. Stage obligations
+are recorded in the qualification report and dossier (00/08/10):
+`required_before_h1_design` is empty; `required_as_part_of_h1_freeze` pins the
+real provider configuration (endpoint/model/auth/data-control/runtime config,
+Q13); `required_before_h1_execution` runs one trivial non-H1 live canary on the
+frozen configuration (Q14) and keeps provider caches/logs/routing/retention
+OPAQUE/UNVERIFIED (Q15); `recommended_defense_in_depth` OS-allowlists gateway
+egress to the pinned endpoint (Q07, recommended hardening, not a validity
+prerequisite).

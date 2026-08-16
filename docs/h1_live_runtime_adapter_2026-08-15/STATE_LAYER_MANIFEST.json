@@ -37,7 +37,7 @@
       "version": "openai-responses-stateless-policy/v1"
     },
     "state_schema": {
-      "hash": "a571b29880cb5ae3e3aef406b7e20cc57cf876af838a0ef243cf8eb8099bc425",
+      "hash": "31ff15979ea497cfdfd82ea8e952f49caabf8aafed15c300402ec1524ef18c58",
       "source": "models.py",
       "version": "h1-live-runtime-wire-schema/v1"
     },
@@ -755,6 +755,6 @@
       "verification": "multi-surface file canaries and fixture C/F"
     }
   ],
-  "manifest_hash": "def2e21f893bc1ac8514f48780105d134a31ef70a47a92cf8b2cd6989fd03361",
+  "manifest_hash": "3bb0679707b79562133e3f576e90d68c4f504f247915b7ec8917208f4eb4e2ba",
   "manifest_version": "h1-live-runtime-state-manifest/v1"
 }
