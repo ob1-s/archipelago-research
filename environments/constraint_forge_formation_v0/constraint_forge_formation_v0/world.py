@@ -1132,7 +1132,7 @@ def run_job(
                 )
                 eviction = mutations[0]
             else:
-                final_rack, eviction = apply_memory_phases(
+                final_rack, mutations = apply_memory_phases(
                     rack,
                     station,
                     frames,
@@ -1141,6 +1141,7 @@ def run_job(
                     source_job_id=job_id,
                     handle_seed=f"{lineage_id}:{job_id}:{station.value}",
                 )
+                eviction = mutations[0]
             if station is Station.X:
                 final_rack_x = final_rack
                 mutations_x = (eviction,)
