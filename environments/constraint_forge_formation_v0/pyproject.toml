@@ -1,0 +1,25 @@
+[project]
+name = "constraint-forge-formation-v0"
+description = "Model-free Constraint Forge V0 generator, world, rack, intervention, and preflight apparatus."
+tags = ["constraint-forge", "model-free", "preflight"]
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "verifiers==0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["constraint_forge_formation_v0"]
+
+[tool.verifiers.eval]
+num_examples = 1
+rollouts_per_example = 1
