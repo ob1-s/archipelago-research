@@ -467,8 +467,30 @@ async def test_teardown_and_revocation_without_spawn_block_successor(tmp_path) -
     orchestrator = Orchestrator(
         schedule, factory=_FakeFactory(), journal=journal
     )
-    with pytest.raises(RuntimeError, match="missing_spawn"):
+    with pytest.raises(RuntimeError, match="journal is inconsistent"):
         await orchestrator.start_actor("attempt-1")
+    orchestrator.close()
+
+
+@pytest.mark.parametrize("event", ["teardown_complete", "authorization_revoked"])
+@pytest.mark.asyncio
+async def test_malformed_current_lifecycle_cannot_start(
+    tmp_path, event: str
+) -> None:
+    journal = LifecycleJournal(tmp_path / f"malformed-current-{event}.sqlite")
+    schedule = _schedule(generations=(0,))
+    assignment = schedule.assignments[0]
+    journal._append_controller_event(
+        lifecycle_id=assignment.actor_spec.lifecycle_id,
+        actor_id=assignment.actor_spec.actor_id,
+        attempt_id=assignment.attempt_id,
+        lineage_id=assignment.actor_spec.lineage_id,
+        generation=assignment.actor_spec.generation,
+        event=event,
+    )
+    orchestrator = Orchestrator(schedule, factory=_FakeFactory(), journal=journal)
+    with pytest.raises(RuntimeError, match="journal is inconsistent"):
+        await orchestrator.start_actor(assignment.attempt_id)
     orchestrator.close()
 
 

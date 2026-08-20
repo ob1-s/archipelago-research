@@ -62,6 +62,7 @@ def journal_events_match_assignments(
         return False
     expected = set(assignments)
     seen: set[tuple[str, str]] = set()
+    events_by_lifecycle: dict[str, list[str]] = {}
     for event in events:
         identity = (
             event.lifecycle_id,
@@ -76,6 +77,12 @@ def journal_events_match_assignments(
         if transition in seen:
             return False
         seen.add(transition)
+        events_by_lifecycle.setdefault(event.lifecycle_id, []).append(event.event)
+    if any(
+        event_names != list(_EVENT_NAMES[: len(event_names)])
+        for event_names in events_by_lifecycle.values()
+    ):
+        return False
     return True
 
 
