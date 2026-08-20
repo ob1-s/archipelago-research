@@ -17,7 +17,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from .canonical import canonical_bytes, sha256_bytes, stable_hash
 from .carrier import carrier_write_binding
-from .crypto import verify_gateway_receipt
+from .crypto import actor_identity_binding, verify_gateway_receipt
 from .models import GatewayReceipt, StateClass
 
 
@@ -113,6 +113,7 @@ def main() -> None:
 
     history: list[str] = []
     sequence = 0
+    pending_provider_request: tuple[str, str, str] | None = None
 
     def sign_action(
         action: str, payload_hash: str, parent_hashes: list[str] | None = None
@@ -253,6 +254,13 @@ def main() -> None:
             elif command == "prepare_provider_request":
                 payload = request["semantic_payload"]
                 payload_hash = stable_hash(payload)
+                if pending_provider_request is not None:
+                    raise ValueError("actor already has a pending provider request")
+                pending_provider_request = (
+                    payload_hash,
+                    str(payload["assignment_hash"]),
+                    str(payload["attempt_id"]),
+                )
                 result = {
                     "payload_hash": payload_hash,
                     "action": sign_action("provider_request", payload_hash),
@@ -266,12 +274,28 @@ def main() -> None:
                     or receipt.output_hash != request["output_hash"]
                     or receipt.request_hash != request["request_hash"]
                     or receipt.assignment_hash != request["assignment_hash"]
+                    or receipt.recipient_binding
+                    != actor_identity_binding(
+                        actor_id=args.actor_id,
+                        lifecycle_id=args.lifecycle_id,
+                        session_id=session_id,
+                        generation=args.generation,
+                        lineage_id=args.lineage_id,
+                        public_key_b64=public_key_b64,
+                    )
+                    or pending_provider_request
+                    != (
+                        request["request_hash"],
+                        request["assignment_hash"],
+                        receipt.logical_attempt_id,
+                    )
                 ):
                     raise ValueError("provider gateway receipt is invalid")
                 output_hash = sha256_bytes(request["output_text"].encode())
                 if output_hash != request["output_hash"]:
                     raise ValueError("provider response hash mismatch")
                 history.append(f"provider:{output_hash}")
+                pending_provider_request = None
                 result = {
                     "output_hash": output_hash,
                     "action": sign_action(

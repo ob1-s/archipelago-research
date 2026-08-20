@@ -19,7 +19,12 @@ from .carrier import (
     carrier_read_binding,
     carrier_write_binding,
 )
-from .crypto import verify_action, verify_gateway_receipt, verify_registration
+from .crypto import (
+    action_identity_binding,
+    verify_action,
+    verify_gateway_receipt,
+    verify_registration,
+)
 from .isolation import BubblewrapActorFactory
 from .lifecycle_journal import (
     LifecycleChainOutcome,
@@ -287,6 +292,10 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
         (record.identity.actor_id, record.identity.lifecycle_id)
         for record in (*evidence.predecessors, *evidence.successors)
     }
+    expected_process_ids = {
+        (record.identity.actor_id, record.identity.lifecycle_id): record.runtime_process_id
+        for record in (*evidence.predecessors, *evidence.successors)
+    }
     observed_teardowns = [
         (item.actor_id, item.lifecycle_id) for item in evidence.teardowns
     ]
@@ -294,6 +303,17 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
         observed_teardowns
     ) != expected_teardowns:
         violations.append("teardown_actor_correspondence_invalid")
+    if any(
+        (item.actor_id, item.lifecycle_id) in expected_process_ids
+        and (
+            item.launcher_pid
+            != expected_process_ids[(item.actor_id, item.lifecycle_id)]
+            or item.runtime_process_id
+            != expected_process_ids[(item.actor_id, item.lifecycle_id)]
+        )
+        for item in evidence.teardowns
+    ):
+        violations.append("teardown_process_identity_invalid")
     # Controller-side lifecycle journal: revocation of a predecessor's
     # public-key authorization is L0 evidence distinct from the teardown's
     # factory-scoped key_invalidated flag.  A skipped registry.revoke() must
@@ -316,6 +336,12 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
             for items in events_by_lifecycle.values()
         ):
             violations.append("lifecycle_event_duplicate")
+        elif any(
+            [item.event for item in items]
+            != ["spawned", "teardown_complete", "authorization_revoked"][: len(items)]
+            for items in events_by_lifecycle.values()
+        ):
+            violations.append("lifecycle_event_order_invalid")
         if not _journal_consistent_with_runtime_records(evidence):
             violations.append("lifecycle_event_inconsistent_with_runtime_records")
         predecessor_chain_ok = True
@@ -334,6 +360,19 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
                 if violation not in violations:
                     violations.append(violation)
                 break
+        successor_lifecycles = {
+            record.identity.lifecycle_id for record in evidence.successors
+        }
+        successor_spawn_events = [
+            event
+            for event in evidence.lifecycle_events
+            if event.event == "spawned"
+            and event.lifecycle_id in successor_lifecycles
+        ]
+        if len(successor_spawn_events) != len(successor_lifecycles) or {
+            event.lifecycle_id for event in successor_spawn_events
+        } != successor_lifecycles:
+            violations.append("successor_spawn_event_missing")
         if predecessor_chain_ok:
             revoked_sequences = {
                 event.sequence
@@ -345,8 +384,7 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
                 event.sequence
                 for event in evidence.lifecycle_events
                 if event.event == "spawned"
-                and event.lifecycle_id
-                in {record.identity.lifecycle_id for record in evidence.successors}
+                and event.lifecycle_id in successor_lifecycles
             ]
             if successor_spawn_sequences and revoked_sequences and not all(
                 revoked < successor_spawn_sequences[0]
@@ -638,12 +676,15 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
     if (
         not isinstance(receipt, GatewayReceipt)
         or not isinstance(acceptance, SignedAction)
+        or not isinstance(provider_request_action, SignedAction)
         or not verify_gateway_receipt(receipt)
         or receipt.output_hash != evidence.provider_output_hash
         or receipt.request_hash != evidence.provider_request_hash
         or receipt.assignment_hash != evidence.provider_assignment_hash
         or receipt.response_id != evidence.provider_response_id
         or receipt.provider_request_id != evidence.provider_request_id
+        or receipt.recipient_binding
+        != action_identity_binding(provider_request_action)
         or receipt.public_key_b64
         not in {
             record.identity.gateway_public_key_b64
@@ -654,6 +695,17 @@ def assess_boundary(evidence: RuntimeBoundaryEvidence) -> BoundaryAssessment:
         or acceptance.actor_id not in successor_ids
         or acceptance.lifecycle_id not in successor_lifecycles
         or not _action_matches_identity(acceptance, successor_identities)
+        or any(
+            getattr(acceptance, field) != getattr(provider_request_action, field)
+            for field in (
+                "actor_id",
+                "lifecycle_id",
+                "session_id",
+                "generation",
+                "lineage_id",
+                "public_key_b64",
+            )
+        )
         or acceptance.payload_hash != evidence.provider_output_hash
         or tuple(acceptance.parent_hashes)
         != (

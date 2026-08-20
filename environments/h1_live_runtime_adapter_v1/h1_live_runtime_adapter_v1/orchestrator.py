@@ -27,6 +27,7 @@ from .isolation import BubblewrapActorFactory, IsolatedActor
 from .lifecycle_journal import (
     LifecycleJournal,
     lifecycle_chain_outcome,
+    journal_events_match_assignments,
     teardown_evidence_complete,
 )
 from .models import (
@@ -460,12 +461,6 @@ class Orchestrator:
         return self._registry
 
     @property
-    def journal(self) -> LifecycleJournal:
-        """Return the durable lifecycle journal backing admission and evidence."""
-
-        return self._journal
-
-    @property
     def lifecycle_events(self) -> tuple[LifecycleEvent, ...]:
         """Return every durably journaled lifecycle event in global order."""
 
@@ -541,6 +536,37 @@ class Orchestrator:
         assignment = self.predeclared_assignment(attempt_id)
         if attempt_id in self._actors:
             raise ValueError("attempt already has a live actor")
+        journal_events = self._journal.events()
+        if not journal_events_match_assignments(
+            journal_events,
+            tuple(
+                (
+                    item.actor_spec.lifecycle_id,
+                    item.attempt_id,
+                    item.actor_spec.actor_id,
+                    item.actor_spec.lineage_id,
+                    item.actor_spec.generation,
+                )
+                for item in self.schedule.assignments
+            ),
+        ):
+            raise RuntimeError(
+                "lifecycle journal is inconsistent with the frozen schedule or "
+                "complete durable turnover chain"
+            )
+        current_outcome = lifecycle_chain_outcome(
+            journal_events,
+            lifecycle_id=assignment.actor_spec.lifecycle_id,
+            attempt_id=assignment.attempt_id,
+            actor_id=assignment.actor_spec.actor_id,
+            lineage_id=assignment.actor_spec.lineage_id,
+            generation=assignment.actor_spec.generation,
+        )
+        if current_outcome != "missing_spawn":
+            raise RuntimeError(
+                "attempt lifecycle already has durable history: "
+                f"{current_outcome}"
+            )
         # A successor cannot start until every earlier generation in its
         # lineage satisfies the complete, durable lifecycle predicate —
         # the same predicate the L0 verifier applies.  Absence from the
@@ -562,7 +588,7 @@ class Orchestrator:
                         "predecessor lifecycle is still authorized by the registry"
                     )
                 outcome = lifecycle_chain_outcome(
-                    self._journal.events(),
+                    journal_events,
                     lifecycle_id=other.actor_spec.lifecycle_id,
                     attempt_id=other.attempt_id,
                     actor_id=other.actor_spec.actor_id,
@@ -577,7 +603,7 @@ class Orchestrator:
         actor = await self._factory.spawn(assignment.actor_spec)
         try:
             self._registry.register(actor.identity)
-            self._journal.append(
+            self._journal._append_controller_event(
                 lifecycle_id=actor.identity.lifecycle_id,
                 actor_id=assignment.actor_spec.actor_id,
                 attempt_id=attempt_id,
@@ -621,12 +647,14 @@ class Orchestrator:
             evidence,
             actor_id=assignment.actor_spec.actor_id,
             lifecycle_id=assignment.actor_spec.lifecycle_id,
+            expected_launcher_pid=actor.launcher_pid,
+            expected_runtime_process_id=actor.launcher_pid,
         ):
             del self._actors[attempt_id]
             raise RuntimeError(
                 "teardown evidence does not satisfy the qualified turnover predicate"
             )
-        self._journal.append(
+        self._journal._append_controller_event(
             lifecycle_id=actor.identity.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,
             attempt_id=attempt_id,
@@ -639,7 +667,7 @@ class Orchestrator:
         self._registry.revoke(actor.identity.lifecycle_id)
         if self._registry.active(actor.identity.lifecycle_id):
             raise RuntimeError("authorization revocation did not take effect")
-        self._journal.append(
+        self._journal._append_controller_event(
             lifecycle_id=actor.identity.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,
             attempt_id=attempt_id,

@@ -7,8 +7,42 @@ import base64
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
-from .canonical import canonical_bytes
+from .canonical import canonical_bytes, stable_hash
 from .models import ActorIdentity, GatewayReceipt, SignedAction
+
+
+def actor_identity_binding(
+    *,
+    actor_id: str,
+    lifecycle_id: str,
+    session_id: str,
+    generation: int,
+    lineage_id: str,
+    public_key_b64: str,
+) -> str:
+    """Hash the exact actor identity a gateway receipt is delivered to."""
+
+    return stable_hash(
+        {
+            "actor_id": actor_id,
+            "lifecycle_id": lifecycle_id,
+            "session_id": session_id,
+            "generation": generation,
+            "lineage_id": lineage_id,
+            "public_key_b64": public_key_b64,
+        }
+    )
+
+
+def action_identity_binding(action: SignedAction) -> str:
+    return actor_identity_binding(
+        actor_id=action.actor_id,
+        lifecycle_id=action.lifecycle_id,
+        session_id=action.session_id,
+        generation=action.generation,
+        lineage_id=action.lineage_id,
+        public_key_b64=action.public_key_b64,
+    )
 
 
 def verify_registration(identity: ActorIdentity) -> bool:

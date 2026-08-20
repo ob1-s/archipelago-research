@@ -141,6 +141,23 @@ def test_skipped_predecessor_revocation_fails_l0() -> None:
     assert "predecessor_authorization_not_revoked" in missing_journal.violations
 
 
+def test_missing_successor_lifecycle_journal_fails_l0() -> None:
+    evidence = _clean()
+    successor_lifecycles = {
+        record.identity.lifecycle_id for record in evidence.successors
+    }
+    events = [
+        event
+        for event in evidence.lifecycle_events
+        if event.lifecycle_id not in successor_lifecycles
+    ]
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(events)})
+    )
+    assert assessment.clean is False
+    assert "successor_spawn_event_missing" in assessment.violations
+
+
 def test_revocation_before_successor_start_is_required_and_verified() -> None:
     evidence = _clean()
     predecessor_ids = {
@@ -201,6 +218,22 @@ def test_lifecycle_event_sequences_must_be_contiguous_and_unique() -> None:
     events[1] = events[1].model_copy(update={"sequence": events[0].sequence})
     assessment = _assessment(
         evidence.model_copy(update={"lifecycle_events": tuple(events)})
+    )
+    assert assessment.clean is False
+    assert "lifecycle_event_order_invalid" in assessment.violations
+
+
+def test_successor_lifecycle_event_order_is_validated() -> None:
+    evidence = _clean()
+    successor_id = evidence.successors[0].identity.lifecycle_id
+    successor_events = [
+        event for event in evidence.lifecycle_events if event.lifecycle_id == successor_id
+    ]
+    reordered = [
+        event for event in evidence.lifecycle_events if event.lifecycle_id != successor_id
+    ] + [successor_events[0], successor_events[2], successor_events[1]]
+    assessment = _assessment(
+        evidence.model_copy(update={"lifecycle_events": _renumber(reordered)})
     )
     assert assessment.clean is False
     assert "lifecycle_event_order_invalid" in assessment.violations
@@ -407,6 +440,13 @@ def test_teardown_evidence_predicate_matches_l0_teardown_conditions() -> None:
     assert teardown_evidence_complete(
         teardown, actor_id=expected[0], lifecycle_id=expected[1]
     )
+    assert not teardown_evidence_complete(
+        teardown,
+        actor_id=expected[0],
+        lifecycle_id=expected[1],
+        expected_launcher_pid=teardown.launcher_pid + 1,
+        expected_runtime_process_id=teardown.runtime_process_id,
+    )
     flawed_fields = {
         "process_absent": "predecessor_teardown_incomplete",
         "process_group_absent": "predecessor_teardown_incomplete",
@@ -437,6 +477,16 @@ def test_teardown_evidence_predicate_matches_l0_teardown_conditions() -> None:
         )
     )
     assert assessment.clean is False
+    wrong_pid = teardown.model_copy(
+        update={"launcher_pid": teardown.launcher_pid + 1}
+    )
+    assessment = _assessment(
+        evidence.model_copy(
+            update={"teardowns": (wrong_pid, *evidence.teardowns[1:])}
+        )
+    )
+    assert assessment.clean is False
+    assert "teardown_process_identity_invalid" in assessment.violations
 
 
 def test_receipt_provider_request_id_is_signature_bound() -> None:

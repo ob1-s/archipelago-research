@@ -28,6 +28,7 @@ from pydantic import ValidationError
 
 from h1_live_runtime_adapter_v1.attribution import ActionRegistry
 from h1_live_runtime_adapter_v1.canonical import canonical_bytes, sha256_bytes, stable_hash
+from h1_live_runtime_adapter_v1.crypto import action_identity_binding
 from h1_live_runtime_adapter_v1.models import (
     ActorIdentity,
     ActorSpec,
@@ -501,6 +502,10 @@ async def test_scripted_backend_is_one_call_and_carries_no_provider_state() -> N
     assert response.conversation_id is None
     assert response.tool_calls == 0
     assert response.request_hash == fixture.request.semantic_hash()
+    assert response.gateway_receipt is not None
+    assert response.gateway_receipt.recipient_binding == action_identity_binding(
+        fixture.request.action
+    )
 
 
 @pytest.mark.asyncio

@@ -20,7 +20,7 @@ from pydantic import ValidationError
 
 from .attribution import ActionRegistry
 from .canonical import canonical_bytes, sha256_bytes, stable_hash
-from .crypto import verify_action, verify_gateway_receipt
+from .crypto import action_identity_binding, verify_action, verify_gateway_receipt
 from .isolation import IsolatedActor
 from .models import (
     GatewayReceipt,
@@ -610,6 +610,7 @@ class ProviderGateway:
             "response_id": response.response_id,
             "provider_request_id": response.request_id,
             "output_hash": response.output_hash,
+            "recipient_binding": action_identity_binding(request.action),
         }
         signature = base64.b64encode(
             self._receipt_private_key.sign(
@@ -737,6 +738,7 @@ class ProviderGateway:
             or receipt.response_id != response.response_id
             or receipt.provider_request_id != response.request_id
             or receipt.output_hash != response.output_hash
+            or receipt.recipient_binding != action_identity_binding(request.action)
         ):
             raise InvalidProviderResponseError(
                 "gateway receipt does not bind the accepted response"
