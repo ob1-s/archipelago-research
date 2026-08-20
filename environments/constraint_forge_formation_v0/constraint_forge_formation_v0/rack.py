@@ -45,8 +45,6 @@ class Film(StrictModel):
     schema_version: Literal["constraint-forge/film/v0"] = "constraint-forge/film/v0"
     handle: StrictStr = Field(min_length=1)
     content_hash: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
-    # Audit metadata is retained by the environment but is not in the film bytes.
-    source_job_id: StrictStr
     frames: tuple[FilmFrame, ...]
 
     @property
@@ -100,7 +98,6 @@ class RackState(StrictModel):
                 {
                     "handle": film.handle,
                     "content_hash": film.content_hash,
-                    "source_job_id": film.source_job_id,
                     "frames": film.content_payload,
                 }
                 for film in self.films
@@ -159,6 +156,9 @@ class RackMutation(StrictModel):
     fragment_handle: StrictStr | None = None
     fragment_hash: StrictStr | None = None
     local_window_bounds: tuple[StrictInt, StrictInt] | None = None
+    # Scientific provenance belongs to the audit record, never to Film, Rack,
+    # RackView, or any carrier/model-visible representation.
+    source_job_id: StrictStr | None = None
 
 
 def empty_rack() -> RackState:
@@ -243,7 +243,6 @@ def retain_film(
     film = Film(
         handle=_film_handle(handle_seed, content_hash),
         content_hash=content_hash,
-        source_job_id=source_job_id,
         frames=frames,
     )
     if any(existing.handle == film.handle for existing in rack.films):
@@ -257,6 +256,7 @@ def retain_film(
             fragment_handle=film.handle,
             fragment_hash=film.content_hash,
             local_window_bounds=(start_round, start_round + 5),
+            source_job_id=source_job_id,
         )
     updated = RackState(
         films=tuple(
@@ -275,6 +275,7 @@ def retain_film(
         fragment_handle=film.handle,
         fragment_hash=film.content_hash,
         local_window_bounds=(start_round, start_round + 5),
+        source_job_id=source_job_id,
     )
 
 

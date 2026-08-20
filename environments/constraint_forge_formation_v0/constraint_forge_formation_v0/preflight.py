@@ -32,6 +32,7 @@ from .policies import (
     centralized_proposal_correction,
     codebook_from_jobs,
     distributed_mask_exchange,
+    distributed_mutual_consensus,
 )
 from .world import JobResult, Policy, run_job
 
@@ -303,9 +304,7 @@ def _central_factories(codebook: MaskCodebook) -> dict[str, PolicyFactory]:
 def _witness_factories(codebook: MaskCodebook) -> dict[str, PolicyFactory]:
     return {
         "distributed_mask_exchange": lambda: distributed_mask_exchange(codebook),
-        "distributed_reversed_codec": lambda: distributed_mask_exchange(
-            codebook, style=1, reverse_assignment=True
-        ),
+        "distributed_mutual_consensus": lambda: distributed_mutual_consensus(codebook),
     }
 
 

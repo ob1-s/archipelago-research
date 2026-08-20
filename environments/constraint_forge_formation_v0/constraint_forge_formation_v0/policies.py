@@ -7,12 +7,12 @@ codebook; no policy receives a job seed, target matching, or the partner mask.
 
 from __future__ import annotations
 
+from functools import lru_cache
 from itertools import combinations
 from typing import Iterable
 
 from .actions import FinishAction, SetAction, UnsetAction, WaitAction, WorldAction, WriteAction
-from .canonical import stable_hash
-from .generator import generator_conditioned_map, is_perfect_matching, perfect_matchings
+from .generator import is_perfect_matching, perfect_matchings
 from .models import Pair, Station
 from .world import Observation, Policy
 
@@ -145,6 +145,81 @@ class MaskCodebook:
             ):
                 return True
         return False
+
+
+def _row_domain_signature(mask: Iterable[tuple[int, int]]) -> tuple[int, ...]:
+    """Encode each row's allowed-target domain as a compact bit mask."""
+
+    domains = [0] * 6
+    for item, target in mask:
+        domains[int(item)] |= 1 << int(target)
+    return tuple(domains)
+
+
+def _edges_from_row_domains(signature: tuple[int, ...]) -> tuple[Pair, ...]:
+    return tuple(
+        (item, target)
+        for item, domain in enumerate(signature)
+        for target in range(6)
+        if domain & (1 << target)
+    )
+
+
+class ConstraintCodebook:
+    """Three-write codec for row-domain constraints, not matching identities.
+
+    The finite reference corpus is indexed by row-domain signatures.  The
+    transport codec is separate from :class:`MaskCodebook`, so this policy
+    exercises a compact constraint summary and a dedicated decoder rather than
+    calling the distributed full-mask exchange implementation.
+    """
+
+    def __init__(self, masks: Iterable[Iterable[tuple[int, int]]]) -> None:
+        signatures = sorted({_row_domain_signature(mask) for mask in masks})
+        if len(signatures) > CODE_CAPACITY:
+            raise ValueError(
+                f"{len(signatures)} row-domain signatures exceed the three-write "
+                f"public code capacity of {CODE_CAPACITY}"
+            )
+        self.signatures = tuple(signatures)
+        self._encode = {signature: index for index, signature in enumerate(self.signatures)}
+        # The private transport codec only carries an integer signature index.
+        # Its synthetic token is never exposed through an Observation.
+        self._transport = MaskCodebook(((0, index),) for index in range(len(signatures)))
+
+    def encode(self, mask: Iterable[tuple[int, int]]) -> int:
+        try:
+            signature = _row_domain_signature(mask)
+            return self._encode[signature]
+        except KeyError as exc:
+            raise ValueError("row-domain signature is absent from the frozen constraint codebook") from exc
+
+    def events_for_code(self, code: int) -> tuple[tuple[int, int, int], ...]:
+        return self._transport.events_for_code(code)
+
+    def decode_observed(
+        self,
+        observed: list[tuple[int, int, int]],
+        *,
+        final: bool = False,
+    ) -> int | None:
+        token = self._transport.decode_observed(observed, final=final)
+        if token is None:
+            return None
+        return int(token[0][1])
+
+    def decode_signature(self, code: int) -> tuple[int, ...]:
+        try:
+            return self.signatures[code]
+        except IndexError as exc:
+            raise ValueError("constraint code is outside the frozen codebook") from exc
+
+
+@lru_cache(maxsize=4)
+def _constraint_codebook_for_masks(
+    masks: tuple[tuple[Pair, ...], ...],
+) -> ConstraintCodebook:
+    return ConstraintCodebook(masks)
 
 
 def codebook_from_jobs(jobs) -> MaskCodebook:
@@ -344,8 +419,38 @@ def centralized_full_state_dump(
     )
 
 
-class CandidateFirstPolicy:
-    """Publish one local matching through the assignment layer, then listen."""
+def _matching_containing(
+    private_pairs: Iterable[tuple[int, int]],
+    required_edges: Iterable[tuple[int, int]],
+    *,
+    reverse: bool = False,
+) -> tuple[Pair, ...]:
+    """Choose a local matching that preserves all public compatible edges."""
+
+    required = frozenset(required_edges)
+    candidates = perfect_matchings(private_pairs)
+    ordered = tuple(reversed(candidates)) if reverse else candidates
+    for candidate in ordered:
+        if required.issubset(candidate):
+            return candidate
+    # A valid V0 target always gives at least one completion for compatible
+    # public edges.  The fallback keeps malformed-policy probes deterministic.
+    return ordered[0]
+
+
+def _repair_or_wait(
+    observation: Observation,
+    station: Station,
+    target: tuple[Pair, ...],
+    *,
+    reverse: bool = False,
+) -> WorldAction:
+    action = _repair_or_finish(observation, station, target, reverse=reverse)
+    return WaitAction(action="wait") if isinstance(action, FinishAction) else action
+
+
+class CandidateFirstProposerPolicy:
+    """Publish one full local matching and retain final control."""
 
     def __init__(self, station: Station, *, reverse: bool = False) -> None:
         self.station = station
@@ -358,55 +463,163 @@ class CandidateFirstPolicy:
             candidates = perfect_matchings(observation.private_pairs)
             self._candidate = candidates[-1] if self.reverse else candidates[0]
         partner_candidate = _complete_matching(observation.layers[self.partner.value])
-        if partner_candidate is not None:
-            target = _intersection_matching(observation.private_pairs, partner_candidate)
-            if target is not None:
-                return _repair_or_finish(observation, self.station, target, reverse=self.reverse)
-        return _repair_or_finish(observation, self.station, self._candidate, reverse=self.reverse)
+        if partner_candidate is None:
+            # The proposer publishes the entire candidate but waits for the
+            # partner's accept/correction layer before it can lock anything.
+            return _repair_or_wait(
+                observation,
+                self.station,
+                self._candidate,
+                reverse=self.reverse,
+            )
+        compatible = frozenset(partner_candidate).intersection(observation.private_pairs)
+        revised = _matching_containing(
+            observation.private_pairs,
+            compatible,
+            reverse=self.reverse,
+        )
+        return _repair_or_finish(
+            observation,
+            self.station,
+            revised,
+            reverse=self.reverse,
+        )
 
 
-def centralized_candidate_first(*, proposer: Station) -> tuple[Policy, Policy]:
-    # Both actors publish candidates; the proposer uses the forward candidate
-    # order and the mirror uses the reverse order, preserving X/Y symmetry.
-    return (
-        CandidateFirstPolicy(Station.X, reverse=proposer is Station.Y),
-        CandidateFirstPolicy(Station.Y, reverse=proposer is Station.X),
-    )
-
-
-class AmbiguousEdgesPolicy:
-    """Expose only a bounded ambiguous-edge summary through V0 actions."""
+class CandidateFirstReceiverPolicy:
+    """Accept compatible proposal edges and publish a correction matching."""
 
     def __init__(self, station: Station, *, reverse: bool = False) -> None:
         self.station = station
+        self.partner = _partner(station)
+        self.reverse = reverse
+        self._correction: tuple[Pair, ...] | None = None
+
+    def __call__(self, observation: Observation) -> WorldAction:
+        partner_candidate = _complete_matching(observation.layers[self.partner.value])
+        if self._correction is None and partner_candidate is not None:
+            accepted = frozenset(partner_candidate).intersection(observation.private_pairs)
+            self._correction = _matching_containing(
+                observation.private_pairs,
+                accepted,
+                reverse=self.reverse,
+            )
+        if self._correction is None:
+            return WaitAction(action="wait")
+        if partner_candidate is not None and frozenset(partner_candidate).issubset(
+            observation.private_pairs
+        ):
+            # The proposer has returned a fully accepted final proposal.
+            return _repair_or_finish(
+                observation,
+                self.station,
+                partner_candidate,
+                reverse=self.reverse,
+            )
+        # A correction is public work, not a receiver-owned finish.
+        return _repair_or_wait(
+            observation,
+            self.station,
+            self._correction,
+            reverse=self.reverse,
+        )
+
+
+def centralized_candidate_first(*, proposer: Station) -> tuple[Policy, Policy]:
+    reverse = proposer is Station.Y
+    proposer_policy = CandidateFirstProposerPolicy(proposer, reverse=reverse)
+    receiver_policy = CandidateFirstReceiverPolicy(_partner(proposer), reverse=reverse)
+    return (
+        (proposer_policy, receiver_policy)
+        if proposer is Station.X
+        else (receiver_policy, proposer_policy)
+    )
+
+
+class AmbiguousEdgesProposerPolicy:
+    """Publish only the first three locally ambiguous rows."""
+
+    def __init__(self, station: Station, *, reverse: bool = False) -> None:
+        self.station = station
+        self.partner = _partner(station)
         self.reverse = reverse
         self._candidate: tuple[Pair, ...] | None = None
-        self._ambiguous_items: tuple[int, ...] | None = None
+        self._published_items: tuple[int, ...] | None = None
 
     def __call__(self, observation: Observation) -> WorldAction:
         if self._candidate is None:
             candidates = perfect_matchings(observation.private_pairs)
             self._candidate = candidates[-1] if self.reverse else candidates[0]
-            self._ambiguous_items = tuple(
+            ambiguous = tuple(
                 item
                 for item in range(6)
                 if len({candidate[item][1] for candidate in candidates}) > 1
             )
-        if observation.round <= 3 and observation.remaining[self.station.value]["writes"]:
-            item = self._ambiguous_items[(observation.round - 1) % len(self._ambiguous_items)] if self._ambiguous_items else 0
-            target = dict(self._candidate)[item]
-            return WriteAction(
-                action="write",
-                register=(observation.round - 1) % 2,
-                symbol=target % 4,
+            self._published_items = ambiguous[:3]
+        partner_candidate = _complete_matching(observation.layers[self.partner.value])
+        if partner_candidate is None:
+            for item in self._published_items or ():
+                if observation.layers[self.station.value][item] is None:
+                    return SetAction(
+                        action="set",
+                        item=item,
+                        target=dict(self._candidate)[item],
+                    )
+            return WaitAction(action="wait")
+        compatible = frozenset(partner_candidate).intersection(observation.private_pairs)
+        revised = _matching_containing(
+            observation.private_pairs,
+            compatible,
+            reverse=self.reverse,
+        )
+        return _repair_or_finish(
+            observation,
+            self.station,
+            revised,
+            reverse=self.reverse,
+        )
+
+
+class AmbiguousEdgesReceiverPolicy:
+    """Solve from the proposer-visible ambiguous-edge subset."""
+
+    def __init__(self, station: Station, *, reverse: bool = False) -> None:
+        self.station = station
+        self.partner = _partner(station)
+        self.reverse = reverse
+        self._correction: tuple[Pair, ...] | None = None
+
+    def __call__(self, observation: Observation) -> WorldAction:
+        visible = {
+            (item, target)
+            for item, target in enumerate(observation.layers[self.partner.value])
+            if target is not None
+        }
+        if self._correction is None and visible:
+            accepted = visible.intersection(observation.private_pairs)
+            self._correction = _matching_containing(
+                observation.private_pairs,
+                accepted,
+                reverse=self.reverse,
             )
-        # Only the first three ambiguous rows are published.  This is a
-        # deliberate compact-summary adversary, not a hidden full-mask dump.
-        for item in (self._ambiguous_items or ())[:3]:
-            target = dict(self._candidate)[item]
-            if observation.layers[self.station.value][item] is None:
-                return SetAction(action="set", item=item, target=target)
-        return FinishAction(action="finish")
+        if self._correction is None:
+            return WaitAction(action="wait")
+        partner_candidate = _complete_matching(observation.layers[self.partner.value])
+        if partner_candidate is not None and frozenset(partner_candidate).issubset(
+            observation.private_pairs
+        ):
+            return _repair_or_finish(
+                observation,
+                self.station,
+                partner_candidate,
+                reverse=self.reverse,
+            )
+        return _repair_or_wait(
+            observation,
+            self.station,
+            self._correction,
+            reverse=self.reverse,
+        )
 
 
 def centralized_ambiguous_edges(
@@ -415,9 +628,13 @@ def centralized_ambiguous_edges(
     proposer: Station,
 ) -> tuple[Policy, Policy]:
     del codebook
+    reverse = proposer is Station.Y
+    proposer_policy = AmbiguousEdgesProposerPolicy(proposer, reverse=reverse)
+    receiver_policy = AmbiguousEdgesReceiverPolicy(_partner(proposer), reverse=reverse)
     return (
-        AmbiguousEdgesPolicy(Station.X, reverse=proposer is Station.Y),
-        AmbiguousEdgesPolicy(Station.Y, reverse=proposer is Station.X),
+        (proposer_policy, receiver_policy)
+        if proposer is Station.X
+        else (receiver_policy, proposer_policy)
     )
 
 
@@ -426,20 +643,189 @@ def centralized_compressed_constraints(
     *,
     sender: Station,
 ) -> tuple[Policy, Policy]:
-    # The same public codebook is used with the alternate write codec style;
-    # this is a compact row-domain summary rather than a full-state transcript.
-    return distributed_mask_exchange(codebook, style=1, reverse_assignment=False) if sender is Station.X else distributed_mask_exchange(codebook, style=1, reverse_assignment=True)
+    constraints = _constraint_codebook_for_masks(codebook.masks)
+    reverse = sender is Station.Y
+    sender_policy = CompressedConstraintPolicy(
+        sender,
+        constraints,
+        sender=True,
+        reverse=reverse,
+    )
+    receiver = _partner(sender)
+    receiver_policy = CompressedConstraintPolicy(
+        receiver,
+        constraints,
+        sender=False,
+        reverse=reverse,
+    )
+    return (
+        (sender_policy, receiver_policy)
+        if sender is Station.X
+        else (receiver_policy, sender_policy)
+    )
 
 
-class ProposalCorrectionPolicy(MaskExchangePolicy):
-    """One-way proposal plus receiver correction through the public layer."""
+class CompressedConstraintPolicy:
+    """One-way row-domain summary followed by receiver-side solving."""
+
+    def __init__(
+        self,
+        station: Station,
+        codebook: ConstraintCodebook,
+        *,
+        sender: bool,
+        reverse: bool = False,
+    ) -> None:
+        self.station = station
+        self.partner = _partner(station)
+        self.codebook = codebook
+        self.sender = sender
+        self.reverse = reverse
+        self._sent_code: int | None = None
+        self._write_events: list[tuple[int, int, int]] = []
+        self._last_counters = (0, 0)
+        self._target: tuple[Pair, ...] | None = None
+
+    def _record_partner_writes(self, observation: Observation) -> None:
+        bank = observation.registers[self.partner.value]
+        counters = tuple(register.counter for register in bank)
+        for register, (before, after) in enumerate(zip(self._last_counters, counters)):
+            if after > before:
+                for _ in range(after - before):
+                    self._write_events.append(
+                        (observation.round, register, bank[register].symbol or 0)
+                    )
+        self._last_counters = counters
+
+    def _write_action(self, observation: Observation) -> WorldAction | None:
+        if not self.sender:
+            return None
+        if self._sent_code is None:
+            self._sent_code = self.codebook.encode(observation.private_pairs)
+        events = self.codebook.events_for_code(self._sent_code)
+        for selected_round, register, symbol in events:
+            if observation.round == selected_round:
+                return WriteAction(action="write", register=register, symbol=symbol)
+        if observation.round <= max(round_number for round_number, _, _ in events):
+            return WaitAction(action="wait")
+        return None
 
     def __call__(self, observation: Observation) -> WorldAction:
-        # The inherited state machine serializes the proposer mask in the
-        # bounded register transcript.  The receiving station computes the
-        # compatible correction and the proposer then follows its public
-        # assignment layer; no hidden target is supplied.
-        return super().__call__(observation)
+        self._record_partner_writes(observation)
+        write = self._write_action(observation)
+        if write is not None:
+            return write
+        if self.sender:
+            partner_candidate = _complete_matching(observation.layers[self.partner.value])
+            if partner_candidate is not None:
+                self._target = _intersection_matching(
+                    observation.private_pairs,
+                    partner_candidate,
+                )
+        elif self._target is None:
+            code = self.codebook.decode_observed(
+                self._write_events,
+                final=observation.round >= 8,
+            )
+            if code is not None:
+                summary_edges = _edges_from_row_domains(self.codebook.decode_signature(code))
+                self._target = _intersection_matching(
+                    observation.private_pairs,
+                    summary_edges,
+                )
+        if self._target is not None:
+            return _repair_or_finish(
+                observation,
+                self.station,
+                self._target,
+                reverse=self.reverse,
+            )
+        mirrored = _mirror_compatible_partner_entry(
+            observation,
+            self.station,
+            reverse=self.reverse,
+        )
+        return mirrored if mirrored is not None else WaitAction(action="wait")
+
+
+class ProposalCorrectionProposerPolicy:
+    """Publish partial work, then own the revision and final lock."""
+
+    def __init__(self, station: Station, *, reverse: bool = False) -> None:
+        self.station = station
+        self.partner = _partner(station)
+        self.reverse = reverse
+        self._candidate: tuple[Pair, ...] | None = None
+        self._partial_items: tuple[int, ...] = (5, 4) if reverse else (0, 1)
+
+    def __call__(self, observation: Observation) -> WorldAction:
+        if self._candidate is None:
+            candidates = perfect_matchings(observation.private_pairs)
+            self._candidate = candidates[-1] if self.reverse else candidates[0]
+        partner_candidate = _complete_matching(observation.layers[self.partner.value])
+        if partner_candidate is None:
+            for item in self._partial_items:
+                if observation.layers[self.station.value][item] is None:
+                    return SetAction(
+                        action="set",
+                        item=item,
+                        target=dict(self._candidate)[item],
+                    )
+            return WaitAction(action="wait")
+        conflicts = frozenset(partner_candidate).intersection(observation.private_pairs)
+        revised = _matching_containing(
+            observation.private_pairs,
+            conflicts,
+            reverse=self.reverse,
+        )
+        return _repair_or_finish(
+            observation,
+            self.station,
+            revised,
+            reverse=self.reverse,
+        )
+
+
+class ProposalCorrectionReceiverPolicy:
+    """Report proposal conflicts with a public correction matching."""
+
+    def __init__(self, station: Station, *, reverse: bool = False) -> None:
+        self.station = station
+        self.partner = _partner(station)
+        self.reverse = reverse
+        self._correction: tuple[Pair, ...] | None = None
+
+    def __call__(self, observation: Observation) -> WorldAction:
+        visible = {
+            (item, target)
+            for item, target in enumerate(observation.layers[self.partner.value])
+            if target is not None
+        }
+        if self._correction is None and visible:
+            accepted = visible.intersection(observation.private_pairs)
+            self._correction = _matching_containing(
+                observation.private_pairs,
+                accepted,
+                reverse=self.reverse,
+            )
+        if self._correction is None:
+            return WaitAction(action="wait")
+        partner_candidate = _complete_matching(observation.layers[self.partner.value])
+        if partner_candidate is not None and frozenset(partner_candidate).issubset(
+            observation.private_pairs
+        ):
+            return _repair_or_finish(
+                observation,
+                self.station,
+                partner_candidate,
+                reverse=self.reverse,
+            )
+        return _repair_or_wait(
+            observation,
+            self.station,
+            self._correction,
+            reverse=self.reverse,
+        )
 
 
 def centralized_proposal_correction(
@@ -447,13 +833,89 @@ def centralized_proposal_correction(
     *,
     proposer: Station,
 ) -> tuple[Policy, Policy]:
-    # The proposer sends the private mask; the other station computes the
-    # correction and its public layer becomes the sole final proposal.
-    receiver = _partner(proposer)
-    proposer_policy = ProposalCorrectionPolicy(proposer, codebook, sender=True)
-    receiver_policy = ProposalCorrectionPolicy(receiver, codebook, sender=False)
+    del codebook
+    reverse = proposer is Station.Y
+    proposer_policy = ProposalCorrectionProposerPolicy(proposer, reverse=reverse)
+    receiver_policy = ProposalCorrectionReceiverPolicy(_partner(proposer), reverse=reverse)
     return (
         (proposer_policy, receiver_policy)
         if proposer is Station.X
         else (receiver_policy, proposer_policy)
+    )
+
+
+class MutualConsensusPolicy(MaskExchangePolicy):
+    """Symmetric exchange followed by a public-layer commit handshake.
+
+    Unlike :class:`MaskExchangePolicy`, neither station independently fills
+    its complete target and locks immediately. Each station fills the first
+    half of its target, waits for the partner's matching first half, then
+    fills the second half and waits for a complete public commit.
+    """
+
+    ASSIGNMENT_PHASES = ((0, 1, 2), (3, 4, 5))
+
+    def _consensus_action(self, observation: Observation) -> WorldAction:
+        assert self._target is not None
+        target_by_item = dict(self._target)
+        own_layer = observation.layers[self.station.value]
+        partner_layer = observation.layers[self.partner.value]
+        for item, current in enumerate(own_layer):
+            if current is not None and current != target_by_item[item]:
+                return UnsetAction(action="unset", item=item)
+        used = {target for target in own_layer if target is not None}
+        for phase_index, phase in enumerate(self.ASSIGNMENT_PHASES):
+            for item in phase:
+                if own_layer[item] is None and target_by_item[item] not in used:
+                    return SetAction(action="set", item=item, target=target_by_item[item])
+            if any(own_layer[item] is None for item in phase):
+                return WaitAction(action="wait")
+            if phase_index == 0 and any(
+                partner_layer[item] != target_by_item[item] for item in phase
+            ):
+                return WaitAction(action="wait")
+        partner_candidate = _complete_matching(partner_layer)
+        if partner_candidate == self._target and all(
+            own_layer[item] == target_by_item[item] for item in range(6)
+        ):
+            return FinishAction(action="finish")
+        return WaitAction(action="wait")
+
+    def __call__(self, observation: Observation) -> WorldAction:
+        self._record_partner_writes(observation)
+        if self._target is None:
+            self._decoded_partner = self.codebook.decode_observed(
+                self._write_events,
+                style=self.style,
+                final=observation.round >= 8,
+            )
+            if self._decoded_partner is not None:
+                self._target = _intersection_matching(
+                    observation.private_pairs,
+                    self._decoded_partner,
+                )
+            if self._target is None:
+                partner_candidate = _complete_matching(observation.layers[self.partner.value])
+                if partner_candidate is not None:
+                    self._target = _intersection_matching(
+                        observation.private_pairs,
+                        partner_candidate,
+                    )
+        write = self._write_action(observation)
+        if write is not None:
+            return write
+        if self._target is not None:
+            return self._consensus_action(observation)
+        mirrored = _mirror_compatible_partner_entry(
+            observation,
+            self.station,
+            reverse=self.reverse_assignment,
+        )
+        return mirrored if mirrored is not None else WaitAction(action="wait")
+
+
+def distributed_mutual_consensus(codebook: MaskCodebook) -> tuple[Policy, Policy]:
+    return (
+        MutualConsensusPolicy(Station.X, codebook),
+        MutualConsensusPolicy(Station.Y, codebook),
     )

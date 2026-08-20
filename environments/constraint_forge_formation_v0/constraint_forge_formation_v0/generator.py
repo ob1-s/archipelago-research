@@ -15,6 +15,48 @@ TARGET_IDS = tuple(range(N))
 FACTORS = tuple(range(N))
 
 
+def _cycle_permutations() -> tuple[tuple[int, ...], ...]:
+    """Return every directed six-cycle on the item IDs."""
+
+    cycles: list[tuple[int, ...]] = []
+    for tail in permutations(ITEM_IDS[1:]):
+        sequence = (ITEM_IDS[0], *tail)
+        cycle = [0] * N
+        for index, item in enumerate(sequence):
+            cycle[item] = sequence[(index + 1) % N]
+        cycles.append(tuple(cycle))
+    return tuple(cycles)
+
+
+_CYCLE_PERMUTATIONS = _cycle_permutations()
+
+
+def _compose(left: tuple[int, ...], right: tuple[int, ...]) -> tuple[int, ...]:
+    return tuple(left[right[index]] for index in ITEM_IDS)
+
+
+@lru_cache(maxsize=100_000)
+def _cyclic_orientation_count(
+    first: tuple[int, ...], second: tuple[int, ...]
+) -> int:
+    """Count cyclic generators whose powers are two observed factor gaps."""
+
+    count = 0
+    for cycle in _CYCLE_PERMUTATIONS:
+        power = tuple(ITEM_IDS)
+        first_gap: int | None = None
+        second_gap: int | None = None
+        for gap in range(1, N):
+            power = _compose(cycle, power)
+            if power == first:
+                first_gap = gap
+            if power == second:
+                second_gap = gap
+        if first_gap is not None and second_gap is not None and first_gap != second_gap:
+            count += 1
+    return count
+
+
 class _SeedStream:
     """Counter-based deterministic stream with unbiased finite sampling."""
 
@@ -81,13 +123,14 @@ def perfect_matchings(mask: Iterable[tuple[int, int]]) -> tuple[tuple[Pair, ...]
 def _matching_decomposition_counts(
     canonical_mask: tuple[Pair, ...],
 ) -> tuple[tuple[Pair, ...], tuple[tuple[Pair, ...], ...], tuple[int, ...]]:
-    """Count factor decompositions containing each local matching.
+    """Count only decompositions compatible with V0's cyclic factorization.
 
-    A generated private mask is a union of three edge-disjoint perfect
-    matchings.  Enumerating those decompositions is the strongest finite,
-    generator-aware prior available without observing the partner mask: the
-    target factor is uniformly one of the selected factors, while matchings
-    that cannot occur as a factor receive zero support.
+    An arbitrary 3-edge-coloring of the observed mask is not a generator
+    state.  For each disjoint triple of local perfect matchings, this routine
+    checks whether the two relative permutations are distinct powers of one
+    common directed six-cycle.  Each compatible cyclic orientation is one
+    equal-weight family of latent ``rho``/``sigma`` states; target-factor
+    choices are then uniform over the three observed factors.
     """
 
     candidates = perfect_matchings(canonical_mask)
@@ -104,12 +147,25 @@ def _matching_decomposition_counts(
             for left, right in combinations(indexes, 2)
         ):
             continue
-        decomposition = tuple(
-            pair for index in indexes for pair in candidates[index]
-        )
+        selected = tuple(candidates[index] for index in indexes)
+        orientation_count = 0
+        for base_index, base in enumerate(selected):
+            base_inverse = {target: item for item, target in base}
+            other = [selected[index] for index in range(3) if index != base_index]
+            normalized = tuple(
+                tuple(
+                    base_inverse[dict(match)[item]]
+                    for item in ITEM_IDS
+                )
+                for match in other
+            )
+            orientation_count += _cyclic_orientation_count(*normalized)
+        if orientation_count == 0:
+            continue
+        decomposition = tuple(pair for match in selected for pair in match)
         decompositions.append(decomposition)
         for index in indexes:
-            counts[index] += 1
+            counts[index] += orientation_count
     return candidates, tuple(decompositions), tuple(counts)
 
 

@@ -1,9 +1,11 @@
 from constraint_forge_formation_v0.generator import generate_job
+from constraint_forge_formation_v0.events import EventKind
 from constraint_forge_formation_v0.models import Station
 from constraint_forge_formation_v0.rack import (
     FilmFrame,
     RackState,
     apply_memory_phases,
+    full_rack_view,
     hidden_rack_view,
     retain_film,
 )
@@ -48,6 +50,21 @@ def test_film_is_immutable_non_recursive_and_rack_is_canonical() -> None:
     assert result.final_rack_x.films == tuple(
         sorted(result.final_rack_x.films, key=lambda item: (item.content_hash, item.handle))
     )
+    film_payload = result.final_rack_x.films[0].model_dump(mode="json")
+    rack_payload = result.final_rack_x.serialization_payload
+    visible_payload = full_rack_view(result.final_rack_x).model_dump(mode="json")
+    assert "source_job_id" not in film_payload
+    assert "source_job_id" not in rack_payload["films"][0]
+    assert "source_job_id" not in visible_payload["full_films"][0]
+    assert b"source_job_id" not in result.final_rack_x.serialization_bytes
+    retained = [
+        event
+        for event in result.event_log.events
+        if event.event_kind is EventKind.RETAINED
+    ]
+    assert retained
+    assert retained[0].detail["source_job_id"] == "j"
+    assert result.memory_mutations_x[-1].source_job_id == "j"
 
 
 def test_hidden_rack_sentinel_is_nondestructive() -> None:

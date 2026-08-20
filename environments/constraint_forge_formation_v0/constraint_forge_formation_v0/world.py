@@ -1233,6 +1233,11 @@ def run_job(
                 rack_hash_after=retention.rack_hash_after,
                 fragment_hash=retention.fragment_hash,
                 local_window_bounds=retention.local_window_bounds,
+                detail=(
+                    {"source_job_id": job_id}
+                    if retention.legal or retain_start is not None
+                    else {}
+                ),
             )
             if retention.legal:
                 log = log.append(
@@ -1246,6 +1251,7 @@ def run_job(
                     rack_hash_after=retention.rack_hash_after,
                     fragment_hash=retention.fragment_hash,
                     local_window_bounds=retention.local_window_bounds,
+                    detail={"source_job_id": job_id},
                 )
 
     failure_reason = None
