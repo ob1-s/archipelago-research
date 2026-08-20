@@ -4,21 +4,31 @@ import asyncio
 import json
 from contextlib import asynccontextmanager
 
+import verifiers.v1 as vf
 from verifiers.v1 import AssistantMessage
 
+from constraint_forge_formation_v0.actions import FinishAction, SetAction
 from constraint_forge_behavioral_runner_v0.failures import (
     BehavioralCallFailure,
     FailureClass,
     FailureEvidence,
 )
-from constraint_forge_behavioral_runner_v0.harness import ConstraintForgeTextHarness
+from constraint_forge_behavioral_runner_v0.harness import (
+    TEXT_PROGRAM_SOURCE,
+    ConstraintForgeTextHarness,
+)
 from constraint_forge_behavioral_runner_v0.requests import memory_request
 from constraint_forge_behavioral_runner_v0.runner import run_behavioral_sequence
 from constraint_forge_behavioral_runner_v0.taskset import (
+    ConstraintForgeBehavioralEnv,
+    ConstraintForgeBehavioralEnvConfig,
     ConstraintForgeBehavioralTaskset,
     ConstraintForgeBehavioralTasksetConfig,
 )
-from constraint_forge_formation_v0.rack import RackState, full_rack_view
+from constraint_forge_formation_v0.generator import generate_job
+from constraint_forge_formation_v0.models import Station
+from constraint_forge_formation_v0.rack import full_rack_view
+from constraint_forge_formation_v0.world import run_job
 
 
 class _FakeSegment:
@@ -27,13 +37,23 @@ class _FakeSegment:
 
 
 class _FakeInteraction:
-    def __init__(self, actor, history: list[str]):
+    def __init__(self, actor):
         self.actor = actor
-        self.history = history
+        self.history: list[str] = []
         self.trace = type("FakeTrace", (), {})()
 
+    def _prepare_prompt(self, payload: dict) -> None:
+        epoch = payload["context_epoch"]
+        if self.actor.active_epoch != epoch:
+            self.actor.active_epoch = epoch
+            self.history = []
+            self.actor.contexts.append(self.history)
+
     async def turn(self, prompt: str):
-        self.history.append(prompt)
+        if self.actor.delay:
+            await asyncio.sleep(self.actor.delay)
+        payload = json.loads(prompt)
+        self._prepare_prompt(payload)
         self.actor.total_calls += 1
         if self.actor.fail_class is not None and self.actor.total_calls == 1:
             evidence = FailureEvidence(
@@ -49,7 +69,7 @@ class _FakeInteraction:
                 detail="fake provider failure",
             )
             raise BehavioralCallFailure(evidence)
-        payload = json.loads(prompt)
+        self.history.append(prompt)
         if payload["phase"] == "round":
             role = payload["role"]
             layer = payload["observation"]["layers"][role]
@@ -84,19 +104,20 @@ class _FakeActor:
         self.fail_class = fail_class
         self.total_calls = 0
         self.contexts: list[list[str]] = []
+        self.active_epoch: int | None = None
+        self.interaction_count = 0
 
     @asynccontextmanager
     async def interaction(self, task):
         del task
-        history: list[str] = []
-        self.contexts.append(history)
-        if self.delay:
-            await asyncio.sleep(self.delay)
-        yield _FakeInteraction(self, history)
+        self.interaction_count += 1
+        yield _FakeInteraction(self)
 
 
 class _MalformedInteraction(_FakeInteraction):
     async def turn(self, prompt: str):
+        payload = json.loads(prompt)
+        self._prepare_prompt(payload)
         if self.actor.malformed:
             self.actor.malformed = False
             self.history.append(prompt)
@@ -113,9 +134,8 @@ class _MalformedOnceActor(_FakeActor):
     @asynccontextmanager
     async def interaction(self, task):
         del task
-        history: list[str] = []
-        self.contexts.append(history)
-        yield _MalformedInteraction(self, history)
+        self.interaction_count += 1
+        yield _MalformedInteraction(self)
 
 
 def _task():
@@ -129,9 +149,34 @@ def _task():
 
 
 def _targets(task):
-    from constraint_forge_formation_v0.generator import generate_job
-
     return [dict(generate_job(seed).target_matching) for seed in task.data.job_seeds]
+
+
+def _scripted_policy(job, station):
+    target = dict(job.target_matching)
+
+    def policy(observation):
+        for item, current in enumerate(observation.layers[station.value]):
+            if current is None:
+                return SetAction(action="set", item=item, target=target[item])
+        return FinishAction(action="finish")
+
+    return policy
+
+
+def _distinct_seeded_racks():
+    job = generate_job(30)
+    result = run_job(
+        job,
+        run_id="rack-seed",
+        lineage_id="rack-seed",
+        job_id="rack-seed-job",
+        policy_x=_scripted_policy(job, Station.X),
+        policy_y=_scripted_policy(job, Station.Y),
+        memory_policy_x=lambda *_: (None, 1),
+        memory_policy_y=lambda *_: (None, 1),
+    )
+    return result.final_rack_x, result.final_rack_y
 
 
 def test_fake_24_job_dyad_is_complete_and_has_no_live_calls() -> None:
@@ -148,6 +193,7 @@ def test_fake_24_job_dyad_is_complete_and_has_no_live_calls() -> None:
     assert result.handoff.completed_jobs == 24
     assert result.live_model_calls == 0
     assert len(x.contexts) == len(y.contexts) == 24
+    assert x.interaction_count == y.interaction_count == 1
     assert result.ledger.verify().valid
     assert result.handoff.final_rack_x_bytes != result.handoff.final_rack_y_bytes
     for role in ("X", "Y"):
@@ -158,21 +204,24 @@ def test_fake_24_job_dyad_is_complete_and_has_no_live_calls() -> None:
 
 
 def test_requests_are_sealed_from_one_prestate_and_completion_order_is_irrelevant() -> None:
-    async def run():
+    async def run(delay_x: float, delay_y: float):
         task = _task()
         targets = _targets(task)
-        x = _FakeActor(targets, delay=0.003)
-        y = _FakeActor(targets, delay=0.0)
+        x = _FakeActor(targets, delay=delay_x)
+        y = _FakeActor(targets, delay=delay_y)
         result = await run_behavioral_sequence(task.data, actor_x=x, actor_y=y, task=task)
         return result, x, y
 
-    result, x, y = asyncio.run(run())
+    result, x, y = asyncio.run(run(0.003, 0.0))
+    reversed_result, _, _ = asyncio.run(run(0.0, 0.003))
     x_requests = [json.loads(prompt) for context in x.contexts for prompt in context]
     y_requests = [json.loads(prompt) for context in y.contexts for prompt in context]
     x_hashes = {(p["job_index"], p["round"], p["phase"]): p["pre_state_hash"] for p in x_requests if p["phase"] == "round"}
     y_hashes = {(p["job_index"], p["round"], p["phase"]): p["pre_state_hash"] for p in y_requests if p["phase"] == "round"}
     assert x_hashes == y_hashes
     assert result.handoff.accepted
+    assert result.handoff.serialization_bytes == reversed_result.handoff.serialization_bytes
+    assert result.ledger.final_hash == reversed_result.ledger.final_hash
 
 
 def test_job_context_resets_but_role_lifecycle_and_rack_sequence_continue() -> None:
@@ -198,8 +247,9 @@ def test_job_context_resets_but_role_lifecycle_and_rack_sequence_continue() -> N
 
 
 def test_x_and_y_receive_only_their_role_local_rack() -> None:
-    x_view = full_rack_view(RackState())
-    y_view = full_rack_view(RackState())
+    rack_x, rack_y = _distinct_seeded_racks()
+    x_view = full_rack_view(rack_x)
+    y_view = full_rack_view(rack_y)
     x_request = memory_request(
         role="X",
         phase="eviction",
@@ -225,6 +275,14 @@ def test_x_and_y_receive_only_their_role_local_rack() -> None:
     assert "rack_y" not in x_request.prompt_text
     assert x_request.visible_payload["role"] == "X"
     assert y_request.visible_payload["role"] == "Y"
+    for film in rack_y.films:
+        assert film.handle not in x_request.prompt_text
+        assert film.content_hash not in x_request.prompt_text
+    for film in rack_x.films:
+        assert film.handle not in y_request.prompt_text
+        assert film.content_hash not in y_request.prompt_text
+    assert "source_job_id" not in x_request.prompt_text
+    assert "source_job_id" not in y_request.prompt_text
 
 
 def test_safe_preinference_retry_has_one_behavioral_sample() -> None:
@@ -260,6 +318,7 @@ def test_ambiguous_delivery_aborts_and_sibling_output_is_audit_only() -> None:
     assert not result.handoff.accepted
     assert result.handoff.completed_jobs == 0
     assert any(event.status.value == "audit_only" for event in result.ledger.events)
+    assert sum(event.status.value == "audit_only" for event in result.ledger.events) == 1
     assert all(
         event.world_event_sequence_start is None
         for event in result.ledger.events
@@ -304,7 +363,17 @@ def test_malformed_response_is_behavioral_data_and_is_not_retried() -> None:
 
 
 def test_minimal_harness_forbids_tools_and_uses_native_session_surface() -> None:
+    assert issubclass(ConstraintForgeBehavioralEnv, vf.Env)
+    assert issubclass(ConstraintForgeTextHarness, vf.Harness)
     assert ConstraintForgeTextHarness.SUPPORTS_MCP is False
     assert ConstraintForgeTextHarness.SUPPORTS_RESUME is True
     assert ConstraintForgeTextHarness.EXECUTES_CODE is False
     assert ConstraintForgeTextHarness.NEEDS_CONTAINER is False
+    assert "max_retries=0" in TEXT_PROGRAM_SOURCE
+    assert "stream=True" not in TEXT_PROGRAM_SOURCE
+    assert "mcp" not in TEXT_PROGRAM_SOURCE.lower()
+    assert "tool" not in TEXT_PROGRAM_SOURCE.lower()
+    config = ConstraintForgeBehavioralEnvConfig()
+    assert config.retries.max_retries == 0
+    assert config.x.retries.max_retries == 0
+    assert config.y.retries.max_retries == 0

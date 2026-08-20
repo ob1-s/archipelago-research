@@ -8,11 +8,9 @@ from typing import TYPE_CHECKING, Literal
 
 from constraint_forge_formation_v0.canonical import sha256_bytes, stable_hash
 from constraint_forge_formation_v0.generator import generate_job
-from constraint_forge_formation_v0.models import Station
 from constraint_forge_formation_v0.rack import empty_rack
 from constraint_forge_formation_v0.session import (
     ConstraintForgeJobSession,
-    MemoryOffer,
     MemorySubmitResult,
     ParseClassification,
     RoundOffer,
@@ -428,16 +426,6 @@ async def _dispatch_pair(
                 status=AuditStatus.AUDIT_ONLY,
             )
         error = errors[0]
-        for record in successes:
-            _append_success_audit(
-                ledger,
-                record,
-                parse_classification="audit_only",
-                post_state_hash=record.pre_state_hash,
-                event_start=None,
-                event_end=None,
-                status=AuditStatus.AUDIT_ONLY,
-            )
         raise error
     return normalized[0].record, normalized[1].record  # type: ignore[return-value]
 
@@ -527,25 +515,28 @@ async def run_behavioral_sequence(
     abort_class: str | None = None
 
     try:
-        for job_index, seed in enumerate(data.job_seeds):
-            job_id = _job_id(data.sequence_id, job_index)
-            job = generate_job(seed)
-            session = ConstraintForgeJobSession.open(
-                job,
-                run_id=run_id,
-                lineage_id=dyad_id,
-                job_id=job_id,
-                rack_x=rack_x,
-                rack_y=rack_y,
-                intervention=_intervention_at(data, job_index),
-                read_only_probe=_read_only_at(data, job_index),
-            )
-            # A new interaction is the supported v1 context boundary.  The
-            # underlying _EpisodeAgent objects (and therefore role lifecycle
-            # identity/config) remain the same across this whole loop.
-            async with actor_x.interaction(task) as interaction_x:
-                async with actor_y.interaction(task) as interaction_y:
-                    traces.extend((_InteractionTrace(interaction_x.trace), _InteractionTrace(interaction_y.trace)))
+        # The episode-owned agents, interactions, traces, and harness sessions
+        # span the whole dyad.  The package-local HarnessSession resets only
+        # its provider-visible prompt history when the request epoch changes;
+        # the v1 Trace remains the append-only audit record.
+        async with actor_x.interaction(task) as interaction_x:
+            async with actor_y.interaction(task) as interaction_y:
+                traces.extend(
+                    (_InteractionTrace(interaction_x.trace), _InteractionTrace(interaction_y.trace))
+                )
+                for job_index, seed in enumerate(data.job_seeds):
+                    job_id = _job_id(data.sequence_id, job_index)
+                    job = generate_job(seed)
+                    session = ConstraintForgeJobSession.open(
+                        job,
+                        run_id=run_id,
+                        lineage_id=dyad_id,
+                        job_id=job_id,
+                        rack_x=rack_x,
+                        rack_y=rack_y,
+                        intervention=_intervention_at(data, job_index),
+                        read_only_probe=_read_only_at(data, job_index),
+                    )
                     while not session.terminal:
                         offer: RoundOffer = session.begin_round()
                         request_x = round_request(
@@ -695,6 +686,9 @@ async def run_behavioral_sequence(
 
     seal_status = AuditSealStatus.ABORTED if abort_class is not None else AuditSealStatus.COMPLETED
     seal = ledger.seal(seal_status)
+    live_model_calls = sum(
+        len(getattr(interaction.trace, "calls", ())) for interaction in traces
+    )
     handoff = FormationHandoffV0(
         run_id=run_id,
         dyad_id=dyad_id,
@@ -719,7 +713,7 @@ async def run_behavioral_sequence(
     return SequenceResult(
         handoff=handoff,
         audit_event_count=len(ledger.events),
-        live_model_calls=0,
+        live_model_calls=live_model_calls,
         traces=tuple(traces),
         ledger=ledger,
     )

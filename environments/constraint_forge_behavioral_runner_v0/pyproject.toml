@@ -6,11 +6,20 @@ version = "0.1.0"
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "verifiers==0.3.0",
+    "constraint-forge-formation-v0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv.sources]
+constraint-forge-formation-v0 = { path = "../constraint_forge_formation_v0" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["constraint_forge_behavioral_runner_v0"]

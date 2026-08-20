@@ -90,7 +90,8 @@ class ConstraintForgeBehavioralTask(
     async def finalize(self, trace: vf.Trace, runtime: vf.Runtime) -> None:
         del runtime
         info = trace.info.setdefault("constraint_forge_behavioral_runner", {})
-        info["live_model_calls"] = 0
+        info["live_model_calls"] = len(trace.calls)
+        trace.state.live_model_calls = len(trace.calls)
         info["completed"] = trace.state.completed
         info["accepted"] = trace.state.accepted
         info["aborted"] = trace.state.aborted
@@ -150,11 +151,14 @@ class ConstraintForgeBehavioralEnvConfig(vf.EnvConfig):
     x: vf.AgentConfig = vf.AgentConfig(
         harness=ConstraintForgeTextHarnessConfig(),
         max_turns=1024,
+        retries=vf.RetryConfig(max_retries=0),
     )
     y: vf.AgentConfig = vf.AgentConfig(
         harness=ConstraintForgeTextHarnessConfig(),
         max_turns=1024,
+        retries=vf.RetryConfig(max_retries=0),
     )
+    retries: vf.RetryConfig = vf.RetryConfig(max_retries=0)
     max_concurrent_agents: StrictInt = Field(default=2, ge=1)
 
 
@@ -181,7 +185,20 @@ class ConstraintForgeBehavioralEnv(vf.Env[ConstraintForgeBehavioralEnvConfig]):
             interaction.trace.state.aborted = result.handoff.aborted
             interaction.trace.state.completed_jobs = result.handoff.completed_jobs
             interaction.trace.state.handoff_hash = result.handoff.content_hash
-            interaction.trace.state.live_model_calls = 0
+            interaction.trace.state.live_model_calls = result.live_model_calls
+            runner_info = interaction.trace.info.setdefault(
+                "constraint_forge_behavioral_runner", {}
+            )
+            runner_info.update(
+                {
+                    "live_model_calls": result.live_model_calls,
+                    "completed": interaction.trace.state.completed,
+                    "accepted": interaction.trace.state.accepted,
+                    "aborted": interaction.trace.state.aborted,
+                    "completed_jobs": interaction.trace.state.completed_jobs,
+                    "handoff_hash": result.handoff.content_hash,
+                }
+            )
             interaction.trace.info["formation_handoff_v0"] = result.handoff.model_dump(
                 mode="json"
             )
