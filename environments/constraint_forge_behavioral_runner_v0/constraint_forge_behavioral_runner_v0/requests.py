@@ -10,14 +10,12 @@ from constraint_forge_formation_v0.canonical import canonical_bytes, sha256_byte
 from constraint_forge_formation_v0.models import StrictModel
 from constraint_forge_formation_v0.rack import FilmFrame, RackView
 from constraint_forge_formation_v0.world import Observation
+from .protocol import model_instructions
 
 
-FROZEN_REQUEST_INSTRUCTIONS = (
-    "Return exactly one compact JSON object and no surrounding prose. "
-    "For a round choose one world action from the available schema. "
-    "For eviction choose evict or keep_unchanged. For retention choose retain "
-    "with a six-round start_round or keep_unchanged."
-)
+# Kept as a public constant for manifest/tests.  The role-specific constructors
+# render the exact station label into this frozen text before hashing it.
+FROZEN_REQUEST_INSTRUCTIONS = model_instructions("X").replace("station X", "station {X|Y}")
 
 
 class BehavioralRequest(StrictModel):
@@ -38,7 +36,34 @@ class BehavioralRequest(StrictModel):
 
     @property
     def visible_payload(self) -> dict:
-        """The exact role-local payload sent as the user message."""
+        """The exact role-local payload sent as the user message.
+
+        Job identifiers, context epochs, state hashes, schema/version labels, and
+        all other audit metadata deliberately remain fields on the referee object
+        but are absent from this payload.
+        """
+
+        return {
+            "role": self.role,
+            "phase": self.phase,
+            "round": self.round,
+            "observation": self.observation.model_dump(mode="json")
+            if self.observation is not None
+            else None,
+            "rack": self.rack.model_dump(mode="json") if self.rack is not None else None,
+            "frames": [frame.model_dump(mode="json") for frame in self.frames],
+            "instructions": self.instructions,
+        }
+
+    @property
+    def model_visible_payload(self) -> dict:
+        """Explicit alias used by boundary tests and request reviewers."""
+
+        return self.visible_payload
+
+    @property
+    def audit_payload(self) -> dict:
+        """Internal request metadata; never serialized into ``prompt_text``."""
 
         return {
             "schema_version": self.schema_version,
@@ -49,12 +74,7 @@ class BehavioralRequest(StrictModel):
             "job_id": self.job_id,
             "context_epoch": self.context_epoch,
             "pre_state_hash": self.pre_state_hash,
-            "observation": self.observation.model_dump(mode="json")
-            if self.observation is not None
-            else None,
-            "rack": self.rack.model_dump(mode="json") if self.rack is not None else None,
-            "frames": [frame.model_dump(mode="json") for frame in self.frames],
-            "instructions": self.instructions,
+            "request_hash": self.request_hash,
         }
 
     @property
@@ -84,6 +104,7 @@ def round_request(
         context_epoch=context_epoch,
         pre_state_hash=pre_state_hash,
         observation=observation,
+        instructions=model_instructions(role),
     )
 
 
@@ -107,6 +128,7 @@ def memory_request(
         pre_state_hash=pre_state_hash,
         rack=rack,
         frames=frames,
+        instructions=model_instructions(role),
     )
 
 

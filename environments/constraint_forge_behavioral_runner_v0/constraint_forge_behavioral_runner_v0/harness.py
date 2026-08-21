@@ -8,7 +8,10 @@ its explicit ``HarnessSession`` owns the per-job visible-context reset.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+from contextvars import ContextVar
 import json
+from typing import Iterator
 
 from verifiers.v1.clients import ModelContext
 from verifiers.v1.dialects.chat import message_to_wire
@@ -17,7 +20,7 @@ from verifiers.v1.harnesses.null import NullHarness, NullHarnessConfig
 from verifiers.v1.runtimes import ProgramResult, Runtime
 from verifiers.v1.task import TaskData
 from verifiers.v1.trace import Trace
-from verifiers.v1.types import Messages
+from verifiers.v1.types import AssistantMessage, Messages
 
 
 # This is intentionally the smallest possible one-request text program.  It uses
@@ -50,7 +53,7 @@ async def main() -> None:
     client = AsyncOpenAI(
         base_url=args.base_url,
         api_key=args.api_key,
-        timeout=None,
+        timeout=30.0,
         max_retries=0,
     )
     await client.chat.completions.create(
@@ -65,6 +68,23 @@ if __name__ == "__main__":
 '''
 
 
+# This is an out-of-band referee control.  It is set in the runner's task
+# context before the paired turn is dispatched and is never encoded in a user
+# message, system prompt, trace message, or provider request.
+_CURRENT_CONTEXT_EPOCH: ContextVar[int | None] = ContextVar(
+    "constraint_forge_context_epoch", default=None
+)
+
+
+@contextmanager
+def context_epoch_scope(epoch: int) -> Iterator[None]:
+    token = _CURRENT_CONTEXT_EPOCH.set(epoch)
+    try:
+        yield
+    finally:
+        _CURRENT_CONTEXT_EPOCH.reset(token)
+
+
 class ConstraintForgeTextHarnessConfig(NullHarnessConfig):
     id: str = "constraint-forge-behavioral-runner-v0"
 
@@ -74,10 +94,10 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
 
     v1's Trace is intentionally append-only, so the referee cannot erase its
     audit history.  This session keeps a separate prompt history for the
-    current job and replaces it when the sealed request's context epoch
-    changes.  The provider therefore sees ordinary within-job continuity and
-    no previous-job messages, while the same native HarnessSession remains
-    open for all 24 jobs.
+    current job and replaces it at the runner's out-of-band job boundary.  The
+    provider therefore sees ordinary within-job continuity and no
+    previous-job messages, while the same native HarnessSession remains open
+    for all 24 jobs.
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -85,24 +105,12 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
         self._context_epoch: int | None = None
         self._visible_messages: Messages = []
 
-    @staticmethod
-    def _epoch(messages: Messages) -> int:
-        for message in reversed(messages):
-            if getattr(message, "role", None) != "user":
-                continue
-            content = getattr(message, "content", None)
-            if not isinstance(content, str):
-                continue
-            payload = json.loads(content)
-            if not isinstance(payload, dict) or "context_epoch" not in payload:
-                continue
-            return int(payload["context_epoch"])
-        raise ValueError("Constraint Forge request omitted its context_epoch")
-
     async def _run(self, messages: Messages | None) -> ProgramResult:
         if messages is None:
             raise ValueError("Constraint Forge interactions require an explicit request")
-        epoch = self._epoch(messages)
+        epoch = _CURRENT_CONTEXT_EPOCH.get()
+        if epoch is None:
+            raise ValueError("Constraint Forge context reset was not supplied out of band")
         if self._context_epoch != epoch:
             self._context_epoch = epoch
             self._visible_messages = []
@@ -121,7 +129,20 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
         if result.exit_code == 0:
             assistants = self.trace.assistant_messages
             if len(assistants) > assistant_count:
-                self._visible_messages = [*candidate, assistants[-1]]
+                last = assistants[-1]
+                if not isinstance(last, AssistantMessage):
+                    raise ValueError("provider response was not an assistant message")
+                if last.tool_calls or last.reasoning_content or last.provider_state:
+                    raise ValueError(
+                        "provider returned tool calls, reasoning, or continuation state; "
+                        "Constraint Forge only accepts plain assistant text"
+                    )
+                # Copy only ordinary text into the next visible turn.  Never
+                # replay provider metadata, reasoning, tool calls, or hidden state.
+                self._visible_messages = [
+                    *candidate,
+                    AssistantMessage(content=last.content or ""),
+                ]
         return result
 
 
@@ -186,4 +207,10 @@ class ConstraintForgeTextHarness(NullHarness):
         return await runtime.run_program([*program, *args], env)
 
 
-__all__ = ["ConstraintForgeTextHarness"]
+__all__ = [
+    "ConstraintForgeTextHarness",
+    "ConstraintForgeTextHarnessConfig",
+    "ConstraintForgeTextHarnessSession",
+    "TEXT_PROGRAM_SOURCE",
+    "context_epoch_scope",
+]

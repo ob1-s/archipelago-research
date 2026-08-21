@@ -5,22 +5,22 @@ from __future__ import annotations
 from typing import Literal
 
 import verifiers.v1 as vf
-from pydantic import Field, StrictBool, StrictInt, StrictStr
+from pydantic import Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from constraint_forge_formation_v0.canonical import stable_hash
 from constraint_forge_formation_v0.generator import generate_job, validate_job
 from constraint_forge_formation_v0.interventions import InterventionSchedule
-from constraint_forge_formation_v0.models import Seed, StrictModel
+from constraint_forge_formation_v0.models import Seed
 
-from .handoff import FormationHandoffV0
 from .harness import ConstraintForgeTextHarnessConfig
-from .runner import run_behavioral_sequence
-
-
-NEUTRAL_SYSTEM_PROMPT = """You are one station in a deterministic Constraint Forge behavioral job sequence.
-The referee sends one role-local JSON request per turn. Keep ordinary conversational
-context within the current job only. Return exactly the JSON action requested by the
-current request, with no prose, tools, files, streaming, or continuation state.
-The other station's private observations and rack are never available to you."""
+from .protocol import (
+    ACTION_SCHEMA_HASH,
+    COMMON_INSTRUCTION_HASH,
+    NEUTRAL_SYSTEM_PROMPT,
+    NEUTRAL_SYSTEM_PROMPT_HASH,
+    ROLE_INSTRUCTION_HASHES,
+)
+from .runner import run_behavioral_sequence, stamp_sequence_traces
+from .schedule import JOB_COUNT, FormationRunPlan, build_run_plan
 
 
 class ConstraintForgeBehavioralTaskData(vf.TaskData):
@@ -28,8 +28,19 @@ class ConstraintForgeBehavioralTaskData(vf.TaskData):
         "constraint-forge/behavioral-runner-v0"
     )
     sequence_id: StrictStr
-    job_seeds: tuple[Seed, ...] = Field(min_length=24, max_length=24)
-    expected_job_hashes: tuple[StrictStr, ...] = Field(min_length=24, max_length=24)
+    job_seeds: tuple[Seed, ...] = Field(min_length=JOB_COUNT, max_length=JOB_COUNT)
+    expected_job_hashes: tuple[StrictStr, ...] = Field(
+        min_length=JOB_COUNT, max_length=JOB_COUNT
+    )
+    run_plan: FormationRunPlan
+    plan_hash: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    common_instruction_hash: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    action_schema_hash: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    system_prompt_hash: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    role_instruction_hash_x: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    role_instruction_hash_y: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    # These projections are retained for simple audit consumers; the immutable
+    # run_plan is authoritative and is hash-pinned into the sequence manifest.
     interventions: tuple[InterventionSchedule | None, ...] = ()
     read_only_job_indices: tuple[StrictInt, ...] = ()
 
@@ -37,9 +48,12 @@ class ConstraintForgeBehavioralTaskData(vf.TaskData):
 class ConstraintForgeBehavioralState(vf.State):
     sequence_valid: StrictBool = False
     completed: StrictBool = False
+    run_valid: StrictBool = False
     accepted: StrictBool = False
     aborted: StrictBool = False
     completed_jobs: StrictInt = 0
+    successful_jobs: StrictInt = 0
+    job_success_mean: StrictFloat = 0.0
     handoff_hash: StrictStr | None = None
     live_model_calls: StrictInt = 0
 
@@ -57,22 +71,42 @@ class ConstraintForgeBehavioralTask(
 ):
     async def setup(self, trace: vf.Trace, runtime: vf.Runtime) -> None:
         del runtime
-        if len(self.data.interventions) not in {0, len(self.data.job_seeds)}:
-            raise ValueError("interventions must be empty or contain one entry per job")
-        jobs = [generate_job(seed) for seed in self.data.job_seeds]
+        jobs = [generate_job(condition.job_seed) for condition in self.data.run_plan.jobs]
+        plan_matches = (
+            self.data.run_plan.sequence_id == self.data.sequence_id
+            and self.data.run_plan.plan_hash == self.data.plan_hash
+            and tuple(condition.job_seed for condition in self.data.run_plan.jobs)
+            == self.data.job_seeds
+            and tuple(condition.expected_job_hash for condition in self.data.run_plan.jobs)
+            == self.data.expected_job_hashes
+        )
+        protocol_matches = (
+            self.data.common_instruction_hash == COMMON_INSTRUCTION_HASH
+            and self.data.action_schema_hash == ACTION_SCHEMA_HASH
+            and self.data.system_prompt_hash == NEUTRAL_SYSTEM_PROMPT_HASH
+            and self.data.role_instruction_hash_x == ROLE_INSTRUCTION_HASHES["X"]
+            and self.data.role_instruction_hash_y == ROLE_INSTRUCTION_HASHES["Y"]
+        )
         trace.state.sequence_valid = all(
             validate_job(job).payload_hash == expected
             for job, expected in zip(jobs, self.data.expected_job_hashes)
-        )
+        ) and plan_matches and protocol_matches
         trace.info["constraint_forge_behavioral_runner"] = {
             "protocol_version": self.data.protocol_version,
             "sequence_id": self.data.sequence_id,
-            "job_count": len(self.data.job_seeds),
+            "job_count": len(self.data.run_plan.jobs),
+            "run_plan_hash": self.data.plan_hash,
+            "common_instruction_hash": self.data.common_instruction_hash,
+            "action_schema_hash": self.data.action_schema_hash,
+            "system_prompt_hash": self.data.system_prompt_hash,
+            "role_instruction_hashes": {
+                "X": self.data.role_instruction_hash_x,
+                "Y": self.data.role_instruction_hash_y,
+            },
             "sequence_hash": stable_hash(
                 {
                     "sequence_id": self.data.sequence_id,
-                    "job_seeds": list(self.data.job_seeds),
-                    "expected_job_hashes": list(self.data.expected_job_hashes),
+                    "run_plan": self.data.run_plan.model_dump(mode="json"),
                 }
             ),
             "live_model_calls": 0,
@@ -82,10 +116,17 @@ class ConstraintForgeBehavioralTask(
 
     async def validate(self, runtime: vf.Runtime) -> bool:
         del runtime
-        return all(
-            generate_job(seed).payload_hash == expected
-            for seed, expected in zip(self.data.job_seeds, self.data.expected_job_hashes)
+        protocol_matches = (
+            self.data.common_instruction_hash == COMMON_INSTRUCTION_HASH
+            and self.data.action_schema_hash == ACTION_SCHEMA_HASH
+            and self.data.system_prompt_hash == NEUTRAL_SYSTEM_PROMPT_HASH
+            and self.data.role_instruction_hash_x == ROLE_INSTRUCTION_HASHES["X"]
+            and self.data.role_instruction_hash_y == ROLE_INSTRUCTION_HASHES["Y"]
         )
+        return protocol_matches and self.data.run_plan.sequence_id == self.data.sequence_id and all(
+            generate_job(condition.job_seed).payload_hash == condition.expected_job_hash
+            for condition in self.data.run_plan.jobs
+        ) and self.data.run_plan.plan_hash == self.data.plan_hash
 
     async def finalize(self, trace: vf.Trace, runtime: vf.Runtime) -> None:
         del runtime
@@ -93,14 +134,20 @@ class ConstraintForgeBehavioralTask(
         info["live_model_calls"] = len(trace.calls)
         trace.state.live_model_calls = len(trace.calls)
         info["completed"] = trace.state.completed
+        info["run_valid"] = trace.state.run_valid
         info["accepted"] = trace.state.accepted
         info["aborted"] = trace.state.aborted
         info["completed_jobs"] = trace.state.completed_jobs
+        info["successful_jobs"] = trace.state.successful_jobs
+        info["job_success_mean"] = trace.state.job_success_mean
         info["handoff_hash"] = trace.state.handoff_hash
 
     @vf.reward
     async def formation_accepted(self, trace: vf.Trace) -> float:
-        return float(trace.state.accepted and trace.state.completed)
+        # This is the frozen behavioral reward: mean job success.  Infrastructure
+        # validity is recorded separately and never turns a failed job into a
+        # missing observation or an automatic exclusion.
+        return float(trace.state.job_success_mean)
 
 
 class ConstraintForgeBehavioralTasksetConfig(vf.TasksetConfig):
@@ -116,11 +163,13 @@ class ConstraintForgeBehavioralTaskset(
         tasks: list[ConstraintForgeBehavioralTask] = []
         for sequence_index in range(self.config.num_sequences):
             sequence_id = f"sequence-{sequence_index:06d}"
-            seeds = tuple(
-                f"{self.config.seed_prefix}:{sequence_index}:job:{job_index}"
-                for job_index in range(24)
+            plan = build_run_plan(
+                sequence_id=sequence_id,
+                sequence_index=sequence_index,
+                seed_prefix=self.config.seed_prefix,
             )
-            expected = tuple(generate_job(seed).payload_hash for seed in seeds)
+            seeds = tuple(condition.job_seed for condition in plan.jobs)
+            expected = tuple(condition.expected_job_hash for condition in plan.jobs)
             tasks.append(
                 ConstraintForgeBehavioralTask(
                     ConstraintForgeBehavioralTaskData(
@@ -134,6 +183,19 @@ class ConstraintForgeBehavioralTaskset(
                         sequence_id=sequence_id,
                         job_seeds=seeds,
                         expected_job_hashes=expected,
+                        run_plan=plan,
+                        plan_hash=plan.plan_hash,
+                        common_instruction_hash=COMMON_INSTRUCTION_HASH,
+                        action_schema_hash=ACTION_SCHEMA_HASH,
+                        system_prompt_hash=NEUTRAL_SYSTEM_PROMPT_HASH,
+                        role_instruction_hash_x=ROLE_INSTRUCTION_HASHES["X"],
+                        role_instruction_hash_y=ROLE_INSTRUCTION_HASHES["Y"],
+                        interventions=tuple(condition.intervention for condition in plan.jobs),
+                        read_only_job_indices=tuple(
+                            condition.job_index
+                            for condition in plan.jobs
+                            if condition.read_only_probe
+                        ),
                     ),
                     self.config.task,
                 )
@@ -150,12 +212,12 @@ class ConstraintForgeBehavioralEnvConfig(vf.EnvConfig):
     )
     x: vf.AgentConfig = vf.AgentConfig(
         harness=ConstraintForgeTextHarnessConfig(),
-        max_turns=1024,
+        max_turns=420,
         retries=vf.RetryConfig(max_retries=0),
     )
     y: vf.AgentConfig = vf.AgentConfig(
         harness=ConstraintForgeTextHarnessConfig(),
-        max_turns=1024,
+        max_turns=420,
         retries=vf.RetryConfig(max_retries=0),
     )
     retries: vf.RetryConfig = vf.RetryConfig(max_retries=0)
@@ -176,32 +238,10 @@ class ConstraintForgeBehavioralEnv(vf.Env[ConstraintForgeBehavioralEnvConfig]):
             actor_y=agents.y,
             task=task,
         )
-        # Each interaction's trace is the v1 record for the role that produced
-        # it.  The handoff is duplicated into both role traces for episode-local
-        # auditability; it is not used as an H1 carrier or proof.
-        for interaction in result.traces:
-            interaction.trace.state.completed = result.handoff.aborted is False
-            interaction.trace.state.accepted = result.handoff.accepted
-            interaction.trace.state.aborted = result.handoff.aborted
-            interaction.trace.state.completed_jobs = result.handoff.completed_jobs
-            interaction.trace.state.handoff_hash = result.handoff.content_hash
-            interaction.trace.state.live_model_calls = result.live_model_calls
-            runner_info = interaction.trace.info.setdefault(
-                "constraint_forge_behavioral_runner", {}
-            )
-            runner_info.update(
-                {
-                    "live_model_calls": result.live_model_calls,
-                    "completed": interaction.trace.state.completed,
-                    "accepted": interaction.trace.state.accepted,
-                    "aborted": interaction.trace.state.aborted,
-                    "completed_jobs": interaction.trace.state.completed_jobs,
-                    "handoff_hash": result.handoff.content_hash,
-                }
-            )
-            interaction.trace.info["formation_handoff_v0"] = result.handoff.model_dump(
-                mode="json"
-            )
+        # run_behavioral_sequence stamps the already-closed native v1 traces;
+        # this idempotent call keeps Env.run's contract explicit for callers
+        # that provide a custom SequenceResult implementation.
+        stamp_sequence_traces(result)
 
 
 __all__ = [

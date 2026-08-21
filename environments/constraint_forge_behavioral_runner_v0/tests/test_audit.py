@@ -72,3 +72,28 @@ def test_completed_call_events_bind_raw_text_hash_and_world_interval() -> None:
     assert all(event.world_event_sequence_start is not None for event in completed)
     assert all(event.world_event_sequence_end is not None for event in completed)
     assert all(event.world_event_sequence_start < event.world_event_sequence_end for event in completed)
+
+
+def test_every_completed_call_has_a_pre_dispatch_prepared_record() -> None:
+    async def run():
+        task = _task()
+        targets = _targets(task)
+        return await run_behavioral_sequence(
+            task.data,
+            actor_x=_FakeActor(targets),
+            actor_y=_FakeActor(targets),
+            task=task,
+        )
+
+    result = asyncio.run(run())
+    prepared = {
+        (event.actor, event.call_id)
+        for event in result.ledger.events
+        if event.status.value == "prepared"
+    }
+    completed = {
+        (event.actor, event.call_id)
+        for event in result.ledger.events
+        if event.status.value == "completed"
+    }
+    assert completed <= prepared

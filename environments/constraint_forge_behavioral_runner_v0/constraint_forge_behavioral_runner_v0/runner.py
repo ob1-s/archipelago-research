@@ -27,6 +27,7 @@ from .failures import (
     ambiguous_failure,
     safe_to_retry,
 )
+from .harness import context_epoch_scope
 from .handoff import FormationHandoffV0, FormationJobReceipt
 from .requests import BehavioralRequest, memory_request, round_request
 
@@ -38,6 +39,11 @@ class DyadAbort(RuntimeError):
     """The dyad cannot continue without guessing about behavioral delivery."""
 
 
+# Per-call timeout is deliberately finite.  A timeout is an ambiguous behavioral
+# boundary and therefore abort-only; it is never silently retried.
+CALL_TIMEOUT_SECONDS = 120.0
+
+
 @dataclass(frozen=True)
 class SequenceResult:
     """The handoff plus in-process evidence needed by fake/no-network tests."""
@@ -47,6 +53,48 @@ class SequenceResult:
     live_model_calls: int
     traces: tuple[_InteractionTrace, ...]
     ledger: AuditLedger
+
+
+def stamp_sequence_traces(result: SequenceResult) -> None:
+    """Stamp native v1 traces after the persistent interactions have scored.
+
+    v1 closes/scoring happen while the interaction context exits, which is
+    before the runner can construct its handoff.  Recording the final reward
+    here makes direct runner use and Env.run use share the same post-sequence
+    timing-safe result.  Fake interaction traces intentionally have no v1 state
+    and are left untouched.
+    """
+
+    for interaction in result.traces:
+        trace = interaction.trace
+        state = getattr(trace, "state", None)
+        if state is None or not hasattr(trace, "record_reward"):
+            continue
+        state.completed = result.handoff.aborted is False
+        state.run_valid = result.handoff.run_valid
+        state.accepted = result.handoff.accepted
+        state.aborted = result.handoff.aborted
+        state.completed_jobs = result.handoff.completed_jobs
+        state.successful_jobs = result.handoff.successful_jobs
+        state.job_success_mean = result.handoff.job_success_mean
+        state.handoff_hash = result.handoff.content_hash
+        state.live_model_calls = result.live_model_calls
+        trace.record_reward("formation_accepted", result.handoff.job_success_mean)
+        runner_info = trace.info.setdefault("constraint_forge_behavioral_runner", {})
+        runner_info.update(
+            {
+                "live_model_calls": result.live_model_calls,
+                "completed": state.completed,
+                "run_valid": state.run_valid,
+                "accepted": state.accepted,
+                "aborted": state.aborted,
+                "completed_jobs": state.completed_jobs,
+                "successful_jobs": state.successful_jobs,
+                "job_success_mean": state.job_success_mean,
+                "handoff_hash": result.handoff.content_hash,
+            }
+        )
+        trace.info["formation_handoff_v0"] = result.handoff.model_dump(mode="json")
 
 
 @dataclass(frozen=True)
@@ -96,7 +144,14 @@ def _hash_payload(value) -> str:
     return stable_hash(value)
 
 
-def _agent_identity(actor, role: str) -> tuple[str, str, str, str, str]:
+def _agent_identity(
+    actor,
+    role: str,
+    *,
+    run_id: str,
+    dyad_id: str,
+    trace=None,
+) -> tuple[str, str, str, str, str]:
     config = getattr(actor, "config", None)
     config_payload = (
         config.model_dump(mode="json", exclude_none=False)
@@ -117,10 +172,28 @@ def _agent_identity(actor, role: str) -> tuple[str, str, str, str, str]:
         }
     )
     actor_id = stable_hash(
-        {"role": role, "model_hash": model_hash, "provider_hash": provider_hash}
+        {
+            "run_id": run_id,
+            "dyad_id": dyad_id,
+            "role": role,
+            "model_hash": model_hash,
+            "provider_hash": provider_hash,
+            "config_hash": config_hash,
+        }
     )[:32]
     lifecycle_id = stable_hash(
-        {"role": role, "config_hash": config_hash, "actor_type": type(actor).__qualname__}
+        {
+            "run_id": run_id,
+            "dyad_id": dyad_id,
+            "role": role,
+            "actor_id": actor_id,
+            "config_hash": config_hash,
+            "actor_type": type(actor).__qualname__,
+            # A native v1 Trace id is the concrete rollout/session identity.
+            # Fake actors intentionally have no id and receive a deterministic
+            # run-scoped fallback for replay tests.
+            "trace_id": getattr(trace, "id", None),
+        }
     )[:32]
     return actor_id, lifecycle_id, model_hash, provider_hash, config_hash
 
@@ -132,8 +205,32 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
     if messages is not None:
         for message in reversed(messages):
             if isinstance(message, AssistantMessage):
+                if message.tool_calls or message.reasoning_content or message.provider_state:
+                    raise BehavioralCallFailure(
+                        FailureEvidence(
+                            failure_class=FailureClass.PARTIAL_RESPONSE,
+                            request_dispatched=True,
+                            behavioral_sample_produced=None,
+                            detail=(
+                                "provider assistant message carried tool calls, "
+                                "reasoning, or continuation state"
+                            ),
+                        )
+                    )
                 return message.content or "", getattr(message, "provider_request_id", None)
             if getattr(message, "role", None) == "assistant":
+                if any(
+                    getattr(message, field, None)
+                    for field in ("tool_calls", "reasoning_content", "provider_state")
+                ):
+                    raise BehavioralCallFailure(
+                        FailureEvidence(
+                            failure_class=FailureClass.PARTIAL_RESPONSE,
+                            request_dispatched=True,
+                            behavioral_sample_produced=None,
+                            detail="provider assistant message carried non-text state",
+                        )
+                    )
                 content = getattr(message, "content", None)
                 return (content if isinstance(content, str) else ""), getattr(
                     message, "provider_request_id", None
@@ -146,6 +243,38 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
         raw = getattr(segment, "raw_output")
         return (raw if isinstance(raw, str) else None), getattr(segment, "provider_request_id", None)
     return None, None
+
+
+def _append_prepared_audit(ledger: AuditLedger, record: _CallRecord) -> None:
+    """Record a sealed call before its provider boundary is entered."""
+
+    ledger.append(
+        actor=record.actor,
+        actor_id=record.actor_id,
+        lifecycle_id=record.lifecycle_id,
+        context_epoch=record.context_epoch,
+        job_index=record.job_index,
+        job_id=record.job_id,
+        phase=record.phase,
+        round=record.round,
+        call_id=record.call_id,
+        retry_of=record.retry_of,
+        pre_state_hash=record.pre_state_hash,
+        world_event_sequence_before=record.world_event_sequence_before,
+        request_hash=record.request.request_hash,
+        model_hash=record.model_hash,
+        provider_hash=record.provider_hash,
+        config_hash=record.config_hash,
+        provider_status="prepared",
+        provider_request_id=None,
+        raw_output=None,
+        raw_output_hash=None,
+        parse_classification="not_applicable",
+        world_event_sequence_start=None,
+        world_event_sequence_end=None,
+        post_state_hash=record.pre_state_hash,
+        status=AuditStatus.PREPARED,
+    )
 
 
 def _append_failure_audit(
@@ -244,6 +373,8 @@ async def _turn_with_safe_retry(
     phase: Literal["round", "eviction", "retention"],
     round_number: int | None,
     world_event_sequence_before: int,
+    ledger: AuditLedger,
+    prepared_lock: asyncio.Lock,
 ) -> _TurnResult:
     retry_of: str | None = None
     failures: list[_FailureRecord] = []
@@ -272,7 +403,13 @@ async def _turn_with_safe_retry(
             retry_of=retry_of,
         )
         try:
-            segment = await interaction.turn(request.prompt_text)
+            # The preparation event is appended immediately before entering
+            # v1's interaction boundary.  The pair lock keeps the hash chain
+            # mutation serialized while preserving the two-call barrier.
+            async with prepared_lock:
+                _append_prepared_audit(ledger, record)
+            async with asyncio.timeout(CALL_TIMEOUT_SECONDS):
+                segment = await interaction.turn(request.prompt_text)
             raw_output, request_id = _raw_assistant_text(segment)
             if raw_output is None:
                 raise BehavioralCallFailure(
@@ -356,39 +493,45 @@ async def _dispatch_pair(
         # callers that mutate a request object after construction.
         if request_x.role == request_y.role:
             raise DyadAbort("X/Y request roles were not distinct")
-    results = await asyncio.gather(
-        _turn_with_safe_retry(
-            interaction=interaction_x,
-            request=request_x,
-            actor="X",
-            actor_id=identity_x[0],
-            lifecycle_id=identity_x[1],
-            model_hash=identity_x[2],
-            provider_hash=identity_x[3],
-            config_hash=identity_x[4],
-            job_index=job_index,
-            job_id=job_id,
-            phase=phase,
-            round_number=round_number,
-            world_event_sequence_before=world_event_sequence_before,
-        ),
-        _turn_with_safe_retry(
-            interaction=interaction_y,
-            request=request_y,
-            actor="Y",
-            actor_id=identity_y[0],
-            lifecycle_id=identity_y[1],
-            model_hash=identity_y[2],
-            provider_hash=identity_y[3],
-            config_hash=identity_y[4],
-            job_index=job_index,
-            job_id=job_id,
-            phase=phase,
-            round_number=round_number,
-            world_event_sequence_before=world_event_sequence_before,
-        ),
-        return_exceptions=True,
-    )
+    prepared_lock = asyncio.Lock()
+    with context_epoch_scope(job_index):
+        results = await asyncio.gather(
+            _turn_with_safe_retry(
+                interaction=interaction_x,
+                request=request_x,
+                actor="X",
+                actor_id=identity_x[0],
+                lifecycle_id=identity_x[1],
+                model_hash=identity_x[2],
+                provider_hash=identity_x[3],
+                config_hash=identity_x[4],
+                job_index=job_index,
+                job_id=job_id,
+                phase=phase,
+                round_number=round_number,
+                world_event_sequence_before=world_event_sequence_before,
+                ledger=ledger,
+                prepared_lock=prepared_lock,
+            ),
+            _turn_with_safe_retry(
+                interaction=interaction_y,
+                request=request_y,
+                actor="Y",
+                actor_id=identity_y[0],
+                lifecycle_id=identity_y[1],
+                model_hash=identity_y[2],
+                provider_hash=identity_y[3],
+                config_hash=identity_y[4],
+                job_index=job_index,
+                job_id=job_id,
+                phase=phase,
+                round_number=round_number,
+                world_event_sequence_before=world_event_sequence_before,
+                ledger=ledger,
+                prepared_lock=prepared_lock,
+            ),
+            return_exceptions=True,
+        )
     # A task-level cancellation/bug is still converted into an ambiguous pair
     # failure, while ordinary provider evidence arrives as _TurnResult data.
     normalized: list[_TurnResult] = []
@@ -485,11 +628,17 @@ def _job_id(sequence_id: str, index: int) -> str:
 
 
 def _intervention_at(data, index: int):
+    plan = getattr(data, "run_plan", None)
+    if plan is not None:
+        return plan.jobs[index].intervention
     interventions = getattr(data, "interventions", ())
     return interventions[index] if len(interventions) == len(data.job_seeds) else None
 
 
 def _read_only_at(data, index: int) -> bool:
+    plan = getattr(data, "run_plan", None)
+    if plan is not None and plan.jobs[index].read_only_probe:
+        return True
     return index in set(getattr(data, "read_only_job_indices", ()))
 
 
@@ -499,13 +648,19 @@ async def run_behavioral_sequence(
     actor_x,
     actor_y,
     task,
+    runtime_x=None,
+    runtime_y=None,
 ) -> SequenceResult:
     """Run one full sequence using persistent role agents and fresh job contexts."""
 
     run_id = data.sequence_id
     dyad_id = stable_hash({"run_id": run_id, "protocol": data.protocol_version})[:32]
-    identity_x = _agent_identity(actor_x, "X")
-    identity_y = _agent_identity(actor_y, "Y")
+    identity_x = _agent_identity(
+        actor_x, "X", run_id=run_id, dyad_id=dyad_id
+    )
+    identity_y = _agent_identity(
+        actor_y, "Y", run_id=run_id, dyad_id=dyad_id
+    )
     ledger = AuditLedger(run_id=run_id, dyad_id=dyad_id)
     receipts: list[FormationJobReceipt] = []
     rack_x = empty_rack()
@@ -517,12 +672,39 @@ async def run_behavioral_sequence(
     try:
         # The episode-owned agents, interactions, traces, and harness sessions
         # span the whole dyad.  The package-local HarnessSession resets only
-        # its provider-visible prompt history when the request epoch changes;
-        # the v1 Trace remains the append-only audit record.
-        async with actor_x.interaction(task) as interaction_x:
-            async with actor_y.interaction(task) as interaction_y:
+        # its provider-visible prompt history at the runner's out-of-band job
+        # boundary; the v1 Trace remains the append-only audit record.
+        x_interaction = (
+            actor_x.interaction(task, runtime=runtime_x)
+            if runtime_x is not None
+            else actor_x.interaction(task)
+        )
+        y_interaction = (
+            actor_y.interaction(task, runtime=runtime_y)
+            if runtime_y is not None
+            else actor_y.interaction(task)
+        )
+        async with x_interaction as interaction_x:
+            async with y_interaction as interaction_y:
                 traces.extend(
                     (_InteractionTrace(interaction_x.trace), _InteractionTrace(interaction_y.trace))
+                )
+                # Bind lifecycle identity to the concrete native v1 traces that
+                # own these persistent interactions.  Fake actors without a v1
+                # trace id retain the deterministic run-scoped fallback.
+                identity_x = _agent_identity(
+                    actor_x,
+                    "X",
+                    run_id=run_id,
+                    dyad_id=dyad_id,
+                    trace=interaction_x.trace,
+                )
+                identity_y = _agent_identity(
+                    actor_y,
+                    "Y",
+                    run_id=run_id,
+                    dyad_id=dyad_id,
+                    trace=interaction_y.trace,
                 )
                 for job_index, seed in enumerate(data.job_seeds):
                     job_id = _job_id(data.sequence_id, job_index)
@@ -671,6 +853,7 @@ async def run_behavioral_sequence(
                             job_id=job_id,
                             job_seed=job_result.job_seed,
                             success=job_result.success,
+                            failure_reason=job_result.failure_reason,
                             final_state_hash=job_result.final_state_hash,
                             event_log_hash=job_result.event_log.content_hash,
                             final_rack_x_hash=rack_x.content_hash,
@@ -689,19 +872,25 @@ async def run_behavioral_sequence(
     live_model_calls = sum(
         len(getattr(interaction.trace, "calls", ())) for interaction in traces
     )
+    successful_jobs = sum(receipt.success for receipt in receipts)
+    job_success_mean = successful_jobs / len(receipts) if receipts else 0.0
+    # A complete, infrastructure-valid sequence is distinct from the binary
+    # success of each attempted job.  Failed jobs remain in job_receipts and are
+    # part of the exploratory data rather than invalidating the dyad.
+    run_valid = abort_class is None and len(receipts) == len(data.job_seeds)
     handoff = FormationHandoffV0(
         run_id=run_id,
         dyad_id=dyad_id,
         lineage_x=identity_x[1],
         lineage_y=identity_y[1],
-        accepted=(
-            abort_class is None
-            and len(receipts) == len(data.job_seeds)
-            and all(receipt.success for receipt in receipts)
-        ),
+        run_valid=run_valid,
+        planned_jobs=len(data.job_seeds),
+        accepted=run_valid,
         aborted=abort_class is not None,
         abort_class=abort_class,
         completed_jobs=len(receipts),
+        successful_jobs=successful_jobs,
+        job_success_mean=job_success_mean,
         job_receipts=tuple(receipts),
         audit_chain_hash=ledger.final_hash,
         audit_seal_hash=stable_hash(seal.model_dump(mode="json")),
@@ -710,13 +899,21 @@ async def run_behavioral_sequence(
         final_rack_x_bytes=rack_x.serialization_bytes,
         final_rack_y_bytes=rack_y.serialization_bytes,
     )
-    return SequenceResult(
+    result = SequenceResult(
         handoff=handoff,
         audit_event_count=len(ledger.events),
         live_model_calls=live_model_calls,
         traces=tuple(traces),
         ledger=ledger,
     )
+    stamp_sequence_traces(result)
+    return result
 
 
-__all__ = ["DyadAbort", "SequenceResult", "run_behavioral_sequence"]
+__all__ = [
+    "CALL_TIMEOUT_SECONDS",
+    "DyadAbort",
+    "SequenceResult",
+    "run_behavioral_sequence",
+    "stamp_sequence_traces",
+]

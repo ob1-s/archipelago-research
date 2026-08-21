@@ -17,6 +17,7 @@ from constraint_forge_formation_v0.models import StrictModel
 
 
 class AuditStatus(StrEnum):
+    PREPARED = "prepared"
     COMPLETED = "completed"
     SAFE_RETRY = "safe_retry"
     FAILED = "failed"
