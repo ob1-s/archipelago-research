@@ -219,15 +219,24 @@ async def _run(args) -> int:
 
     tasks = build_cohort_tasks()
     assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
+    directory = Path(args.output_dir) / args.cohort_id
+    directory.mkdir(parents=True, exist_ok=True)
+    # A pre-existing freeze record owns the frozen identity: later
+    # launcher-only commits must not invalidate a running cohort.
+    record_path = directory / "freeze_record.json"
+    frozen_record = (
+        json.loads(record_path.read_text()) if record_path.exists() else None
+    )
+    freeze_commit = (
+        frozen_record["freeze_commit"] if frozen_record else _freeze_commit()
+    )
     manifest = build_manifest(
         cohort_id=args.cohort_id,
-        freeze_commit=_freeze_commit(),
+        freeze_commit=freeze_commit,
         provider_config=_provider_config(args),
         qualification_canary_sha256=QUALIFICATION_CANARY_SHA256,
         tasks=tasks,
     )
-    directory = Path(args.output_dir) / args.cohort_id
-    directory.mkdir(parents=True, exist_ok=True)
     manifest_path = directory / "manifest.json"
 
     resume_crashed = set(args.resume_crashed or ())
@@ -252,14 +261,13 @@ async def _run(args) -> int:
 
     # Freeze gate: scientific calls require a pre-existing freeze record for
     # exactly this manifest hash; the launcher never creates one mid-flight.
-    record_path = directory / "freeze_record.json"
     if not record_path.exists():
         raise SystemExit(
             "freeze gate: no freeze record found; run --freeze-only before any "
             "scientific model call"
         )
-    record = json.loads(record_path.read_text())
-    if record.get("manifest_hash") != manifest.manifest_hash:
+    assert frozen_record is not None
+    if frozen_record.get("manifest_hash") != manifest.manifest_hash:
         raise SystemExit(
             "freeze gate: freeze record does not match this frozen plan hash"
         )
