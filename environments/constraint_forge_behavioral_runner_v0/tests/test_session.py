@@ -12,6 +12,7 @@ from constraint_forge_formation_v0.session import (
     SessionPhaseError,
 )
 from constraint_forge_formation_v0.world import run_job
+from constraint_forge_behavioral_runner_v0.requests import memory_request
 
 
 def _target_policy(job, station):
@@ -141,6 +142,37 @@ def test_round_offer_seals_identical_prestate_before_dispatch() -> None:
     assert result.resolution.x.pre_state_hash == result.resolution.y.pre_state_hash
 
 
+def test_memory_offer_exposes_only_binary_job_outcome() -> None:
+    session = ConstraintForgeJobSession.open(
+        generate_job(13), run_id="r", lineage_id="l", job_id="j"
+    )
+    offer = session.begin_round()
+    session.submit_round(
+        token=offer.token,
+        raw_x='{"action":"finish"}',
+        raw_y='{"action":"finish"}',
+    )
+    memory = session.begin_eviction()
+    assert memory is not None
+    assert memory.success is False
+    assert "failure_reason" not in memory.model_dump(mode="json")
+    assert "target_matching" not in memory.model_dump(mode="json")
+    request = memory_request(
+        role="X",
+        phase="eviction",
+        job_index=0,
+        job_id="j",
+        context_epoch=0,
+        pre_state_hash=memory.state_hash,
+        rack=memory.rack_view_x,
+        frames=memory.frames_x,
+        success=memory.success,
+    )
+    assert request.visible_payload["success"] is False
+    assert "failure_reason" not in request.visible_payload
+    assert "target_matching" not in request.visible_payload
+
+
 def test_eviction_precedes_retention_and_retention_sees_resulting_rack() -> None:
     job = generate_job(14)
     seeded = run_job(
@@ -171,6 +203,7 @@ def test_eviction_precedes_retention_and_retention_sees_resulting_rack() -> None
         )
     eviction = session.begin_eviction()
     assert eviction.rack_view_x.full_films
+    assert eviction.success is True
     session.submit_eviction(
         token=eviction.token,
         raw_x=json.dumps({"action": "evict", "fragment_handle": handle}, separators=(",", ":")),
@@ -179,6 +212,7 @@ def test_eviction_precedes_retention_and_retention_sees_resulting_rack() -> None
     retention = session.begin_retention()
     assert retention.rack_view_x.full_films == ()
     assert retention.rack_view_y.full_films
+    assert retention.success is True
     result = session.submit_retention(
         token=retention.token,
         raw_x="{\"action\":\"keep_unchanged\"}",

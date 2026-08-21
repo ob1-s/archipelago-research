@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, StrictInt, StrictStr
+from pydantic import Field, StrictBool, StrictInt, StrictStr
 
 from constraint_forge_formation_v0.canonical import canonical_bytes, sha256_bytes
 from constraint_forge_formation_v0.models import StrictModel
@@ -29,6 +29,7 @@ class BehavioralRequest(StrictModel):
     job_id: StrictStr
     context_epoch: StrictInt = Field(ge=0)
     pre_state_hash: StrictStr
+    success: StrictBool | None = None
     observation: Observation | None = None
     rack: RackView | None = None
     frames: tuple[FilmFrame, ...] = ()
@@ -43,7 +44,7 @@ class BehavioralRequest(StrictModel):
         but are absent from this payload.
         """
 
-        return {
+        payload = {
             "role": self.role,
             "phase": self.phase,
             "round": self.round,
@@ -54,6 +55,9 @@ class BehavioralRequest(StrictModel):
             "frames": [frame.model_dump(mode="json") for frame in self.frames],
             "instructions": self.instructions,
         }
+        if self.phase != "round":
+            payload["success"] = self.success
+        return payload
 
     @property
     def model_visible_payload(self) -> dict:
@@ -74,6 +78,7 @@ class BehavioralRequest(StrictModel):
             "job_id": self.job_id,
             "context_epoch": self.context_epoch,
             "pre_state_hash": self.pre_state_hash,
+            "success": self.success,
             "request_hash": self.request_hash,
         }
 
@@ -118,6 +123,7 @@ def memory_request(
     pre_state_hash: str,
     rack: RackView,
     frames: tuple[FilmFrame, ...],
+    success: bool,
 ) -> BehavioralRequest:
     return BehavioralRequest(
         role=role,
@@ -126,6 +132,7 @@ def memory_request(
         job_id=job_id,
         context_epoch=context_epoch,
         pre_state_hash=pre_state_hash,
+        success=success,
         rack=rack,
         frames=frames,
         instructions=model_instructions(role),

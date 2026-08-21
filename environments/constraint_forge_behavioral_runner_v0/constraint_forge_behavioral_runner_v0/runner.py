@@ -27,7 +27,7 @@ from .failures import (
     ambiguous_failure,
     safe_to_retry,
 )
-from .harness import context_epoch_scope
+from .harness import CALL_TIMEOUT_SECONDS, context_epoch_scope
 from .handoff import FormationHandoffV0, FormationJobReceipt
 from .requests import BehavioralRequest, memory_request, round_request
 
@@ -37,11 +37,6 @@ if TYPE_CHECKING:
 
 class DyadAbort(RuntimeError):
     """The dyad cannot continue without guessing about behavioral delivery."""
-
-
-# Per-call timeout is deliberately finite.  A timeout is an ambiguous behavioral
-# boundary and therefore abort-only; it is never silently retried.
-CALL_TIMEOUT_SECONDS = 120.0
 
 
 @dataclass(frozen=True)
@@ -79,7 +74,10 @@ def stamp_sequence_traces(result: SequenceResult) -> None:
         state.job_success_mean = result.handoff.job_success_mean
         state.handoff_hash = result.handoff.content_hash
         state.live_model_calls = result.live_model_calls
-        trace.record_reward("formation_accepted", result.handoff.job_success_mean)
+        behavioral_reward = (
+            result.handoff.job_success_mean if result.handoff.run_valid else 0.0
+        )
+        trace.record_reward("formation_accepted", behavioral_reward)
         runner_info = trace.info.setdefault("constraint_forge_behavioral_runner", {})
         runner_info.update(
             {
@@ -91,6 +89,7 @@ def stamp_sequence_traces(result: SequenceResult) -> None:
                 "completed_jobs": state.completed_jobs,
                 "successful_jobs": state.successful_jobs,
                 "job_success_mean": state.job_success_mean,
+                "behavioral_reward": behavioral_reward,
                 "handoff_hash": result.handoff.content_hash,
             }
         )
@@ -205,30 +204,24 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
     if messages is not None:
         for message in reversed(messages):
             if isinstance(message, AssistantMessage):
-                if message.tool_calls or message.reasoning_content or message.provider_state:
+                if message.tool_calls:
                     raise BehavioralCallFailure(
                         FailureEvidence(
                             failure_class=FailureClass.PARTIAL_RESPONSE,
                             request_dispatched=True,
                             behavioral_sample_produced=None,
-                            detail=(
-                                "provider assistant message carried tool calls, "
-                                "reasoning, or continuation state"
-                            ),
+                            detail="provider assistant message carried tool calls",
                         )
                     )
                 return message.content or "", getattr(message, "provider_request_id", None)
             if getattr(message, "role", None) == "assistant":
-                if any(
-                    getattr(message, field, None)
-                    for field in ("tool_calls", "reasoning_content", "provider_state")
-                ):
+                if getattr(message, "tool_calls", None):
                     raise BehavioralCallFailure(
                         FailureEvidence(
                             failure_class=FailureClass.PARTIAL_RESPONSE,
                             request_dispatched=True,
                             behavioral_sample_produced=None,
-                            detail="provider assistant message carried non-text state",
+                            detail="provider assistant message carried tool calls",
                         )
                     )
                 content = getattr(message, "content", None)
@@ -769,6 +762,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=eviction_offer.state_hash,
                             rack=eviction_offer.rack_view_x,
                             frames=eviction_offer.frames_x,
+                            success=eviction_offer.success,
                         )
                         request_y = memory_request(
                             role="Y",
@@ -779,6 +773,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=eviction_offer.state_hash,
                             rack=eviction_offer.rack_view_y,
                             frames=eviction_offer.frames_y,
+                            success=eviction_offer.success,
                         )
                         calls = await _dispatch_pair(
                             interaction_x=interaction_x,
@@ -811,6 +806,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=retention_offer.state_hash,
                             rack=retention_offer.rack_view_x,
                             frames=retention_offer.frames_x,
+                            success=retention_offer.success,
                         )
                         request_y = memory_request(
                             role="Y",
@@ -821,6 +817,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=retention_offer.state_hash,
                             rack=retention_offer.rack_view_y,
                             frames=retention_offer.frames_y,
+                            success=retention_offer.success,
                         )
                         calls = await _dispatch_pair(
                             interaction_x=interaction_x,

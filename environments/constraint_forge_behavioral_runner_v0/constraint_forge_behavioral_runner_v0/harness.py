@@ -23,11 +23,16 @@ from verifiers.v1.trace import Trace
 from verifiers.v1.types import AssistantMessage, Messages
 
 
+# One finite timeout owns both the embedded SDK client and the runner boundary.
+# Provider-side retries remain disabled; a timeout is still abort-only.
+CALL_TIMEOUT_SECONDS = 120.0
+
+
 # This is intentionally the smallest possible one-request text program.  It uses
 # the native interception endpoint supplied by v1, but disables the OpenAI SDK's
 # automatic retries: the runner's closed failure taxonomy owns retry decisions so
 # a transport retry can never silently create another behavioral sample.
-TEXT_PROGRAM_SOURCE = r'''# /// script
+TEXT_PROGRAM_SOURCE = f'''# /// script
 # requires-python = ">=3.11"
 # dependencies = ["openai"]
 """One plain, non-streaming intercepted chat completion."""
@@ -53,7 +58,7 @@ async def main() -> None:
     client = AsyncOpenAI(
         base_url=args.base_url,
         api_key=args.api_key,
-        timeout=30.0,
+        timeout={CALL_TIMEOUT_SECONDS:.1f},
         max_retries=0,
     )
     await client.chat.completions.create(
@@ -132,13 +137,14 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
                 last = assistants[-1]
                 if not isinstance(last, AssistantMessage):
                     raise ValueError("provider response was not an assistant message")
-                if last.tool_calls or last.reasoning_content or last.provider_state:
+                if last.tool_calls:
                     raise ValueError(
-                        "provider returned tool calls, reasoning, or continuation state; "
-                        "Constraint Forge only accepts plain assistant text"
+                        "provider returned tool calls; Constraint Forge only accepts "
+                        "ordinary assistant text"
                     )
-                # Copy only ordinary text into the next visible turn.  Never
-                # replay provider metadata, reasoning, tool calls, or hidden state.
+                # The native Trace retains reasoning/provider fields for audit.
+                # Copy only visible content into the next turn; never replay
+                # reasoning, tool calls, or provider continuation state.
                 self._visible_messages = [
                     *candidate,
                     AssistantMessage(content=last.content or ""),
@@ -211,6 +217,7 @@ __all__ = [
     "ConstraintForgeTextHarness",
     "ConstraintForgeTextHarnessConfig",
     "ConstraintForgeTextHarnessSession",
+    "CALL_TIMEOUT_SECONDS",
     "TEXT_PROGRAM_SOURCE",
     "context_epoch_scope",
 ]

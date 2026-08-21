@@ -111,6 +111,7 @@ class MemoryOffer(StrictModel):
     )
     token: StrictStr
     phase: Literal["eviction", "retention"]
+    success: StrictBool
     state_hash: StrictStr
     event_sequence_before: StrictInt = Field(ge=0)
     rack_view_x: RackView
@@ -519,6 +520,7 @@ class ConstraintForgeJobSession:
         return MemoryOffer(
             token=self._token(phase, self.rounds_resolved, self.state_hash),
             phase=phase,
+            success=self.state.success,
             state_hash=self.state_hash,
             event_sequence_before=len(self.log.events),
             rack_view_x=_memory_view(self.intervention, Station.X, self.rack_x),

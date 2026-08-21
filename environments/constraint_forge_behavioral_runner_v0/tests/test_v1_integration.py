@@ -33,6 +33,7 @@ class _DeterministicClient(Client):
     def __init__(self, data) -> None:
         self.requests: list[dict] = []
         self.session_ids: list[str | None] = []
+        self.hidden_state_responses = 0
         self._targets: dict[tuple[tuple[int, int], ...], dict[int, int]] = {}
         for seed in data.job_seeds:
             job = generate_job(seed)
@@ -70,12 +71,17 @@ class _DeterministicClient(Client):
             )
         else:
             answer = {"action": "keep_unchanged"}
+        hidden = self.hidden_state_responses == 0
+        if hidden:
+            self.hidden_state_responses += 1
         return Response(
             id=f"local-fake-{len(self.requests)}",
             created=0,
             model=model,
             message=AssistantMessage(
-                content=json.dumps(answer, separators=(",", ":"))
+                content=json.dumps(answer, separators=(",", ":")),
+                reasoning_content="audit-only hidden reasoning" if hidden else None,
+                provider_state=[{"opaque": "provider continuation"}] if hidden else None,
             ),
             finish_reason="stop",
         )
@@ -206,6 +212,17 @@ def test_real_v1_agent_harness_session_and_interception_are_no_network_and_sanit
     assert all(trace.trace.reward > 0.0 for trace in result.traces)
     assert all(trace.trace.state.run_valid for trace in result.traces)
     assert all(len(trace.trace.calls) > 0 for trace in result.traces)
+    assert client.hidden_state_responses == 1
+    assert any(
+        message.reasoning_content == "audit-only hidden reasoning"
+        for trace in result.traces
+        for message in trace.trace.assistant_messages
+    )
+    assert any(
+        message.provider_state == [{"opaque": "provider continuation"}]
+        for trace in result.traces
+        for message in trace.trace.assistant_messages
+    )
     assert all(trace.trace.id for trace in result.traces)
     assert result.handoff.lineage_x != result.handoff.lineage_y
     assert {

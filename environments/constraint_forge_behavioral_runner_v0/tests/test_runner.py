@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from contextlib import asynccontextmanager
+from types import SimpleNamespace
 
 import verifiers.v1 as vf
 from verifiers.v1 import AssistantMessage
@@ -14,11 +15,16 @@ from constraint_forge_behavioral_runner_v0.failures import (
     FailureEvidence,
 )
 from constraint_forge_behavioral_runner_v0.harness import (
+    CALL_TIMEOUT_SECONDS,
     TEXT_PROGRAM_SOURCE,
     ConstraintForgeTextHarness,
 )
 from constraint_forge_behavioral_runner_v0.requests import memory_request
-from constraint_forge_behavioral_runner_v0.runner import run_behavioral_sequence
+from constraint_forge_behavioral_runner_v0.runner import (
+    SequenceResult,
+    run_behavioral_sequence,
+    stamp_sequence_traces,
+)
 from constraint_forge_behavioral_runner_v0.taskset import (
     ConstraintForgeBehavioralEnv,
     ConstraintForgeBehavioralEnvConfig,
@@ -286,6 +292,7 @@ def test_x_and_y_receive_only_their_role_local_rack() -> None:
         pre_state_hash="0" * 64,
         rack=x_view,
         frames=(),
+        success=True,
     )
     y_request = memory_request(
         role="Y",
@@ -296,12 +303,17 @@ def test_x_and_y_receive_only_their_role_local_rack() -> None:
         pre_state_hash="0" * 64,
         rack=y_view,
         frames=(),
+        success=True,
     )
     assert set(x_request.visible_payload) == set(y_request.visible_payload)
     assert "rack_x" not in x_request.prompt_text
     assert "rack_y" not in x_request.prompt_text
     assert x_request.visible_payload["role"] == "X"
     assert y_request.visible_payload["role"] == "Y"
+    assert x_request.visible_payload["success"] is True
+    assert y_request.visible_payload["success"] is True
+    assert "failure_reason" not in x_request.visible_payload
+    assert "target_matching" not in x_request.visible_payload
     for film in rack_y.films:
         assert film.handle not in x_request.prompt_text
         assert film.content_hash not in x_request.prompt_text
@@ -357,6 +369,52 @@ def test_ambiguous_delivery_aborts_and_sibling_output_is_audit_only() -> None:
     assert result.ledger.verify().valid
 
 
+def test_invalid_partial_run_keeps_statistics_but_receives_zero_reward() -> None:
+    async def run():
+        task = _task()
+        targets = _targets(task)
+        return await run_behavioral_sequence(
+            task.data,
+            actor_x=_FakeActor(targets),
+            actor_y=_FakeActor(targets),
+            task=task,
+        )
+
+    valid = asyncio.run(run())
+
+    class V1LikeTrace:
+        def __init__(self):
+            self.state = type("State", (), {})()
+            self.info = {}
+            self.rewards = {}
+
+        def record_reward(self, name: str, value: float) -> None:
+            self.rewards[name] = value
+
+    trace = V1LikeTrace()
+    invalid_handoff = valid.handoff.model_copy(
+        update={
+            "run_valid": False,
+            "accepted": False,
+            "aborted": True,
+            "abort_class": "DyadAbort",
+        }
+    )
+    invalid = SequenceResult(
+        handoff=invalid_handoff,
+        audit_event_count=valid.audit_event_count,
+        live_model_calls=valid.live_model_calls,
+        traces=(SimpleNamespace(trace=trace),),
+        ledger=valid.ledger,
+    )
+    stamp_sequence_traces(invalid)
+
+    assert invalid_handoff.job_success_mean > 0.0
+    assert trace.state.job_success_mean == invalid_handoff.job_success_mean
+    assert trace.rewards["formation_accepted"] == 0.0
+    assert trace.info["constraint_forge_behavioral_runner"]["behavioral_reward"] == 0.0
+
+
 def test_read_only_sequence_job_has_no_memory_calls() -> None:
     async def run():
         task = _task()
@@ -399,6 +457,9 @@ def test_minimal_harness_forbids_tools_and_uses_native_session_surface() -> None
     assert ConstraintForgeTextHarness.SUPPORTS_RESUME is True
     assert ConstraintForgeTextHarness.EXECUTES_CODE is False
     assert ConstraintForgeTextHarness.NEEDS_CONTAINER is False
+    assert CALL_TIMEOUT_SECONDS == 120.0
+    assert "timeout=120.0" in TEXT_PROGRAM_SOURCE
+    assert "timeout=30.0" not in TEXT_PROGRAM_SOURCE
     assert "max_retries=0" in TEXT_PROGRAM_SOURCE
     assert "stream=True" not in TEXT_PROGRAM_SOURCE
     assert "mcp" not in TEXT_PROGRAM_SOURCE.lower()

@@ -121,11 +121,38 @@ def test_model_request_contains_frozen_language_but_no_audit_metadata() -> None:
     )
 
 
-def test_provider_state_is_anomaly_not_replayable_context() -> None:
+def test_hidden_provider_state_is_retained_but_visible_content_is_accepted() -> None:
     class Segment:
         messages = [
-            AssistantMessage(content='{"action":"wait"}', reasoning_content="hidden")
+            AssistantMessage(
+                content='{"action":"wait"}',
+                reasoning_content="hidden",
+                provider_state=[{"cursor": "opaque"}],
+            )
+        ]
+
+    assert _raw_assistant_text(Segment()) == ('{"action":"wait"}', None)
+
+
+def test_tool_calls_remain_a_fatal_protocol_anomaly() -> None:
+    class Segment:
+        messages = [
+            AssistantMessage(
+                content='{"action":"wait"}',
+                tool_calls=[],
+            )
+        ]
+
+    # An empty tool-call list is equivalent to no tool calls.
+    assert _raw_assistant_text(Segment()) == ('{"action":"wait"}', None)
+
+    class ActualToolCallSegment:
+        messages = [
+            AssistantMessage(
+                content='{"action":"wait"}',
+                tool_calls=[{"id": "tc", "name": "unexpected", "arguments": "{}"}],
+            )
         ]
 
     with pytest.raises(BehavioralCallFailure):
-        _raw_assistant_text(Segment())
+        _raw_assistant_text(ActualToolCallSegment())

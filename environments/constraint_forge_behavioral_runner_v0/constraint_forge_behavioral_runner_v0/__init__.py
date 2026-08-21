@@ -15,7 +15,11 @@ from .failures import (
     safe_to_retry,
 )
 from .handoff import FormationHandoffV0, FormationJobReceipt
-from .harness import ConstraintForgeTextHarness, ConstraintForgeTextHarnessConfig
+from .harness import (
+    CALL_TIMEOUT_SECONDS,
+    ConstraintForgeTextHarness,
+    ConstraintForgeTextHarnessConfig,
+)
 from .protocol import (
     ACTION_SCHEMA_HASH,
     COMMON_INSTRUCTION_HASH,
@@ -30,7 +34,6 @@ from .protocol import (
 __all__ = ["ConstraintForgeTextHarness"]
 from .requests import BehavioralRequest
 from .runner import (
-    CALL_TIMEOUT_SECONDS,
     DyadAbort,
     SequenceResult,
     run_behavioral_sequence,

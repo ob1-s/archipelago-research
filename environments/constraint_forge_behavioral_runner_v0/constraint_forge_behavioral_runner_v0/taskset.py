@@ -145,9 +145,9 @@ class ConstraintForgeBehavioralTask(
     @vf.reward
     async def formation_accepted(self, trace: vf.Trace) -> float:
         # This is the frozen behavioral reward: mean job success.  Infrastructure
-        # validity is recorded separately and never turns a failed job into a
-        # missing observation or an automatic exclusion.
-        return float(trace.state.job_success_mean)
+        # validity is separate.  An infrastructure-invalid partial dyad remains
+        # audit-only and cannot receive a positive behavioral reward.
+        return float(trace.state.job_success_mean if trace.state.run_valid else 0.0)
 
 
 class ConstraintForgeBehavioralTasksetConfig(vf.TasksetConfig):
