@@ -22,7 +22,11 @@ from constraint_forge_formation_v0.canonical import stable_hash
 from .canary import run_throwaway_canary
 from .evidence import CanaryEvidenceBundleV0, TraceEvidenceV0
 from .harness import ConstraintForgeTextHarnessConfig
-from .taskset import ConstraintForgeBehavioralTaskset, ConstraintForgeBehavioralTasksetConfig
+from .taskset import (
+    ConstraintForgeBehavioralTask,
+    ConstraintForgeBehavioralTaskset,
+    ConstraintForgeBehavioralTasksetConfig,
+)
 
 DEFAULT_MODEL = "gemini-3.7-flash"
 DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -34,7 +38,7 @@ MAX_TOTAL_CALLS = 38
 MAX_COMPLETION_TOKENS = 4096
 
 
-def _build_task():
+def _build_task() -> ConstraintForgeBehavioralTask:
     taskset = ConstraintForgeBehavioralTaskset(
         ConstraintForgeBehavioralTasksetConfig(
             id="constraint-forge-throwaway-live-canary-v0",
@@ -42,7 +46,15 @@ def _build_task():
             num_sequences=1,
         )
     )
-    return next(iter(taskset))
+    base = next(iter(taskset))
+    # The throwaway launcher deliberately uses a local subprocess runtime. The
+    # model call itself is made by Verifiers' host-side interception client; the
+    # subprocess only talks to that local endpoint and never receives provider
+    # credentials. SubprocessConfig cannot enforce TaskData network policies, so
+    # relax this operational-only task copy rather than changing the scientific
+    # 24-job TaskData or requiring a remote/container runtime for the canary.
+    data = base.data.model_copy(update={"network_allow": ["*"], "network_block": []})
+    return ConstraintForgeBehavioralTask(data, base.config)
 
 
 def _agent_config(*, model: str, base_url: str, api_key_var: str) -> AgentConfig:
@@ -246,6 +258,8 @@ async def _run(args) -> int:
         "x_key_var": args.x_key_var,
         "y_key_var": args.y_key_var,
         "seed_prefix": CANARY_SEED_PREFIX,
+        "runtime": "subprocess",
+        "runtime_task_network_policy": "unrestricted-operational-canary",
         "evidence_path": str(output),
         "evidence_hash": bundle.content_hash,
         "checks": checks,

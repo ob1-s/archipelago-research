@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from verifiers.v1.utils.compile import resolve_runtime_config
+
 from constraint_forge_behavioral_runner_v0.live_canary import (
     CANARY_SEED_PREFIX,
     DEFAULT_BASE_URL,
@@ -28,9 +30,12 @@ def test_live_canary_uses_dedicated_throwaway_seeds() -> None:
         "ordinary",
         "ordinary",
     ]
+    assert canary.data.network_allow == ["*"]
+    assert canary.data.network_block == []
 
 
 def test_gemini_canary_agent_config_is_local_zero_retry_and_key_indirected() -> None:
+    task = _build_task()
     x = _agent_config(
         model=DEFAULT_MODEL,
         base_url=DEFAULT_BASE_URL,
@@ -48,6 +53,8 @@ def test_gemini_canary_agent_config_is_local_zero_retry_and_key_indirected() -> 
     assert x.client.api_key_var == "GEMINI_API_KEY"
     assert y.client.api_key_var == "GEMINI_API_KEY_2"
     assert x.runtime.type == y.runtime.type == "subprocess"
+    assert resolve_runtime_config(x.runtime, task).type == "subprocess"
+    assert resolve_runtime_config(y.runtime, task).type == "subprocess"
     assert x.max_turns == y.max_turns == MAX_CALLS_PER_ROLE == 19
     assert x.retries.max_retries == y.retries.max_retries == 0
     assert x.sampling is not None and y.sampling is not None
