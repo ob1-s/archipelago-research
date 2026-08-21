@@ -46,6 +46,10 @@ CANARY_SEED_PREFIX = "constraint-forge/throwaway-live-canary-v0"
 MAX_CALLS_PER_ROLE = 19
 MAX_TOTAL_CALLS = 38
 MAX_COMPLETION_TOKENS = 4096
+# Ox Alpha interleaves extended reasoning before its visible answer; the
+# Gemini-tuned 4096 cap is exhausted mid-reasoning (finish_reason=length with
+# empty content), so the Zen canary raises only this provider-boundary knob.
+ZEN_MAX_COMPLETION_TOKENS = 16384
 
 
 def _build_task() -> ConstraintForgeBehavioralTask:
@@ -67,13 +71,19 @@ def _build_task() -> ConstraintForgeBehavioralTask:
     return ConstraintForgeBehavioralTask(data, base.config)
 
 
-def _agent_config(*, model: str, base_url: str, api_key_var: str) -> AgentConfig:
+def _agent_config(
+    *,
+    model: str,
+    base_url: str,
+    api_key_var: str,
+    max_completion_tokens: int = MAX_COMPLETION_TOKENS,
+) -> AgentConfig:
     return AgentConfig(
         model=model,
         client=EvalClientConfig(base_url=base_url, api_key_var=api_key_var),
         harness=ConstraintForgeTextHarnessConfig(),
         runtime=SubprocessConfig(),
-        sampling=SamplingConfig(max_tokens=MAX_COMPLETION_TOKENS),
+        sampling=SamplingConfig(max_tokens=max_completion_tokens),
         max_turns=MAX_CALLS_PER_ROLE,
         retries=RetryConfig(max_retries=0),
     )
@@ -285,10 +295,20 @@ async def _run(args) -> int:
 
     task = _build_task()
     actor_x = vf.Agent(
-        _agent_config(model=args.model, base_url=args.base_url, api_key_var=args.x_key_var)
+        _agent_config(
+            model=args.model,
+            base_url=args.base_url,
+            api_key_var=args.x_key_var,
+            max_completion_tokens=args.max_completion_tokens,
+        )
     )
     actor_y = vf.Agent(
-        _agent_config(model=args.model, base_url=args.base_url, api_key_var=args.y_key_var)
+        _agent_config(
+            model=args.model,
+            base_url=args.base_url,
+            api_key_var=args.y_key_var,
+            max_completion_tokens=args.max_completion_tokens,
+        )
     )
 
     result = await run_throwaway_canary(
@@ -315,6 +335,7 @@ async def _run(args) -> int:
         "x_key_var": args.x_key_var,
         "y_key_var": args.y_key_var,
         "shared_credential": shared_credential,
+        "max_completion_tokens": args.max_completion_tokens,
         "seed_prefix": CANARY_SEED_PREFIX,
         "runtime": "subprocess",
         "runtime_task_network_policy": "unrestricted-operational-canary",
@@ -340,6 +361,12 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-shared-credential",
         action="store_true",
         help="permit one shared credential for X and Y (single-account providers)",
+    )
+    parser.add_argument(
+        "--max-completion-tokens",
+        type=int,
+        default=MAX_COMPLETION_TOKENS,
+        help="per-call completion budget (provider-boundary knob; prompts unchanged)",
     )
     parser.add_argument("--output")
     return parser
