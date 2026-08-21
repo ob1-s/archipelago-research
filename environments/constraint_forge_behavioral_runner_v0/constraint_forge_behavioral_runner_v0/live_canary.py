@@ -69,6 +69,33 @@ def _agent_config(*, model: str, base_url: str, api_key_var: str) -> AgentConfig
     )
 
 
+def _native_call_summary(index: int, call) -> dict:
+    finish_reason = getattr(call, "finish_reason", None)
+    finish_reason = getattr(finish_reason, "value", finish_reason)
+    error = getattr(call, "error", None)
+    error_payload = None
+    if error is not None:
+        if hasattr(error, "model_dump"):
+            dumped = error.model_dump(mode="json", exclude_none=True)
+            error_payload = {
+                key: dumped[key]
+                for key in ("type", "message", "status_code")
+                if key in dumped
+            }
+        else:
+            error_payload = {
+                "type": type(error).__qualname__,
+                "message": str(error),
+            }
+    return {
+        "native_call_index": index,
+        "model": getattr(call, "model", None),
+        "endpoint": getattr(call, "endpoint", None),
+        "finish_reason": finish_reason,
+        "error": error_payload,
+    }
+
+
 def _trace_evidence(result) -> tuple[TraceEvidenceV0, ...]:
     records: list[TraceEvidenceV0] = []
     lifecycles = {"X": result.handoff.lineage_x, "Y": result.handoff.lineage_y}
@@ -85,6 +112,10 @@ def _trace_evidence(result) -> tuple[TraceEvidenceV0, ...]:
             if hasattr(config, "model_dump")
             else {"type": type(config).__qualname__ if config is not None else "unknown"}
         )
+        native_calls = tuple(
+            _native_call_summary(index, call)
+            for index, call in enumerate(getattr(trace, "calls", ()))
+        )
         records.append(
             TraceEvidenceV0(
                 role=role,
@@ -96,6 +127,7 @@ def _trace_evidence(result) -> tuple[TraceEvidenceV0, ...]:
                     if isinstance(info, dict)
                     else ()
                 ),
+                native_calls=native_calls,
             )
         )
     return tuple(records)
@@ -157,6 +189,15 @@ def _same_prestate_pairs(bundle: CanaryEvidenceBundleV0) -> bool:
     return True
 
 
+def _provider_failures(bundle: CanaryEvidenceBundleV0) -> list[dict]:
+    failures: list[dict] = []
+    for trace in bundle.traces:
+        for call in trace.native_calls:
+            if call.get("error") is not None or call.get("finish_reason") != "stop":
+                failures.append({"role": trace.role, **call})
+    return failures
+
+
 def _qualification(result, bundle: CanaryEvidenceBundleV0) -> tuple[dict[str, bool], dict]:
     provider_final, request_integral, fresh_second_context = _receipt_checks(bundle)
     no_retry = not any(
@@ -203,6 +244,7 @@ def _qualification(result, bundle: CanaryEvidenceBundleV0) -> tuple[dict[str, bo
         "retention_observed": retained_any,
         "rack_crossing_inconclusive_without_retention": not retained_any,
         "observed_model_calls": result.live_model_calls,
+        "provider_failures": _provider_failures(bundle),
     }
     return checks, observations
 
