@@ -34,6 +34,11 @@ class TraceEvidenceV0(StrictModel):
     trace_id: StrictStr
     agent_config: dict
     provider_requests: tuple[dict, ...] = ()
+    # Sanitized native call summaries are persisted so a failed live canary says
+    # *why* the provider call failed instead of only recording "partial_response".
+    # Tracebacks are intentionally omitted; the launcher's byte-level secret scan
+    # still runs over the complete artifact before it is written.
+    native_calls: tuple[dict, ...] = ()
 
 
 class CanaryEvidenceBundleV0(StrictModel):
