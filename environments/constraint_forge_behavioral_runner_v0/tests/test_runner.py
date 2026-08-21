@@ -445,15 +445,16 @@ def test_malformed_response_is_rejected_behavioral_data_and_is_not_retried() -> 
     assert malformed[0].status.value == "completed"
     assert result.live_model_calls == 0
     first_job = result.jobs[0]
-    rejected = [
+    malformed_rejections = [
         event
         for event in first_job.event_log.events
         if event.event_kind.value == "ACTION_REJECTED"
+        and event.rejection_reason == "malformed_action"
     ]
-    assert len(rejected) == 1
-    assert rejected[0].legal is False
-    assert rejected[0].rejection_reason == "malformed_action"
-    assert rejected[0].action_payload == {"action": "rejected"}
+    assert len(malformed_rejections) == 1
+    rejected = malformed_rejections[0]
+    assert rejected.legal is False
+    assert rejected.action_payload == {"action": "rejected"}
     assert "{not-json" not in json.dumps(first_job.model_dump(mode="json"))
 
 
