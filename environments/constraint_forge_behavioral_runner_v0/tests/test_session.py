@@ -109,22 +109,31 @@ def test_scripted_batch_and_session_retain_phase_event_semantics_match() -> None
     assert stepped.event_log.content_hash == batch.event_log.content_hash
 
 
-def test_malformed_behavioral_output_is_one_deterministic_noop() -> None:
+def test_malformed_behavioral_output_is_one_deterministic_rejected_opportunity() -> None:
     job = generate_job(9)
     session = ConstraintForgeJobSession.open(
         job, run_id="r", lineage_id="l", job_id="j", read_only_probe=True
     )
     offer = session.begin_round()
+    before = session.state.x.model_dump(mode="json")
     result = session.submit_round(
         token=offer.token,
         raw_x="not json",
         raw_y=_target_json(job, offer.observation_y, Station.Y),
     )
-    assert result.parse_x is ParseClassification.MALFORMED_NOOP
-    assert result.resolution.x.action_payload == {"action": "wait"}
-    assert result.resolution.x.legal is True
+    assert result.parse_x is ParseClassification.MALFORMED_REJECTED
+    assert result.resolution.x.action_payload == {"action": "rejected"}
+    assert result.resolution.x.legal is False
+    assert result.resolution.x.rejection_reason == "malformed_action"
+    after = session.state.x.model_dump(mode="json")
+    # The rejected opportunity changes no X-local state or budget. The global
+    # round still advances because the opportunity was consumed.
+    assert after == before
     assert result.round == 1
     assert session._pending_round is None
+    assert session.frames_x[-1].action_payload == {"action": "rejected"}
+    assert session.frames_x[-1].action_legal is False
+    assert "not json" not in json.dumps(session.frames_x[-1].model_dump(mode="json"))
 
 
 def test_round_offer_seals_identical_prestate_before_dispatch() -> None:
@@ -171,6 +180,40 @@ def test_memory_offer_exposes_only_binary_job_outcome() -> None:
     assert request.visible_payload["success"] is False
     assert "failure_reason" not in request.visible_payload
     assert "target_matching" not in request.visible_payload
+
+
+def test_malformed_and_wrong_phase_memory_choices_are_rejected_without_rack_change() -> None:
+    job = generate_job(83)
+    session = ConstraintForgeJobSession.open(job, run_id="r", lineage_id="l", job_id="j")
+    while not session.terminal:
+        offer = session.begin_round()
+        session.submit_round(
+            token=offer.token,
+            raw_x=_target_json(job, offer.observation_x, Station.X),
+            raw_y=_target_json(job, offer.observation_y, Station.Y),
+        )
+    before_x = session.rack_x.serialization_bytes
+    before_y = session.rack_y.serialization_bytes
+    eviction = session.begin_eviction()
+    evicted = session.submit_eviction(
+        token=eviction.token,
+        raw_x="not json",
+        raw_y='{"action":"retain","start_round":1}',
+    )
+    assert evicted.parse_x is ParseClassification.MALFORMED_REJECTED
+    assert evicted.parse_y is ParseClassification.WRONG_PHASE_REJECTED
+    assert evicted.mutation_x.legal is False
+    assert evicted.mutation_x.rejection_reason == "malformed_action"
+    assert evicted.mutation_y.legal is False
+    assert evicted.mutation_y.rejection_reason == "wrong_phase"
+    assert session.rack_x.serialization_bytes == before_x
+    assert session.rack_y.serialization_bytes == before_y
+    attempted = [
+        event
+        for event in session.event_log.events
+        if event.event_kind.value == "EVICT_ATTEMPTED"
+    ]
+    assert all(event.action_payload == {"action": "rejected"} for event in attempted[-2:])
 
 
 def test_eviction_precedes_retention_and_retention_sees_resulting_rack() -> None:

@@ -1,8 +1,8 @@
 """Authoritative round-by-round Constraint Forge job session.
 
-The model-free runner in :mod:`world` remains the reference batch API.  This
+The model-free runner in :mod:`world` remains the reference batch API. This
 module exposes the same world transitions one decision barrier at a time for a
-behavioral referee.  It deliberately contains orchestration only: parsing,
+behavioral referee. It deliberately contains orchestration only: parsing,
 physics, interventions, racks, and event construction are delegated to the V0
 modules that already own those rules.
 """
@@ -62,8 +62,8 @@ class ParseClassification(StrEnum):
     """How a raw behavioral response was turned into a typed decision."""
 
     VALID = "valid"
-    MALFORMED_NOOP = "malformed_noop"
-    WRONG_PHASE_NOOP = "wrong_phase_noop"
+    MALFORMED_REJECTED = "malformed_rejected"
+    WRONG_PHASE_REJECTED = "wrong_phase_rejected"
 
 
 class SessionPhase(StrEnum):
@@ -137,31 +137,115 @@ class MemorySubmitResult(StrictModel):
 
 
 def _world_action(raw: str) -> tuple[object, ParseClassification]:
-    """Parse one model response; malformed text is one deterministic no-op.
+    """Parse one response; malformed text consumes one rejected opportunity.
 
-    A no-op is represented by the existing typed ``wait`` action.  It consumes
-    the behavioral opportunity and enters the ordinary event stream exactly
-    once; the separate classification preserves the fact that the response was
-    malformed for the runner audit without teaching the physics a second action
-    language.
+    ``wait`` is used only as an internal physics placeholder because it has no
+    physical effect. After simultaneous resolution, the placeholder's action
+    bookkeeping is removed and its outcome is rewritten as an explicit rejected
+    action. The raw response remains runner-audit-only and never enters a film.
     """
 
     try:
         return parse_world_action(raw), ParseClassification.VALID
     except ActionParseError:
-        return WaitAction(action="wait"), ParseClassification.MALFORMED_NOOP
+        return WaitAction(action="wait"), ParseClassification.MALFORMED_REJECTED
 
 
 def _memory_action(raw: str, *, phase: Literal["eviction", "retention"]):
     try:
         action = parse_memory_action(raw)
     except ActionParseError:
-        return KeepUnchangedAction(action="keep_unchanged"), ParseClassification.MALFORMED_NOOP
+        return (
+            KeepUnchangedAction(action="keep_unchanged"),
+            ParseClassification.MALFORMED_REJECTED,
+        )
     if phase == "eviction" and action.action == "retain":
-        return KeepUnchangedAction(action="keep_unchanged"), ParseClassification.WRONG_PHASE_NOOP
+        return (
+            KeepUnchangedAction(action="keep_unchanged"),
+            ParseClassification.WRONG_PHASE_REJECTED,
+        )
     if phase == "retention" and action.action == "evict":
-        return KeepUnchangedAction(action="keep_unchanged"), ParseClassification.WRONG_PHASE_NOOP
+        return (
+            KeepUnchangedAction(action="keep_unchanged"),
+            ParseClassification.WRONG_PHASE_REJECTED,
+        )
     return action, ParseClassification.VALID
+
+
+def _rejection_reason(classification: ParseClassification) -> str | None:
+    if classification is ParseClassification.MALFORMED_REJECTED:
+        return "malformed_action"
+    if classification is ParseClassification.WRONG_PHASE_REJECTED:
+        return "wrong_phase"
+    return None
+
+
+def _rewrite_rejected_round_outcomes(
+    state,
+    resolution: RoundResolution,
+    *,
+    parse_x: ParseClassification,
+    parse_y: ParseClassification,
+):
+    """Turn internal wait placeholders into no-state-change rejected outcomes."""
+
+    updates = {}
+    for station, classification, field in (
+        (Station.X, parse_x, "x"),
+        (Station.Y, parse_y, "y"),
+    ):
+        reason = _rejection_reason(classification)
+        if reason is None:
+            continue
+        station_state = state.x if station is Station.X else state.y
+        placeholder = getattr(resolution, field)
+        # ``wait`` normally increments legal_action_count, but if this station
+        # had already finished the world rejects even the placeholder and instead
+        # increments illegal_action_count. Restore whichever bookkeeping branch
+        # actually occurred so malformed input changes no station state/budget.
+        if placeholder.legal:
+            if station_state.legal_action_count <= 0:
+                raise RuntimeError("rejected-action legal bookkeeping underflow")
+            station_state.legal_action_count -= 1
+        else:
+            if station_state.illegal_action_count <= 0:
+                raise RuntimeError("rejected-action illegal bookkeeping underflow")
+            station_state.illegal_action_count -= 1
+        outcome = placeholder.model_copy(
+            update={
+                "action_payload": {"action": "rejected"},
+                "legal": False,
+                "rejection_reason": reason,
+            }
+        )
+        updates[field] = outcome
+
+    if not updates:
+        return state, resolution
+    post_hash = world_state_hash(state)
+    x = updates.get("x", resolution.x).model_copy(update={"post_state_hash": post_hash})
+    y = updates.get("y", resolution.y).model_copy(update={"post_state_hash": post_hash})
+    return state, resolution.model_copy(
+        update={"post_state_hash": post_hash, "x": x, "y": y}
+    )
+
+
+def _rewrite_rejected_memory_mutation(
+    mutation: RackMutation, classification: ParseClassification
+) -> RackMutation:
+    reason = _rejection_reason(classification)
+    if reason is None:
+        return mutation
+    return mutation.model_copy(
+        update={
+            "legal": False,
+            "rejection_reason": reason,
+            "fragment_handle": None,
+            "fragment_hash": None,
+            "local_window_bounds": None,
+            "source_job_id": None,
+        }
+    )
 
 
 class ConstraintForgeJobSession:
@@ -388,9 +472,6 @@ class ConstraintForgeJobSession:
 
         self.state, effects = begin_round(self.state)
         self._append_begin_effects(effects)
-        # ``begin_round`` delivers scheduled effects before either station can
-        # act.  The state after that delivery is the actual shared prestate for
-        # this decision barrier and for both audit bindings.
         pre_state_hash = self.state_hash
         first_observation = self.state.round == 1
         obs_x = observation(
@@ -438,6 +519,12 @@ class ConstraintForgeJobSession:
             action_y,  # type: ignore[arg-type]
             x_action_id=f"X:r{self.state.round}",
             y_action_id=f"Y:r{self.state.round}",
+        )
+        resolution_state, resolution = _rewrite_rejected_round_outcomes(
+            resolution_state,
+            resolution,
+            parse_x=parse_x,
+            parse_y=parse_y,
         )
         self.log = _emit_action_events(self.log, self.state, resolution.x)
         self.log = _emit_action_events(self.log, self.state, resolution.y)
@@ -588,11 +675,12 @@ class ConstraintForgeJobSession:
             source_job_id=self.job_id,
             handle_seed=f"{self.lineage_id}:{self.job_id}:Y",
         )
-        mutation_x, mutation_y = mutations_x[0], mutations_y[0]
+        mutation_x = _rewrite_rejected_memory_mutation(mutations_x[0], parse_x)
+        mutation_y = _rewrite_rejected_memory_mutation(mutations_y[0], parse_y)
         self.mutations_x.append(mutation_x)
         self.mutations_y.append(mutation_y)
-        self._append_memory_event("eviction", Station.X, mutation_x, action_x)
-        self._append_memory_event("eviction", Station.Y, mutation_y, action_y)
+        self._append_memory_event("eviction", Station.X, mutation_x, action_x, parse_x)
+        self._append_memory_event("eviction", Station.Y, mutation_y, action_y, parse_y)
         self._pending_memory = None
         self.phase = SessionPhase.EVICTION
         return MemorySubmitResult(
@@ -608,15 +696,23 @@ class ConstraintForgeJobSession:
             rack_hash_y=self.rack_y.content_hash,
         )
 
-    def _append_memory_event(self, phase: Literal["eviction", "retention"], station: Station, mutation: RackMutation, action) -> None:
+    def _append_memory_event(
+        self,
+        phase: Literal["eviction", "retention"],
+        station: Station,
+        mutation: RackMutation,
+        action,
+        classification: ParseClassification,
+    ) -> None:
         attempted = EventKind.EVICT_ATTEMPTED if phase == "eviction" else EventKind.RETAIN_ATTEMPTED
         completed = EventKind.EVICTED if phase == "eviction" else EventKind.RETAINED
+        rejected = classification is not ParseClassification.VALID
         self.log = self.log.append(
             round=self.state.round,
             phase=phase,
             source=station,
             event_kind=attempted,
-            action_payload=action_payload(action),
+            action_payload={"action": "rejected"} if rejected else action_payload(action),
             pre_state_hash=self.state_hash,
             post_state_hash=self.state_hash,
             legal=mutation.legal,
@@ -627,13 +723,12 @@ class ConstraintForgeJobSession:
             local_window_bounds=mutation.local_window_bounds,
             detail=(
                 {"source_job_id": self.job_id}
-                if phase == "retention" and (mutation.legal or action.action == "retain")
+                if not rejected
+                and phase == "retention"
+                and (mutation.legal or action.action == "retain")
                 else {}
             ),
         )
-        # Preserve V0's event semantics: retention emits RETAINED for the
-        # explicit legal keep_unchanged path as well, while eviction emits
-        # EVICTED only when a film was actually removed.
         if mutation.legal and (
             phase == "retention" or mutation.fragment_hash is not None
         ):
@@ -699,11 +794,12 @@ class ConstraintForgeJobSession:
             source_job_id=self.job_id,
             handle_seed=f"{self.lineage_id}:{self.job_id}:Y",
         )
-        mutation_x, mutation_y = mutation_xs[1], mutation_ys[1]
+        mutation_x = _rewrite_rejected_memory_mutation(mutation_xs[1], parse_x)
+        mutation_y = _rewrite_rejected_memory_mutation(mutation_ys[1], parse_y)
         self.mutations_x.append(mutation_x)
         self.mutations_y.append(mutation_y)
-        self._append_memory_event("retention", Station.X, mutation_x, action_x)
-        self._append_memory_event("retention", Station.Y, mutation_y, action_y)
+        self._append_memory_event("retention", Station.X, mutation_x, action_x, parse_x)
+        self._append_memory_event("retention", Station.Y, mutation_y, action_y, parse_y)
         self._pending_memory = None
         self.phase = SessionPhase.COMPLETE
         return MemorySubmitResult(

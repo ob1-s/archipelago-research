@@ -8,6 +8,7 @@ from verifiers.v1 import AssistantMessage
 from constraint_forge_formation_v0.canonical import canonical_bytes, sha256_bytes
 from constraint_forge_formation_v0.session import ConstraintForgeJobSession
 from constraint_forge_formation_v0.generator import generate_job
+from constraint_forge_behavioral_runner_v0.protocol import NEUTRAL_SYSTEM_PROMPT
 from constraint_forge_behavioral_runner_v0.requests import round_request
 from constraint_forge_behavioral_runner_v0.runner import _raw_assistant_text
 from constraint_forge_behavioral_runner_v0.failures import BehavioralCallFailure
@@ -102,6 +103,10 @@ def test_model_request_contains_frozen_language_but_no_audit_metadata() -> None:
     assert "You operate station X." in request.prompt_text
     assert 'accepts only a round action' in request.prompt_text
     assert '"action":"write","register":int,"symbol":int' in request.instructions
+    assert "register is 0–1" in request.instructions
+    assert "symbol is 0–3" in request.instructions
+    assert "item and target are\n0–5" in request.instructions
+    assert "retention start_round is 1–11" in request.instructions
     assert all(
         key not in request.model_visible_payload
         for key in (
@@ -119,6 +124,12 @@ def test_model_request_contains_frozen_language_but_no_audit_metadata() -> None:
     assert request.request_hash == sha256_bytes(
         canonical_bytes(request.model_visible_payload)
     )
+
+
+def test_shared_system_prompt_is_role_neutral_and_has_no_literal_placeholder() -> None:
+    assert "{X|Y}" not in NEUTRAL_SYSTEM_PROMPT
+    assert "You operate one of two stations." in NEUTRAL_SYSTEM_PROMPT
+    assert "Each request identifies it as X or Y." in NEUTRAL_SYSTEM_PROMPT
 
 
 def test_hidden_provider_state_is_retained_but_visible_content_is_accepted() -> None:
@@ -143,7 +154,6 @@ def test_tool_calls_remain_a_fatal_protocol_anomaly() -> None:
             )
         ]
 
-    # An empty tool-call list is equivalent to no tool calls.
     assert _raw_assistant_text(Segment()) == ('{"action":"wait"}', None)
 
     class ActualToolCallSegment:

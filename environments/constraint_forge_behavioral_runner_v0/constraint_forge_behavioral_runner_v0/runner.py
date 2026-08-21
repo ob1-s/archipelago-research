@@ -20,6 +20,7 @@ from constraint_forge_formation_v0.world import JobResult
 from verifiers.v1 import AssistantMessage
 
 from .audit import AuditLedger, AuditSealStatus, AuditStatus
+from .evidence import CanaryEvidenceBundleV0, JobEvidenceV0, TraceEvidenceV0
 from .failures import (
     BehavioralCallFailure,
     FailureClass,
@@ -41,24 +42,67 @@ class DyadAbort(RuntimeError):
 
 @dataclass(frozen=True)
 class SequenceResult:
-    """The handoff plus in-process evidence needed by fake/no-network tests."""
+    """The handoff plus canonical evidence retained after a behavioral sequence."""
 
     handoff: FormationHandoffV0
     audit_event_count: int
     live_model_calls: int
     traces: tuple[_InteractionTrace, ...]
     ledger: AuditLedger
+    jobs: tuple[JobEvidenceV0, ...]
+
+
+def _native_trace_evidence(result: SequenceResult) -> tuple[TraceEvidenceV0, ...]:
+    records: list[TraceEvidenceV0] = []
+    lifecycles = {"X": result.handoff.lineage_x, "Y": result.handoff.lineage_y}
+    for role, interaction in zip(("X", "Y"), result.traces, strict=False):
+        trace = interaction.trace
+        trace_id = getattr(trace, "id", None)
+        info = getattr(trace, "info", None)
+        agent = getattr(trace, "agent", None)
+        config = getattr(agent, "config", None)
+        if not trace_id or not isinstance(info, dict):
+            continue
+        config_payload = (
+            config.model_dump(mode="json", exclude_none=False)
+            if hasattr(config, "model_dump")
+            else {"type": type(config).__qualname__ if config is not None else "unknown"}
+        )
+        records.append(
+            TraceEvidenceV0(
+                role=role,
+                lifecycle_id=lifecycles[role],
+                trace_id=trace_id,
+                agent_config=config_payload,
+                provider_requests=tuple(info.get("constraint_forge_provider_requests", ())),
+            )
+        )
+    return tuple(records)
 
 
 def stamp_sequence_traces(result: SequenceResult) -> None:
     """Stamp native v1 traces after the persistent interactions have scored.
 
     v1 closes/scoring happen while the interaction context exits, which is
-    before the runner can construct its handoff.  Recording the final reward
-    here makes direct runner use and Env.run use share the same post-sequence
-    timing-safe result.  Fake interaction traces intentionally have no v1 state
-    and are left untouched.
+    before the runner can construct its handoff. Recording the final reward and
+    canonical evidence here makes direct runner use and Env.run use share the
+    same post-sequence result. Fake interaction traces intentionally have no v1
+    state and are left untouched.
     """
+
+    seal = result.ledger.seal_record
+    trace_evidence = _native_trace_evidence(result)
+    evidence_bundle = None
+    if seal is not None and len(trace_evidence) == 2:
+        evidence_bundle = CanaryEvidenceBundleV0(
+            run_id=result.handoff.run_id,
+            dyad_id=result.handoff.dyad_id,
+            handoff=result.handoff,
+            audit_events=result.ledger.events,
+            audit_seal=seal,
+            jobs=result.jobs,
+            traces=trace_evidence,
+        )
 
     for interaction in result.traces:
         trace = interaction.trace
@@ -94,6 +138,11 @@ def stamp_sequence_traces(result: SequenceResult) -> None:
             }
         )
         trace.info["formation_handoff_v0"] = result.handoff.model_dump(mode="json")
+        if evidence_bundle is not None:
+            trace.info["constraint_forge_canary_evidence_v0"] = (
+                evidence_bundle.model_dump(mode="json")
+            )
+            trace.info["constraint_forge_canary_evidence_hash"] = evidence_bundle.content_hash
 
 
 @dataclass(frozen=True)
@@ -188,9 +237,6 @@ def _agent_identity(
             "actor_id": actor_id,
             "config_hash": config_hash,
             "actor_type": type(actor).__qualname__,
-            # A native v1 Trace id is the concrete rollout/session identity.
-            # Fake actors intentionally have no id and receive a deterministic
-            # run-scoped fallback for replay tests.
             "trace_id": getattr(trace, "id", None),
         }
     )[:32]
@@ -230,8 +276,6 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
                 )
     if isinstance(segment, str):
         return segment, None
-    # A fake provider may expose exact text as a simple property; this fallback
-    # is test-only convenience and never strips/normalizes it.
     if hasattr(segment, "raw_output"):
         raw = getattr(segment, "raw_output")
         return (raw if isinstance(raw, str) else None), getattr(segment, "provider_request_id", None)
@@ -239,8 +283,6 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
 
 
 def _append_prepared_audit(ledger: AuditLedger, record: _CallRecord) -> None:
-    """Record a sealed call before its provider boundary is entered."""
-
     ledger.append(
         actor=record.actor,
         actor_id=record.actor_id,
@@ -396,9 +438,6 @@ async def _turn_with_safe_retry(
             retry_of=retry_of,
         )
         try:
-            # The preparation event is appended immediately before entering
-            # v1's interaction boundary.  The pair lock keeps the hash chain
-            # mutation serialized while preserving the two-call barrier.
             async with prepared_lock:
                 _append_prepared_audit(ledger, record)
             async with asyncio.timeout(CALL_TIMEOUT_SECONDS):
@@ -449,7 +488,7 @@ async def _turn_with_safe_retry(
                 failures=tuple(failures),
                 error=DyadAbort(f"{actor} {phase} call timed out"),
             )
-        except Exception as exc:  # provider/runtime delivery is ambiguous by default
+        except Exception as exc:
             failure = ambiguous_failure(f"{type(exc).__name__}: {exc}")
             failures.append(_FailureRecord(record, failure.evidence, AuditStatus.FAILED))
             return _TurnResult(
@@ -475,17 +514,10 @@ async def _dispatch_pair(
     world_event_sequence_before: int,
     ledger: AuditLedger,
 ) -> tuple[_CallRecord, _CallRecord]:
-    # Requests are fully materialized and hashed before either coroutine is
-    # scheduled.  gather preserves role association even when completion order
-    # differs.
     if request_x.pre_state_hash != request_y.pre_state_hash:
         raise DyadAbort("X/Y requests did not share one pre-state hash")
-    if request_x.request_hash == request_y.request_hash:
-        # Same bytes are not prohibited, but role labels must still make the two
-        # sealed requests explicit; this guard catches accidental aliasing in
-        # callers that mutate a request object after construction.
-        if request_x.role == request_y.role:
-            raise DyadAbort("X/Y request roles were not distinct")
+    if request_x.request_hash == request_y.request_hash and request_x.role == request_y.role:
+        raise DyadAbort("X/Y request roles were not distinct")
     prepared_lock = asyncio.Lock()
     with context_epoch_scope(job_index):
         results = await asyncio.gather(
@@ -525,8 +557,6 @@ async def _dispatch_pair(
             ),
             return_exceptions=True,
         )
-    # A task-level cancellation/bug is still converted into an ambiguous pair
-    # failure, while ordinary provider evidence arrives as _TurnResult data.
     normalized: list[_TurnResult] = []
     for result in results:
         if isinstance(result, BaseException):
@@ -549,8 +579,6 @@ async def _dispatch_pair(
     errors = [result.error for result in normalized if result.error is not None]
     successes = [result.record for result in normalized if result.record is not None]
     if errors:
-        # A sibling response can be real even though the pair cannot advance.
-        # Preserve it as audit-only; never feed it into the world or resample it.
         for record in successes:
             _append_success_audit(
                 ledger,
@@ -561,8 +589,7 @@ async def _dispatch_pair(
                 event_end=None,
                 status=AuditStatus.AUDIT_ONLY,
             )
-        error = errors[0]
-        raise error
+        raise errors[0]
     return normalized[0].record, normalized[1].record  # type: ignore[return-value]
 
 
@@ -635,6 +662,19 @@ def _read_only_at(data, index: int) -> bool:
     return index in set(getattr(data, "read_only_job_indices", ()))
 
 
+def _session_evidence(session: ConstraintForgeJobSession, *, complete: bool) -> JobEvidenceV0:
+    return JobEvidenceV0(
+        job_id=session.job_id,
+        job_seed=session.job.job_seed,
+        complete=complete,
+        event_log=session.event_log,
+        rack_x=session.rack_x,
+        rack_y=session.rack_y,
+        memory_mutations_x=tuple(session.mutations_x),
+        memory_mutations_y=tuple(session.mutations_y),
+    )
+
+
 async def run_behavioral_sequence(
     data: "ConstraintForgeBehavioralTaskData",
     *,
@@ -648,14 +688,12 @@ async def run_behavioral_sequence(
 
     run_id = data.sequence_id
     dyad_id = stable_hash({"run_id": run_id, "protocol": data.protocol_version})[:32]
-    identity_x = _agent_identity(
-        actor_x, "X", run_id=run_id, dyad_id=dyad_id
-    )
-    identity_y = _agent_identity(
-        actor_y, "Y", run_id=run_id, dyad_id=dyad_id
-    )
+    identity_x = _agent_identity(actor_x, "X", run_id=run_id, dyad_id=dyad_id)
+    identity_y = _agent_identity(actor_y, "Y", run_id=run_id, dyad_id=dyad_id)
     ledger = AuditLedger(run_id=run_id, dyad_id=dyad_id)
     receipts: list[FormationJobReceipt] = []
+    job_evidence: list[JobEvidenceV0] = []
+    active_session: ConstraintForgeJobSession | None = None
     rack_x = empty_rack()
     rack_y = empty_rack()
     traces: list[_InteractionTrace] = []
@@ -663,10 +701,6 @@ async def run_behavioral_sequence(
     abort_class: str | None = None
 
     try:
-        # The episode-owned agents, interactions, traces, and harness sessions
-        # span the whole dyad.  The package-local HarnessSession resets only
-        # its provider-visible prompt history at the runner's out-of-band job
-        # boundary; the v1 Trace remains the append-only audit record.
         x_interaction = (
             actor_x.interaction(task, runtime=runtime_x)
             if runtime_x is not None
@@ -682,9 +716,6 @@ async def run_behavioral_sequence(
                 traces.extend(
                     (_InteractionTrace(interaction_x.trace), _InteractionTrace(interaction_y.trace))
                 )
-                # Bind lifecycle identity to the concrete native v1 traces that
-                # own these persistent interactions.  Fake actors without a v1
-                # trace id retain the deterministic run-scoped fallback.
                 identity_x = _agent_identity(
                     actor_x,
                     "X",
@@ -712,6 +743,7 @@ async def run_behavioral_sequence(
                         intervention=_intervention_at(data, job_index),
                         read_only_probe=_read_only_at(data, job_index),
                     )
+                    active_session = session
                     while not session.terminal:
                         offer: RoundOffer = session.begin_round()
                         request_x = round_request(
@@ -841,6 +873,8 @@ async def run_behavioral_sequence(
                         _record_memory_successes(ledger, calls, retention_result)
 
                     job_result: JobResult = session.result()
+                    job_evidence.append(_session_evidence(session, complete=True))
+                    active_session = None
                     rack_x = job_result.final_rack_x
                     rack_y = job_result.final_rack_y
                     last_state_hash = job_result.final_state_hash
@@ -859,10 +893,14 @@ async def run_behavioral_sequence(
                     )
     except DyadAbort as exc:
         abort_class = type(exc).__name__
+        if active_session is not None:
+            job_evidence.append(_session_evidence(active_session, complete=False))
+            active_session = None
     except Exception as exc:
-        # A referee/programming failure is still an abort, never a resampling
-        # opportunity.  No call is labeled successful after this boundary.
         abort_class = f"runner_error:{type(exc).__name__}"
+        if active_session is not None:
+            job_evidence.append(_session_evidence(active_session, complete=False))
+            active_session = None
 
     seal_status = AuditSealStatus.ABORTED if abort_class is not None else AuditSealStatus.COMPLETED
     seal = ledger.seal(seal_status)
@@ -871,9 +909,6 @@ async def run_behavioral_sequence(
     )
     successful_jobs = sum(receipt.success for receipt in receipts)
     job_success_mean = successful_jobs / len(receipts) if receipts else 0.0
-    # A complete, infrastructure-valid sequence is distinct from the binary
-    # success of each attempted job.  Failed jobs remain in job_receipts and are
-    # part of the exploratory data rather than invalidating the dyad.
     run_valid = abort_class is None and len(receipts) == len(data.job_seeds)
     handoff = FormationHandoffV0(
         run_id=run_id,
@@ -902,6 +937,7 @@ async def run_behavioral_sequence(
         live_model_calls=live_model_calls,
         traces=tuple(traces),
         ledger=ledger,
+        jobs=tuple(job_evidence),
     )
     stamp_sequence_traces(result)
     return result

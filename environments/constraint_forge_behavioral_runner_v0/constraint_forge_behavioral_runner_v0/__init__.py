@@ -29,8 +29,7 @@ from .protocol import (
     ROLE_INSTRUCTION_HASHES,
 )
 # The harness config validator can resolve this package by id while taskset.py is
-# still importing.  Publish the sole Harness export before importing the taskset
-# (the final __all__ below expands the public surface once initialization ends).
+# still importing. Publish the sole Harness export before importing the taskset.
 __all__ = ["ConstraintForgeTextHarness"]
 from .requests import BehavioralRequest
 from .runner import (
@@ -39,11 +38,9 @@ from .runner import (
     run_behavioral_sequence,
     stamp_sequence_traces,
 )
-from .schedule import (
-    FormationJobCondition,
-    FormationRunPlan,
-    build_run_plan,
-)
+from .canary import run_throwaway_canary
+from .evidence import CanaryEvidenceBundleV0, JobEvidenceV0, TraceEvidenceV0
+from .schedule import FormationJobCondition, FormationRunPlan, build_run_plan
 from .taskset import (
     ConstraintForgeBehavioralEnv,
     ConstraintForgeBehavioralEnvConfig,
@@ -66,6 +63,7 @@ __all__ = [
     "BehavioralRequest",
     "CALL_TIMEOUT_SECONDS",
     "COMMON_INSTRUCTION_HASH",
+    "CanaryEvidenceBundleV0",
     "ConstraintForgeBehavioralEnv",
     "ConstraintForgeBehavioralEnvConfig",
     "ConstraintForgeBehavioralState",
@@ -82,6 +80,7 @@ __all__ = [
     "FormationJobReceipt",
     "FormationRunPlan",
     "FROZEN_ACTION_SCHEMA",
+    "JobEvidenceV0",
     "NEUTRAL_SYSTEM_PROMPT",
     "NEUTRAL_SYSTEM_PROMPT_HASH",
     "ROLE_INSTRUCTION_HASHES",
@@ -89,8 +88,10 @@ __all__ = [
     "ConstraintForgeTextHarnessConfig",
     "RunnerAuditEvent",
     "SequenceResult",
+    "TraceEvidenceV0",
     "build_run_plan",
     "run_behavioral_sequence",
+    "run_throwaway_canary",
     "safe_to_retry",
     "stamp_sequence_traces",
 ]

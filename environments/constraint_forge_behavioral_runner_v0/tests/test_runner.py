@@ -52,9 +52,6 @@ class _FakeInteraction:
         if payload["phase"] != "round":
             return
         job_key = tuple(tuple(pair) for pair in payload["observation"]["private_pairs"])
-        # The referee's out-of-band epoch is intentionally absent from the
-        # model-facing request.  A test actor therefore uses the frozen round-1
-        # boundary rather than assuming visible masks are globally unique.
         if payload["round"] == 1 or self.actor.active_job_key != job_key:
             self.actor.active_job_key = job_key
             self.history = []
@@ -210,6 +207,8 @@ def test_fake_24_job_dyad_is_complete_and_has_no_live_calls() -> None:
     assert result.handoff.accepted
     assert not result.handoff.aborted
     assert result.handoff.completed_jobs == 24
+    assert len(result.jobs) == 24
+    assert all(job.complete for job in result.jobs)
     assert result.live_model_calls == 0
     assert len(x.contexts) == len(y.contexts) == 24
     assert x.interaction_count == y.interaction_count == 1
@@ -249,9 +248,7 @@ def test_requests_are_sealed_from_one_prestate_and_completion_order_is_irrelevan
         for event in result.ledger.events
         if event.actor == "Y" and event.status.value == "completed"
     }
-    x_hashes = x_events
-    y_hashes = y_events
-    assert x_hashes == y_hashes
+    assert x_events == y_events
     assert result.handoff.run_valid
     assert result.handoff.serialization_bytes == reversed_result.handoff.serialization_bytes
     assert result.ledger.final_hash == reversed_result.ledger.final_hash
@@ -268,8 +265,6 @@ def test_job_context_resets_but_role_lifecycle_and_rack_sequence_continue() -> N
 
     result, x, y = asyncio.run(run())
     assert result.handoff.accepted
-    # Every context starts with the current job's fresh request.  The next job
-    # cannot see the previous job id or assistant text.
     assert "job-00" not in x.contexts[1][0]
     assert "job-00" not in y.contexts[1][0]
     assert "assistant" not in x.contexts[1][0]
@@ -328,10 +323,7 @@ def test_safe_preinference_retry_has_one_behavioral_sample() -> None:
     async def run():
         task = _task()
         targets = _targets(task)
-        x = _FakeActor(
-            targets,
-            fail_class=FailureClass.LOCAL_PRE_DISPATCH,
-        )
+        x = _FakeActor(targets, fail_class=FailureClass.LOCAL_PRE_DISPATCH)
         y = _FakeActor(targets)
         return await run_behavioral_sequence(task.data, actor_x=x, actor_y=y, task=task), x
 
@@ -359,6 +351,9 @@ def test_ambiguous_delivery_aborts_and_sibling_output_is_audit_only() -> None:
     assert result.handoff.aborted
     assert not result.handoff.accepted
     assert result.handoff.completed_jobs == 0
+    assert len(result.jobs) == 1
+    assert result.jobs[0].complete is False
+    assert result.jobs[0].event_log.events
     assert any(event.status.value == "audit_only" for event in result.ledger.events)
     assert sum(event.status.value == "audit_only" for event in result.ledger.events) == 1
     assert all(
@@ -406,6 +401,7 @@ def test_invalid_partial_run_keeps_statistics_but_receives_zero_reward() -> None
         live_model_calls=valid.live_model_calls,
         traces=(SimpleNamespace(trace=trace),),
         ledger=valid.ledger,
+        jobs=valid.jobs,
     )
     stamp_sequence_traces(invalid)
 
@@ -430,7 +426,7 @@ def test_read_only_sequence_job_has_no_memory_calls() -> None:
     assert len(x.contexts[1]) > len(x.contexts[0])
 
 
-def test_malformed_response_is_behavioral_data_and_is_not_retried() -> None:
+def test_malformed_response_is_rejected_behavioral_data_and_is_not_retried() -> None:
     async def run():
         task = _task()
         targets = _targets(task)
@@ -443,11 +439,22 @@ def test_malformed_response_is_behavioral_data_and_is_not_retried() -> None:
     malformed = [
         event
         for event in result.ledger.events
-        if event.parse_classification == "malformed_noop"
+        if event.parse_classification == "malformed_rejected"
     ]
     assert len(malformed) == 1
     assert malformed[0].status.value == "completed"
     assert result.live_model_calls == 0
+    first_job = result.jobs[0]
+    rejected = [
+        event
+        for event in first_job.event_log.events
+        if event.event_kind.value == "ACTION_REJECTED"
+    ]
+    assert len(rejected) == 1
+    assert rejected[0].legal is False
+    assert rejected[0].rejection_reason == "malformed_action"
+    assert rejected[0].action_payload == {"action": "rejected"}
+    assert "{not-json" not in json.dumps(first_job.model_dump(mode="json"))
 
 
 def test_minimal_harness_forbids_tools_and_uses_native_session_surface() -> None:

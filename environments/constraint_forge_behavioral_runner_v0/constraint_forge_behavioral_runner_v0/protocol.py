@@ -29,6 +29,9 @@ The available post-job memory action objects are exactly:
 {"action":"evict","fragment_handle":string}
 {"action":"keep_unchanged"}
 
+Numeric domains are exact: register is 0–1, symbol is 0–3, item and target are
+0–5, and retention start_round is 1–11.
+
 Return exactly one compact JSON object and no surrounding prose, Markdown, tools,
 or additional keys. A round accepts only a round action. The eviction subphase
 accepts only evict or keep_unchanged. The retention subphase accepts only retain
@@ -43,9 +46,14 @@ def model_instructions(role: str) -> str:
     return COMMON_INSTRUCTION_TEMPLATE.replace("{X|Y}", role) + "\n\n" + FROZEN_ACTION_SCHEMA
 
 
-# The system prompt is role-neutral.  The role-specific rendering is repeated in
-# each request because both role agents share one TaskData/system prompt.
-NEUTRAL_SYSTEM_PROMPT = COMMON_INSTRUCTION_TEMPLATE + "\n\n" + FROZEN_ACTION_SCHEMA
+# Both role agents share one TaskData/system prompt, so it must not contain an
+# unresolved station placeholder. Role-specific rendering is repeated in each
+# user request and remains the authoritative role instruction.
+_NEUTRAL_COMMON_INSTRUCTIONS = COMMON_INSTRUCTION_TEMPLATE.replace(
+    "You operate station {X|Y}.",
+    "You operate one of two stations. Each request identifies it as X or Y.",
+)
+NEUTRAL_SYSTEM_PROMPT = _NEUTRAL_COMMON_INSTRUCTIONS + "\n\n" + FROZEN_ACTION_SCHEMA
 
 COMMON_INSTRUCTION_HASH = stable_hash(COMMON_INSTRUCTION_TEMPLATE)
 ACTION_SCHEMA_HASH = stable_hash(FROZEN_ACTION_SCHEMA)
