@@ -19,7 +19,7 @@ from pydantic import Field, StrictBool, StrictInt, StrictStr
 from constraint_forge_formation_v0.canonical import canonical_bytes, sha256_bytes, stable_hash
 from constraint_forge_formation_v0.models import StrictModel
 
-from .audit import AuditSeal, RunnerAuditEvent
+from .audit import AuditSeal, AuditStatus, RunnerAuditEvent
 from .evidence import JobEvidenceV0, TraceEvidenceV0
 from .handoff import FormationHandoffV0
 from .schedule import JOB_COUNT
@@ -50,6 +50,12 @@ class CohortProviderConfigV0(StrictModel):
     reasoning_effort: StrictStr | None = None
     call_timeout_seconds: StrictInt = 120
     max_retries: StrictInt = 0
+    # Declared cohort-v1 retry budget: identical re-dispatch per behavioral
+    # opportunity after explicit infrastructure statuses (429/500/502/503/504)
+    # that provably delivered no response. Completed responses, malformed
+    # actions, length stops, refusals, and timeouts are never retried.
+    infra_retries: StrictInt = 0
+    infra_backoff_seconds: tuple[StrictInt, ...] = (4, 8)
 
 
 class CohortSequenceRowV0(StrictModel):
@@ -73,6 +79,7 @@ class DyadSummaryRowV0(StrictModel):
     abort_class: StrictStr | None = None
     rerun_after_crash: StrictBool = False
     live_model_calls: StrictInt = 0
+    infra_retry_events: StrictInt = 0
     completed_jobs: StrictInt = 0
     successful_jobs: StrictInt = 0
     job_success_mean: float = 0.0
@@ -90,8 +97,8 @@ class CohortManifestV0(StrictModel):
     )
     cohort_id: StrictStr
     freeze_commit: StrictStr
-    protocol_version: Literal["constraint-forge/behavioral-runner-v0"] = (
-        "constraint-forge/behavioral-runner-v0"
+    protocol_version: Literal["constraint-forge/behavioral-runner-v1"] = (
+        "constraint-forge/behavioral-runner-v1"
     )
     seed_prefix: StrictStr
     num_dyads: StrictInt = Field(ge=1)
@@ -199,6 +206,14 @@ def _count_calls(bundle: DyadEvidenceBundleV0) -> int:
     return sum(len(trace.native_calls) for trace in bundle.traces)
 
 
+def _count_infra_retries(bundle: DyadEvidenceBundleV0) -> int:
+    return sum(
+        1
+        for event in bundle.audit_events
+        if getattr(event.status, "value", event.status) == AuditStatus.INFRA_RETRY.value
+    )
+
+
 def dyad_summary_row(
     *,
     bundle: DyadEvidenceBundleV0,
@@ -214,6 +229,7 @@ def dyad_summary_row(
         abort_class=handoff.abort_class,
         rerun_after_crash=bundle.rerun_after_crash,
         live_model_calls=_count_calls(bundle),
+        infra_retry_events=_count_infra_retries(bundle),
         completed_jobs=handoff.completed_jobs,
         successful_jobs=handoff.successful_jobs,
         job_success_mean=handoff.job_success_mean,

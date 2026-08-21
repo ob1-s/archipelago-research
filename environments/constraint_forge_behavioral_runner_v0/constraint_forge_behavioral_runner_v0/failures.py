@@ -17,6 +17,14 @@ class FailureClass(StrEnum):
     TIMEOUT_AMBIGUOUS = "timeout_ambiguous"
     PARTIAL_RESPONSE = "partial_response"
     PROVIDER_FAILURE_AMBIGUOUS = "provider_failure_ambiguous"
+    INFRASTRUCTURE_UNDELIVERED = "infrastructure_undelivered"
+
+
+# Explicit gateway/transport statuses that carry no delivered response body for
+# the behavioral boundary. Declared prospectively for cohort v1: stateless
+# inference means an unseen generation changed no world state, so replacing the
+# missing observation with an identical re-request is not selection bias.
+RETRYABLE_INFRA_STATUSES = frozenset({429, 500, 502, 503, 504})
 
 
 class FailureEvidence(StrictModel):
@@ -50,6 +58,35 @@ def safe_to_retry(evidence: FailureEvidence) -> bool:
     )
 
 
+def infrastructure_failure(status_code: int) -> BehavioralCallFailure:
+    """An explicit infrastructure status arrived with no delivered response.
+
+    Mechanically provable from the native call: the provider returned an
+    explicit error status and no completion (finish_reason is None), so no
+    behavioral content was received. The identical request may be re-dispatched
+    under the declared cohort retry budget.
+    """
+
+    return BehavioralCallFailure(
+        FailureEvidence(
+            failure_class=FailureClass.INFRASTRUCTURE_UNDELIVERED,
+            request_dispatched=True,
+            behavioral_sample_produced=False,
+            provider_status=str(status_code),
+            detail=f"provider returned explicit infrastructure status {status_code}",
+        )
+    )
+
+
+def retryable_infrastructure(evidence: FailureEvidence) -> bool:
+    """True only for an explicit infra status with provably no sample."""
+
+    return bool(
+        evidence.failure_class is FailureClass.INFRASTRUCTURE_UNDELIVERED
+        and evidence.behavioral_sample_produced is False
+    )
+
+
 def ambiguous_failure(detail: str, *, timeout: bool = False) -> BehavioralCallFailure:
     failure_class = FailureClass.TIMEOUT_AMBIGUOUS if timeout else FailureClass.DELIVERY_AMBIGUOUS
     return BehavioralCallFailure(
@@ -66,6 +103,9 @@ __all__ = [
     "BehavioralCallFailure",
     "FailureClass",
     "FailureEvidence",
+    "RETRYABLE_INFRA_STATUSES",
     "ambiguous_failure",
+    "infrastructure_failure",
+    "retryable_infrastructure",
     "safe_to_retry",
 ]

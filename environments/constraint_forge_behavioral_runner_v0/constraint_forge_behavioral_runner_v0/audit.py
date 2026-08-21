@@ -20,6 +20,7 @@ class AuditStatus(StrEnum):
     PREPARED = "prepared"
     COMPLETED = "completed"
     SAFE_RETRY = "safe_retry"
+    INFRA_RETRY = "infra_retry"
     FAILED = "failed"
     AUDIT_ONLY = "audit_only"
 

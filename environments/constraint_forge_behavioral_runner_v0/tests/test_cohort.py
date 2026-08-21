@@ -106,7 +106,7 @@ def test_manifest_hash_binds_freeze_commit_provider_and_plans() -> None:
     assert manifest.manifest_hash != other_commit.manifest_hash
     assert manifest.manifest_hash != other_provider.manifest_hash
     assert manifest.provider_config.model == OX_ALPHA_MODEL
-    assert manifest.protocol_version == "constraint-forge/behavioral-runner-v0"
+    assert manifest.protocol_version == "constraint-forge/behavioral-runner-v1"
 
 
 def test_cohort_agent_config_is_zero_retry_high_turn_and_ox_pinned() -> None:

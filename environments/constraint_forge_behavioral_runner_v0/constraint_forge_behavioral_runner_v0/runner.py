@@ -25,7 +25,10 @@ from .failures import (
     BehavioralCallFailure,
     FailureClass,
     FailureEvidence,
+    RETRYABLE_INFRA_STATUSES,
     ambiguous_failure,
+    infrastructure_failure,
+    retryable_infrastructure,
     safe_to_retry,
 )
 from .harness import CALL_TIMEOUT_SECONDS, context_epoch_scope
@@ -282,6 +285,17 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
     return None, None
 
 
+def _native_error_status(call) -> int | None:
+    """The explicit HTTP status carried by a failed native call, if any."""
+
+    error = getattr(call, "error", None)
+    if error is None:
+        return None
+    payload = error.model_dump(mode="json", exclude_none=True) if hasattr(error, "model_dump") else {}
+    status = payload.get("status_code")
+    return int(status) if isinstance(status, int) else None
+
+
 def _require_native_ordinary_completion(interaction, call_count_before: int | None) -> None:
     """Reject a native v1 segment unless its one provider call ended normally.
 
@@ -313,6 +327,13 @@ def _require_native_ordinary_completion(interaction, call_count_before: int | No
         )
     call = new_calls[0]
     finish_reason = getattr(call.finish_reason, "value", call.finish_reason)
+    if call.error is not None and finish_reason is None:
+        status = _native_error_status(call)
+        if status in RETRYABLE_INFRA_STATUSES:
+            # Explicit infrastructure status with no delivered completion: no
+            # behavioral content was received, so the identical request is
+            # re-dispatchable under the declared cohort retry budget.
+            raise infrastructure_failure(status)
     if call.error is not None or finish_reason != "stop":
         raise BehavioralCallFailure(
             FailureEvidence(
@@ -455,13 +476,18 @@ async def _turn_with_safe_retry(
     world_event_sequence_before: int,
     ledger: AuditLedger,
     prepared_lock: asyncio.Lock,
+    max_infra_retries: int = 0,
+    infra_backoff_seconds: tuple[float, ...] = (4.0, 8.0),
 ) -> _TurnResult:
     retry_of: str | None = None
     failures: list[_FailureRecord] = []
-    for attempt in range(2):
+    safe_retry_used = False
+    infra_retries_used = 0
+    ordinal = 0
+    while True:
         call_id = (
             f"{job_id}:{phase}:{'r'+str(round_number) if round_number is not None else phase}"
-            f":{actor}:attempt{attempt}"
+            f":{actor}:attempt{ordinal}"
         )
         record = _CallRecord(
             actor=actor,
@@ -513,14 +539,28 @@ async def _turn_with_safe_retry(
             )
         except BehavioralCallFailure as exc:
             evidence = exc.evidence
-            status = (
-                AuditStatus.SAFE_RETRY
-                if safe_to_retry(evidence) and attempt == 0
-                else AuditStatus.FAILED
-            )
+            if safe_to_retry(evidence) and not safe_retry_used:
+                safe_retry_used = True
+                status = AuditStatus.SAFE_RETRY
+            elif retryable_infrastructure(evidence) and infra_retries_used < max_infra_retries:
+                infra_retries_used += 1
+                status = AuditStatus.INFRA_RETRY
+            else:
+                status = AuditStatus.FAILED
             failures.append(_FailureRecord(record, evidence, status))
-            if safe_to_retry(evidence) and attempt == 0:
+            if status is not AuditStatus.FAILED:
                 retry_of = call_id
+                ordinal += 1
+                if status is AuditStatus.INFRA_RETRY:
+                    backoff = (
+                        infra_backoff_seconds[
+                            min(infra_retries_used - 1, len(infra_backoff_seconds) - 1)
+                        ]
+                        if infra_backoff_seconds
+                        else 0.0
+                    )
+                    if backoff > 0:
+                        await asyncio.sleep(backoff)
                 continue
             return _TurnResult(
                 record=None,
@@ -545,7 +585,6 @@ async def _turn_with_safe_retry(
                 failures=tuple(failures),
                 error=DyadAbort(f"{actor} {phase} call delivery is ambiguous"),
             )
-    return _TurnResult(record=None, failures=tuple(failures), error=DyadAbort("safe retry loop exhausted"))
 
 
 async def _dispatch_pair(
@@ -562,6 +601,7 @@ async def _dispatch_pair(
     round_number: int | None,
     world_event_sequence_before: int,
     ledger: AuditLedger,
+    max_infra_retries: int = 0,
 ) -> tuple[_CallRecord, _CallRecord]:
     if request_x.pre_state_hash != request_y.pre_state_hash:
         raise DyadAbort("X/Y requests did not share one pre-state hash")
@@ -586,6 +626,7 @@ async def _dispatch_pair(
                 world_event_sequence_before=world_event_sequence_before,
                 ledger=ledger,
                 prepared_lock=prepared_lock,
+                max_infra_retries=max_infra_retries,
             ),
             _turn_with_safe_retry(
                 interaction=interaction_y,
@@ -603,6 +644,7 @@ async def _dispatch_pair(
                 world_event_sequence_before=world_event_sequence_before,
                 ledger=ledger,
                 prepared_lock=prepared_lock,
+                max_infra_retries=max_infra_retries,
             ),
             return_exceptions=True,
         )
@@ -732,8 +774,15 @@ async def run_behavioral_sequence(
     task,
     runtime_x=None,
     runtime_y=None,
+    max_infra_retries: int = 0,
 ) -> SequenceResult:
-    """Run one full sequence using persistent role agents and fresh job contexts."""
+    """Run one full sequence using persistent role agents and fresh job contexts.
+
+    ``max_infra_retries`` is the declared cohort-level budget of identical
+    re-dispatches per behavioral opportunity after explicit infrastructure
+    statuses (429/500/502/503/504) that provably delivered no response. Zero
+    (the default) preserves the original abort-only semantics.
+    """
 
     run_id = data.sequence_id
     dyad_id = stable_hash({"run_id": run_id, "protocol": data.protocol_version})[:32]
@@ -824,6 +873,7 @@ async def run_behavioral_sequence(
                             round_number=offer.round,
                             world_event_sequence_before=offer.event_sequence_before,
                             ledger=ledger,
+                            max_infra_retries=max_infra_retries,
                         )
                         round_result = session.submit_round(
                             token=offer.token,
@@ -869,6 +919,7 @@ async def run_behavioral_sequence(
                             round_number=None,
                             world_event_sequence_before=eviction_offer.event_sequence_before,
                             ledger=ledger,
+                            max_infra_retries=max_infra_retries,
                         )
                         eviction_result = session.submit_eviction(
                             token=eviction_offer.token,
@@ -913,6 +964,7 @@ async def run_behavioral_sequence(
                             round_number=None,
                             world_event_sequence_before=retention_offer.event_sequence_before,
                             ledger=ledger,
+                            max_infra_retries=max_infra_retries,
                         )
                         retention_result = session.submit_retention(
                             token=retention_offer.token,

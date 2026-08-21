@@ -24,8 +24,10 @@ from .schedule import JOB_COUNT, FormationRunPlan, build_run_plan
 
 
 class ConstraintForgeBehavioralTaskData(vf.TaskData):
-    protocol_version: Literal["constraint-forge/behavioral-runner-v0"] = (
-        "constraint-forge/behavioral-runner-v0"
+    # v1: identical scientific apparatus; adds the declared bounded
+    # infrastructure-retry budget at the behavioral boundary (see runner).
+    protocol_version: Literal["constraint-forge/behavioral-runner-v1"] = (
+        "constraint-forge/behavioral-runner-v1"
     )
     sequence_id: StrictStr
     job_seeds: tuple[Seed, ...] = Field(min_length=JOB_COUNT, max_length=JOB_COUNT)

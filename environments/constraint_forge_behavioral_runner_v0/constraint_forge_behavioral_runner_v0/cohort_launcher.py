@@ -47,6 +47,11 @@ ZEN_BASE_URL = "https://opencode.ai/zen/v1/"
 OX_ALPHA_MODEL = "x-preview-f-free"
 COHORT_MAX_COMPLETION_TOKENS = 16384
 COHORT_REASONING_EFFORT = "low"
+# Cohort-v1 declared budget: identical re-dispatch per behavioral opportunity
+# after explicit infrastructure statuses (429/500/502/503/504) that provably
+# delivered no response; everything else stays abort-only.
+COHORT_INFRA_RETRIES = 2
+COHORT_INFRA_BACKOFF_SECONDS = (4, 8)
 DEFAULT_X_KEY_VAR = "OPENCODE_ZEN_API_KEY_X"
 DEFAULT_Y_KEY_VAR = "OPENCODE_ZEN_API_KEY_Y"
 QUALIFICATION_CANARY_SHA256 = (
@@ -74,6 +79,8 @@ def _provider_config(args) -> CohortProviderConfigV0:
         reasoning_effort=COHORT_REASONING_EFFORT,
         call_timeout_seconds=int(CALL_TIMEOUT_SECONDS),
         max_retries=0,
+        infra_retries=COHORT_INFRA_RETRIES,
+        infra_backoff_seconds=COHORT_INFRA_BACKOFF_SECONDS,
     )
 
 
@@ -176,6 +183,17 @@ def _write_freeze_record(directory: Path, manifest, tests: dict) -> Path:
             for row in manifest.sequences
         ],
         "provider_config": manifest.provider_config.model_dump(mode="json"),
+        "retry_policy": (
+            "Per behavioral opportunity: on an explicit infrastructure status "
+            "(429/500/502/503/504) with no delivered response, re-dispatch the "
+            f"identical request up to {manifest.provider_config.infra_retries} "
+            "times with backoff "
+            f"{list(manifest.provider_config.infra_backoff_seconds)}s; every "
+            "attempt is persisted in the audit ledger with the same request "
+            "hash/context; completed responses, malformed actions, length "
+            "stops, refusals, and timeouts are never retried; the whole chain "
+            "counts as exactly one behavioral opportunity."
+        ),
         "qualification_canary_sha256": manifest.qualification_canary_sha256,
         "test_results": tests,
         "stop_rule": manifest.stop_rule,
@@ -311,6 +329,7 @@ async def _run(args) -> int:
             actor_x=actor_x,
             actor_y=actor_y,
             task=operational,
+            max_infra_retries=COHORT_INFRA_RETRIES,
         )
         bundle = _bundle_from_result(
             result,
@@ -368,7 +387,7 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="materialize the freeze record and manifest without model calls",
     )
-    parser.add_argument("--cohort-id", default="constraint-forge-formation-cohort-ox-v0")
+    parser.add_argument("--cohort-id", default="constraint-forge-formation-cohort-ox-v1")
     parser.add_argument("--output-dir", default="cohort_artifacts")
     parser.add_argument("--x-key-var", default=DEFAULT_X_KEY_VAR)
     parser.add_argument("--y-key-var", default=DEFAULT_Y_KEY_VAR)
