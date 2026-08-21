@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from verifiers.v1.utils.compile import resolve_runtime_config
 
+from constraint_forge_behavioral_runner_v0.evidence import TraceEvidenceV0
 from constraint_forge_behavioral_runner_v0.live_canary import (
     CANARY_SEED_PREFIX,
     DEFAULT_BASE_URL,
@@ -12,6 +15,8 @@ from constraint_forge_behavioral_runner_v0.live_canary import (
     MAX_COMPLETION_TOKENS,
     _agent_config,
     _build_task,
+    _native_call_summary,
+    _provider_failures,
 )
 from constraint_forge_behavioral_runner_v0.taskset import (
     ConstraintForgeBehavioralTaskset,
@@ -61,3 +66,43 @@ def test_gemini_canary_agent_config_is_local_zero_retry_and_key_indirected() -> 
     assert x.sampling.max_tokens == y.sampling.max_tokens == MAX_COMPLETION_TOKENS
     assert x.sampling.temperature is None and y.sampling.temperature is None
     assert x.sampling.top_p is None and y.sampling.top_p is None
+
+
+def test_live_canary_persists_human_readable_native_provider_error() -> None:
+    error = SimpleNamespace(
+        model_dump=lambda **_: {
+            "type": "ProviderError",
+            "message": "429 RESOURCE_EXHAUSTED",
+            "status_code": 429,
+            "traceback": "do not persist this",
+        }
+    )
+    call = SimpleNamespace(
+        finish_reason=None,
+        error=error,
+        model="gemini-3.7-flash",
+        endpoint="/chat/completions",
+    )
+    summary = _native_call_summary(0, call)
+
+    assert summary == {
+        "native_call_index": 0,
+        "model": "gemini-3.7-flash",
+        "endpoint": "/chat/completions",
+        "finish_reason": None,
+        "error": {
+            "type": "ProviderError",
+            "message": "429 RESOURCE_EXHAUSTED",
+            "status_code": 429,
+        },
+    }
+
+    trace = TraceEvidenceV0(
+        role="X",
+        lifecycle_id="x-life",
+        trace_id="x-trace",
+        agent_config={},
+        native_calls=(summary,),
+    )
+    bundle = SimpleNamespace(traces=(trace,))
+    assert _provider_failures(bundle) == [{"role": "X", **summary}]
