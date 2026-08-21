@@ -19,7 +19,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-constraint-forge-formation-v0 = { path = "../constraint_forge_formation_v0" }
+# This runner and the formation world are developed and audited together. Keep
+# the local source editable so `uv run python -m ...` cannot silently execute a
+# stale wheel while pytest sees newer source through tests/conftest.py.
+constraint-forge-formation-v0 = { path = "../constraint_forge_formation_v0", editable = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["constraint_forge_behavioral_runner_v0"]
