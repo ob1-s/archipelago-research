@@ -38,9 +38,11 @@ endpoint on 2026-08-21:
 - reasoning: interleaved, returned out-of-band in a separate `reasoning_content`
   message field (never replayed into later visible context); effort is requested via
   the standard `reasoning_effort` field with advertised levels `low|high|max`; the
-  canary leaves it unset (provider default) and only raises the completion budget to
-  16384 (`--max-completion-tokens`) because the Gemini-tuned 4096 cap is exhausted
-  mid-reasoning (`finish_reason=length`, empty content)
+  canary pins `--reasoning-effort low` because the provider's silent default currently
+  emits long-form reasoning that the free endpoint fails to serve (upstream
+  500/503/timeouts) and that exhausts even a 16384 budget (`finish_reason=length`,
+  empty content); the completion budget is raised to 16384 via
+  `--max-completion-tokens` because the Gemini-tuned 4096 cap truncates mid-reasoning
 - stop semantics: ordinary OpenAI `finish_reason`; anything other than `stop` aborts.
   The opencode CLI client's own unknown-stop retry logic does not apply here: the
   harness subprocess uses `AsyncOpenAI(max_retries=0)` and every runner retry budget
@@ -58,7 +60,8 @@ uv run python -m constraint_forge_behavioral_runner_v0.live_canary --live \
   --x-key-var OPENCODE_ZEN_API_KEY_X \
   --y-key-var OPENCODE_ZEN_API_KEY_Y \
   --allow-shared-credential \
-  --max-completion-tokens 16384
+  --max-completion-tokens 16384 \
+  --reasoning-effort low
 ```
 
 `--allow-shared-credential` records `shared_credential: true` in the run summary; the

@@ -144,17 +144,27 @@ def test_zen_ox_alpha_config_targets_native_chat_completions_with_bearer_keys() 
     assert x.sampling.max_tokens == y.sampling.max_tokens == MAX_COMPLETION_TOKENS
     assert x.sampling.reasoning_effort is None and y.sampling.reasoning_effort is None
 
-    # The Zen canary raises only the completion budget (Ox Alpha reasons at
-    # length before answering); prompts, rules, and retry budgets are unchanged.
+    # The Zen canary raises only the completion budget and pins an explicit
+    # reasoning effort (the provider's silent default currently produces
+    # long-form reasoning the free endpoint cannot serve reliably); prompts,
+    # rules, and retry budgets are unchanged, and both roles share one config.
     zx = _agent_config(
         model=OX_ALPHA_MODEL,
         base_url=ZEN_BASE_URL,
         api_key_var=ZEN_X_KEY_VAR,
         max_completion_tokens=16384,
+        reasoning_effort="low",
     )
-    assert zx.sampling.max_tokens == 16384
-    assert zx.retries.max_retries == 0
-    assert zx.sampling.reasoning_effort is None
+    zy = _agent_config(
+        model=OX_ALPHA_MODEL,
+        base_url=ZEN_BASE_URL,
+        api_key_var=ZEN_Y_KEY_VAR,
+        max_completion_tokens=16384,
+        reasoning_effort="low",
+    )
+    assert zx.sampling.max_tokens == zy.sampling.max_tokens == 16384
+    assert zx.retries.max_retries == zy.retries.max_retries == 0
+    assert zx.sampling.reasoning_effort == zy.sampling.reasoning_effort == "low"
 
 
 def test_zen_reasoning_effort_is_an_explicit_sampling_override_only() -> None:

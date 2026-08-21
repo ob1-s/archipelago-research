@@ -77,13 +77,17 @@ def _agent_config(
     base_url: str,
     api_key_var: str,
     max_completion_tokens: int = MAX_COMPLETION_TOKENS,
+    reasoning_effort: str | None = None,
 ) -> AgentConfig:
     return AgentConfig(
         model=model,
         client=EvalClientConfig(base_url=base_url, api_key_var=api_key_var),
         harness=ConstraintForgeTextHarnessConfig(),
         runtime=SubprocessConfig(),
-        sampling=SamplingConfig(max_tokens=max_completion_tokens),
+        sampling=SamplingConfig(
+            max_tokens=max_completion_tokens,
+            reasoning_effort=reasoning_effort,
+        ),
         max_turns=MAX_CALLS_PER_ROLE,
         retries=RetryConfig(max_retries=0),
     )
@@ -300,6 +304,7 @@ async def _run(args) -> int:
             base_url=args.base_url,
             api_key_var=args.x_key_var,
             max_completion_tokens=args.max_completion_tokens,
+            reasoning_effort=args.reasoning_effort,
         )
     )
     actor_y = vf.Agent(
@@ -308,6 +313,7 @@ async def _run(args) -> int:
             base_url=args.base_url,
             api_key_var=args.y_key_var,
             max_completion_tokens=args.max_completion_tokens,
+            reasoning_effort=args.reasoning_effort,
         )
     )
 
@@ -336,6 +342,7 @@ async def _run(args) -> int:
         "y_key_var": args.y_key_var,
         "shared_credential": shared_credential,
         "max_completion_tokens": args.max_completion_tokens,
+        "reasoning_effort": args.reasoning_effort,
         "seed_prefix": CANARY_SEED_PREFIX,
         "runtime": "subprocess",
         "runtime_task_network_policy": "unrestricted-operational-canary",
@@ -367,6 +374,12 @@ def _parser() -> argparse.ArgumentParser:
         type=int,
         default=MAX_COMPLETION_TOKENS,
         help="per-call completion budget (provider-boundary knob; prompts unchanged)",
+    )
+    parser.add_argument(
+        "--reasoning-effort",
+        choices=["low", "high", "max"],
+        default=None,
+        help="explicit Ox Alpha reasoning effort; unset uses the provider default",
     )
     parser.add_argument("--output")
     return parser
