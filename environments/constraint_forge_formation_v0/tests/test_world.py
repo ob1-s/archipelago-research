@@ -67,3 +67,44 @@ def test_illegal_actions_consume_round_but_not_budget() -> None:
     assert not resolution.x.legal
     assert resolution.x.rejection_reason == "item_already_set"
     assert updated.x.mutations_remaining == 7
+
+
+def _memory_kinds(result):
+    return [
+        (event.source.value if hasattr(event.source, "value") else str(event.source), event.event_kind.value)
+        for event in result.event_log.events
+        if event.phase == "retention"
+    ]
+
+
+def test_noop_retention_logs_no_retained_event() -> None:
+    job = generate_job(81)
+    result = run_job(
+        job,
+        run_id="r",
+        lineage_id="l",
+        job_id="j",
+        policy_x=target_policy(job, Station.X),
+        policy_y=target_policy(job, Station.Y),
+        memory_policy_x=lambda *_: (None, None),
+        memory_policy_y=lambda *_: (None, None),
+    )
+    assert all(kind != "RETAINED" for _, kind in _memory_kinds(result))
+    attempted = [source for source, kind in _memory_kinds(result) if kind == "RETAIN_ATTEMPTED"]
+    assert sorted(attempted) == ["X", "Y"]
+
+
+def test_real_film_retention_logs_retained_exactly_once_per_station() -> None:
+    job = generate_job(81)
+    result = run_job(
+        job,
+        run_id="r",
+        lineage_id="l",
+        job_id="j",
+        policy_x=target_policy(job, Station.X),
+        policy_y=target_policy(job, Station.Y),
+        memory_policy_x=lambda *_: (None, 1),
+        memory_policy_y=lambda *_: (None, 1),
+    )
+    retained = [source for source, kind in _memory_kinds(result) if kind == "RETAINED"]
+    assert sorted(retained) == ["X", "Y"]

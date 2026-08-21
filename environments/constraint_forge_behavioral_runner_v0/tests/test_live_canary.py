@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from verifiers.v1.clients.eval import join_url
+from verifiers.v1.dialects.chat import ChatDialect
+from verifiers.v1.types import SamplingConfig
 from verifiers.v1.utils.compile import resolve_runtime_config
 
 from constraint_forge_behavioral_runner_v0.evidence import TraceEvidenceV0
@@ -13,6 +16,10 @@ from constraint_forge_behavioral_runner_v0.live_canary import (
     DEFAULT_MODEL,
     MAX_CALLS_PER_ROLE,
     MAX_COMPLETION_TOKENS,
+    OX_ALPHA_MODEL,
+    ZEN_BASE_URL,
+    ZEN_X_KEY_VAR,
+    ZEN_Y_KEY_VAR,
     _agent_config,
     _build_task,
     _native_call_summary,
@@ -106,3 +113,59 @@ def test_live_canary_persists_human_readable_native_provider_error() -> None:
     )
     bundle = SimpleNamespace(traces=(trace,))
     assert _provider_failures(bundle) == [{"role": "X", **summary}]
+
+
+def test_zen_ox_alpha_config_targets_native_chat_completions_with_bearer_keys() -> None:
+    """The Zen boundary is the native OpenAI-compatible endpoint, not a proxy."""
+
+    x = _agent_config(
+        model=OX_ALPHA_MODEL,
+        base_url=ZEN_BASE_URL,
+        api_key_var=ZEN_X_KEY_VAR,
+    )
+    y = _agent_config(
+        model=OX_ALPHA_MODEL,
+        base_url=ZEN_BASE_URL,
+        api_key_var=ZEN_Y_KEY_VAR,
+    )
+
+    assert x.model == y.model == OX_ALPHA_MODEL == "x-preview-f-free"
+    assert x.client is not None and y.client is not None
+    assert x.client.base_url == y.client.base_url == ZEN_BASE_URL
+    assert ZEN_X_KEY_VAR != ZEN_Y_KEY_VAR
+    dialect = ChatDialect()
+    assert join_url(ZEN_BASE_URL, dialect.upstream_path) == (
+        "https://opencode.ai/zen/v1/chat/completions"
+    )
+    assert dialect.auth_headers("zen-key") == {"Authorization": "Bearer zen-key"}
+    # Same zero-retry, bounded, non-streaming posture as the Gemini canary.
+    assert x.retries.max_retries == y.retries.max_retries == 0
+    assert x.max_turns == y.max_turns == MAX_CALLS_PER_ROLE
+    assert x.sampling.max_tokens == y.sampling.max_tokens == MAX_COMPLETION_TOKENS
+    assert x.sampling.reasoning_effort is None and y.sampling.reasoning_effort is None
+
+
+def test_zen_reasoning_effort_is_an_explicit_sampling_override_only() -> None:
+    """Ox Alpha exposes effort levels low/high/max via `reasoning_effort`.
+
+    The chat dialect overlays sampling fields onto the outbound body, so
+    `reasoning_effort: "max"` reaches Zen as a top-level request field while an
+    unset knob stays absent from the wire request entirely.
+    """
+
+    dialect = ChatDialect()
+    default_body = dialect.apply_overrides(
+        {"model": "ignored", "messages": []},
+        OX_ALPHA_MODEL,
+        SamplingConfig(max_tokens=MAX_COMPLETION_TOKENS),
+    )
+    assert "reasoning_effort" not in default_body
+    assert default_body["model"] == OX_ALPHA_MODEL
+    assert default_body["max_tokens"] == MAX_COMPLETION_TOKENS
+
+    max_reasoning = dialect.apply_overrides(
+        {"model": "ignored", "messages": []},
+        OX_ALPHA_MODEL,
+        SamplingConfig(max_tokens=MAX_COMPLETION_TOKENS, reasoning_effort="max"),
+    )
+    assert max_reasoning["reasoning_effort"] == "max"

@@ -1240,7 +1240,9 @@ def run_job(
                     else {}
                 ),
             )
-            if retention.legal:
+            # A no-op keep_unchanged retention is legal but is not a real
+            # film retention, so it must not emit a RETAINED completion event.
+            if retention.legal and retention.operation == "retain":
                 log = log.append(
                     round=state.round,
                     phase="retention",

@@ -32,6 +32,16 @@ DEFAULT_MODEL = "gemini-3.7-flash"
 DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 DEFAULT_X_KEY_VAR = "GEMINI_API_KEY"
 DEFAULT_Y_KEY_VAR = "GEMINI_API_KEY_2"
+
+# OpenCode Zen / Ox Alpha Free provider boundary. The native Zen API is an
+# OpenAI-compatible chat-completions endpoint authenticated with a Bearer Zen
+# API key; reasoning arrives out-of-band in `reasoning_content`, so no harness
+# change is required beyond these identifiers.
+ZEN_BASE_URL = "https://opencode.ai/zen/v1/"
+OX_ALPHA_MODEL = "x-preview-f-free"
+ZEN_X_KEY_VAR = "OPENCODE_ZEN_API_KEY_X"
+ZEN_Y_KEY_VAR = "OPENCODE_ZEN_API_KEY_Y"
+
 CANARY_SEED_PREFIX = "constraint-forge/throwaway-live-canary-v0"
 MAX_CALLS_PER_ROLE = 19
 MAX_TOTAL_CALLS = 38
@@ -265,8 +275,13 @@ async def _run(args) -> int:
         if not value:
             raise SystemExit(f"required credential environment variable is unset: {name}")
         secrets.append(value)
-    if secrets[0] == secrets[1]:
-        raise SystemExit("X and Y credential environment variables resolve to the same value")
+    shared_credential = secrets[0] == secrets[1]
+    if shared_credential and not args.allow_shared_credential:
+        raise SystemExit(
+            "X and Y credential environment variables resolve to the same value "
+            "(pass --allow-shared-credential only for providers where one account "
+            "is the intended boundary, e.g. OpenCode Zen)"
+        )
 
     task = _build_task()
     actor_x = vf.Agent(
@@ -299,6 +314,7 @@ async def _run(args) -> int:
         "base_url": args.base_url,
         "x_key_var": args.x_key_var,
         "y_key_var": args.y_key_var,
+        "shared_credential": shared_credential,
         "seed_prefix": CANARY_SEED_PREFIX,
         "runtime": "subprocess",
         "runtime_task_network_policy": "unrestricted-operational-canary",
@@ -320,6 +336,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     parser.add_argument("--x-key-var", default=DEFAULT_X_KEY_VAR)
     parser.add_argument("--y-key-var", default=DEFAULT_Y_KEY_VAR)
+    parser.add_argument(
+        "--allow-shared-credential",
+        action="store_true",
+        help="permit one shared credential for X and Y (single-account providers)",
+    )
     parser.add_argument("--output")
     return parser
 

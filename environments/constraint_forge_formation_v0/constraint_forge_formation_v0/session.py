@@ -729,9 +729,14 @@ class ConstraintForgeJobSession:
                 else {}
             ),
         )
-        if mutation.legal and (
-            phase == "retention" or mutation.fragment_hash is not None
-        ):
+        # A completion event records a real memory change only. A legal
+        # keep_unchanged no-op is never a retention (or eviction) completion.
+        real_completion = (
+            mutation.operation == "retain"
+            if phase == "retention"
+            else mutation.fragment_hash is not None
+        )
+        if mutation.legal and real_completion:
             self.log = self.log.append(
                 round=self.state.round,
                 phase=phase,
