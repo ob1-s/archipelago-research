@@ -264,7 +264,19 @@ async def _run(args) -> int:
             "freeze gate: freeze record does not match this frozen plan hash"
         )
 
+    # The declared stop rule counts consecutive infrastructure aborts across
+    # the whole cohort, so a resumed run inherits the trailing streak from the
+    # persisted manifest instead of restarting the count.
     consecutive_infra_aborts = 0
+    for index in sorted(rows):
+        if rows[index]["status"] == DyadStatus.ABORTED.value:
+            consecutive_infra_aborts += 1
+        else:
+            consecutive_infra_aborts = 0
+    if consecutive_infra_aborts >= CONSECUTIVE_INFRA_ABORT_STOP:
+        print(json.dumps({"stopped_cleanly": "inherited abort streak from manifest"}))
+        return 2
+
     for task in tasks:
         dyad_index = task.data.idx
         artifact_path = directory / f"dyad-{dyad_index:02d}.json"
@@ -314,7 +326,7 @@ async def _run(args) -> int:
             manifest_path,
             json.dumps(_manifest_payload(manifest, rows), indent=2, sort_keys=True).encode(),
         )
-        print(json.dumps(json.loads(row.model_dump(mode="json")), sort_keys=True))
+        print(json.dumps(row.model_dump(mode="json"), sort_keys=True))
 
         if row.status == DyadStatus.ABORTED:
             violation = _invariant_violation(bundle)
