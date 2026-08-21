@@ -282,6 +282,51 @@ def _raw_assistant_text(segment) -> tuple[str | None, str | None]:
     return None, None
 
 
+def _require_native_ordinary_completion(interaction, call_count_before: int | None) -> None:
+    """Reject a native v1 segment unless its one provider call ended normally.
+
+    ``Interaction.turn`` can return a sampled segment even when the harness
+    subsequently marked that rollout step failed, because the provider response
+    has already been committed to the native Trace. The behavioral referee must
+    therefore inspect the exact new native call itself before any assistant text
+    is allowed to reach the world.
+    """
+
+    if call_count_before is None:
+        return
+    trace = getattr(interaction, "trace", None)
+    calls = getattr(trace, "calls", None)
+    if calls is None:
+        return
+    new_calls = calls[call_count_before:]
+    if len(new_calls) != 1:
+        raise BehavioralCallFailure(
+            FailureEvidence(
+                failure_class=FailureClass.PARTIAL_RESPONSE,
+                request_dispatched=True,
+                behavioral_sample_produced=None,
+                detail=(
+                    "native behavioral segment did not bind to exactly one provider call: "
+                    f"observed {len(new_calls)}"
+                ),
+            )
+        )
+    call = new_calls[0]
+    finish_reason = getattr(call.finish_reason, "value", call.finish_reason)
+    if call.error is not None or finish_reason != "stop":
+        raise BehavioralCallFailure(
+            FailureEvidence(
+                failure_class=FailureClass.PARTIAL_RESPONSE,
+                request_dispatched=True,
+                behavioral_sample_produced=(True if call.error is None else None),
+                detail=(
+                    "native provider completion was not an ordinary final stop: "
+                    f"finish_reason={finish_reason!r}, error={call.error is not None}"
+                ),
+            )
+        )
+
+
 def _append_prepared_audit(ledger: AuditLedger, record: _CallRecord) -> None:
     ledger.append(
         actor=record.actor,
@@ -440,8 +485,12 @@ async def _turn_with_safe_retry(
         try:
             async with prepared_lock:
                 _append_prepared_audit(ledger, record)
+            trace = getattr(interaction, "trace", None)
+            native_calls = getattr(trace, "calls", None)
+            native_call_count = len(native_calls) if native_calls is not None else None
             async with asyncio.timeout(CALL_TIMEOUT_SECONDS):
                 segment = await interaction.turn(request.prompt_text)
+            _require_native_ordinary_completion(interaction, native_call_count)
             raw_output, request_id = _raw_assistant_text(segment)
             if raw_output is None:
                 raise BehavioralCallFailure(
