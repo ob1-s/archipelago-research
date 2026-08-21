@@ -27,6 +27,7 @@ from constraint_forge_formation_v0.canonical import stable_hash
 from .audit import AuditLedger
 from .cohort import (
     COHORT_MAX_TURNS_PER_ROLE,
+    COHORT_NUM_DYADS,
     CONSECUTIVE_INFRA_ABORT_STOP,
     DyadEvidenceBundleV0,
     DyadStatus,
