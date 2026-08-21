@@ -36,6 +36,7 @@ CALL_TIMEOUT_SECONDS = 120.0
 TEXT_PROGRAM_SOURCE = f'''# /// script
 # requires-python = ">=3.11"
 # dependencies = ["openai"]
+# ///
 """One plain, non-streaming intercepted chat completion."""
 
 import argparse
