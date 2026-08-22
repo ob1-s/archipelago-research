@@ -225,7 +225,7 @@ def _make_session(trace_calls: list, exit_codes: list[int], receipt: dict):
             trace_calls.append(_error_call(500))
         else:
             trace_calls.append(_stop_call())
-        return SimpleNamespace(exit_code=code)
+        return SimpleNamespace(exit_code=code, stderr="")
 
     session.runtime = SimpleNamespace(
         prepare_uv_script=prepare_uv_script, run_program=run_program

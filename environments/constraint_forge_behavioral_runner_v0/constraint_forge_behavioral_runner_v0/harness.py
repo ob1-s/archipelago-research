@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 import asyncio
 import json
+import time
 from typing import Iterator
 
 from constraint_forge_formation_v0.canonical import stable_hash
@@ -272,7 +273,9 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
         attempts_allowed = 1 + max(0, infra_retries)
         attempt = 0
         while True:
+            started_at = time.monotonic()
             result = await runtime.run_program([*program, *args], self.harness.config.resolved_env)
+            duration_seconds = round(time.monotonic() - started_at, 3)
             calls = self.trace.calls[call_count:]
             last_call = calls[-1] if calls else None
             status = native_error_status(last_call) if last_call is not None else None
@@ -281,6 +284,9 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
                 if last_call is not None
                 else None
             )
+            stderr_tail = " ".join(
+                (result.stderr or "").split()
+            )[-400:]
             request_receipt["attempts"].append(
                 {
                     "attempt": attempt,
@@ -288,6 +294,8 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
                     "exit_code": result.exit_code,
                     "finish_reason": finish_reason,
                     "error_status": status,
+                    "duration_seconds": duration_seconds,
+                    "stderr_tail": stderr_tail,
                 }
             )
             retryable = (
