@@ -286,3 +286,65 @@ def test_harness_relaunch_loop_consumes_declared_budget(monkeypatch) -> None:
     )
     assert result2.exit_code == 1
     assert len(receipt2["attempts"]) == 3
+
+
+def test_runner_guard_honors_the_declared_boundary_timeout(monkeypatch) -> None:
+    """A slow-but-live launch must survive when the boundary timeout allows it."""
+
+    from verifiers.v1 import AssistantMessage
+
+    class _SlowFirstDispatch(_FakeInteraction):
+        def __init__(self, actor, seconds: float):
+            super().__init__(actor)
+            self.seconds = seconds
+            self.trace.calls = []
+
+        async def turn(self, prompt: str):
+            delay, self.seconds = self.seconds, 0.0
+            if delay:
+                await asyncio.sleep(delay)
+            self.trace.calls.append(_stop_call())
+            return await super().turn(prompt)
+
+    class _SlowActor(_FakeActor):
+        def __init__(self, target_by_mask, seconds: float):
+            super().__init__(target_by_mask)
+            self.slow_seconds = seconds
+
+        @asynccontextmanager
+        async def interaction(self, task):
+            del task
+            self.interaction_count += 1
+            yield _SlowFirstDispatch(self, self.slow_seconds)
+
+    def run_with(boundary_seconds: float, slow: float):
+        from constraint_forge_behavioral_runner_v0.harness import (
+            configure_text_harness_boundary,
+        )
+
+        configure_text_harness_boundary(call_timeout_seconds=boundary_seconds)
+        task = _task()
+        targets = _targets(task)
+        x = _SlowActor(targets, slow)
+        y = _FakeActor(targets)
+        return asyncio.run(
+            run_behavioral_sequence(task.data, actor_x=x, actor_y=y, task=task)
+        )
+
+    # A generation slower than any plausible default but within the declared
+    # boundary completes and advances the world.
+    ok = run_with(30.0, 2.0)
+    assert not ok.handoff.aborted
+    assert ok.handoff.completed_jobs == len(ok.jobs)
+    # The identical generation under a tighter declared guard is aborted as a
+    # visible timeout, never silently absorbed as a partial response.
+    guarded = run_with(1.0, 2.0)
+    assert guarded.handoff.aborted
+    timeouts = [
+        event
+        for event in guarded.ledger.events
+        if event.failure_class == "timeout_ambiguous"
+    ]
+    assert timeouts
+
+

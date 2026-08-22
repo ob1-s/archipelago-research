@@ -32,7 +32,7 @@ from .failures import (
     retryable_infrastructure,
     safe_to_retry,
 )
-from .harness import CALL_TIMEOUT_SECONDS, context_epoch_scope
+from .harness import CALL_TIMEOUT_SECONDS, context_epoch_scope, text_harness_boundary
 from .handoff import FormationHandoffV0, FormationJobReceipt
 from .requests import BehavioralRequest, memory_request, round_request
 
@@ -581,7 +581,10 @@ async def _turn_with_safe_retry(
             trace = getattr(interaction, "trace", None)
             native_calls = getattr(trace, "calls", None)
             native_call_count = len(native_calls) if native_calls is not None else None
-            async with asyncio.timeout(CALL_TIMEOUT_SECONDS):
+            # The runner-side guard must match the declared subprocess
+            # timeout exactly: a shorter guard here cancels slow-but-live
+            # launches mid-flight and misclassifies them as partial responses.
+            async with asyncio.timeout(text_harness_boundary()[0]):
                 segment = await interaction.turn(request.prompt_text)
             _, infra_attempts, evidence = _inspect_segment_native_calls(
                 interaction, native_call_count
