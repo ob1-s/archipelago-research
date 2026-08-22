@@ -44,6 +44,8 @@ def _frozen_provider() -> dict:
         "reasoning_effort": COHORT_REASONING_EFFORT,
         "call_timeout_seconds": 300,
         "max_retries": 0,
+        "infra_retries": 2,
+        "infra_backoff_seconds": (4, 8),
     }
 
 
@@ -118,6 +120,32 @@ def test_cohort_agent_config_is_zero_retry_high_turn_and_ox_pinned() -> None:
     assert x.max_turns == y.max_turns == COHORT_MAX_TURNS_PER_ROLE == 24 * 18
     assert x.sampling.max_tokens == y.sampling.max_tokens == 16384
     assert x.sampling.reasoning_effort == y.sampling.reasoning_effort == "low"
+
+
+def test_declared_boundary_knobs_reach_the_harness_process_state(monkeypatch) -> None:
+    """The freeze record's knobs must actually govern the running harness."""
+
+    from constraint_forge_behavioral_runner_v0.harness import text_harness_boundary
+    from constraint_forge_behavioral_runner_v0 import cohort_launcher
+
+    from constraint_forge_behavioral_runner_v0.harness import _TEXT_HARNESS_BOUNDARY
+
+    monkeypatch.setattr(
+        "constraint_forge_behavioral_runner_v0.harness._TEXT_HARNESS_BOUNDARY", {}
+    )
+    cohort_launcher._declare_boundary()
+    assert text_harness_boundary() == (300.0, 2, (4.0, 8.0))
+    provider = _provider_config(SimpleNamespace(**_frozen_provider()))
+    assert provider.call_timeout_seconds == 300.0
+    assert provider.infra_retries == 2
+    assert tuple(provider.infra_backoff_seconds) == (4.0, 8.0)
+    # The declared provider config and the live boundary must never diverge.
+    timeout, retries, backoff = text_harness_boundary()
+    assert (
+        float(provider.call_timeout_seconds) == timeout
+        and provider.infra_retries == retries
+        and tuple(provider.infra_backoff_seconds) == backoff
+    )
 
 
 def test_operational_task_relaxes_only_network_policy() -> None:

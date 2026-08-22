@@ -256,6 +256,7 @@ async def _run(args) -> int:
             raise SystemExit(f"required credential environment variable is unset: {name}")
         secrets.append(value)
 
+    _declare_boundary()
     tasks = build_cohort_tasks()
     assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
     directory = Path(args.output_dir) / args.cohort_id
