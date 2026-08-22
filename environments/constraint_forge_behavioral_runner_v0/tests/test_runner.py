@@ -18,6 +18,7 @@ from constraint_forge_behavioral_runner_v0.harness import (
     CALL_TIMEOUT_SECONDS,
     TEXT_PROGRAM_SOURCE,
     ConstraintForgeTextHarness,
+    text_program_source,
 )
 from constraint_forge_behavioral_runner_v0.requests import memory_request
 from constraint_forge_behavioral_runner_v0.runner import (
@@ -466,8 +467,11 @@ def test_minimal_harness_forbids_tools_and_uses_native_session_surface() -> None
     assert ConstraintForgeTextHarness.EXECUTES_CODE is False
     assert ConstraintForgeTextHarness.NEEDS_CONTAINER is False
     assert CALL_TIMEOUT_SECONDS == 120.0
-    assert "timeout=120.0" in TEXT_PROGRAM_SOURCE
-    assert "timeout=30.0" not in TEXT_PROGRAM_SOURCE
+    # The embedded SDK timeout stays a declared knob with the frozen 120 s
+    # default; launchers may override it per process.
+    assert "default=120.0" in text_program_source()
+    assert "default=300.0" in text_program_source(300.0)
+    assert "timeout=args.timeout" in text_program_source()
     assert "max_retries=0" in TEXT_PROGRAM_SOURCE
     assert "stream=True" not in TEXT_PROGRAM_SOURCE
     assert "mcp" not in TEXT_PROGRAM_SOURCE.lower()

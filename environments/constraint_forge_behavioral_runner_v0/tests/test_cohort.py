@@ -42,7 +42,7 @@ def _frozen_provider() -> dict:
         "shared_credential": True,
         "max_completion_tokens": COHORT_MAX_COMPLETION_TOKENS,
         "reasoning_effort": COHORT_REASONING_EFFORT,
-        "call_timeout_seconds": 120,
+        "call_timeout_seconds": 300,
         "max_retries": 0,
     }
 

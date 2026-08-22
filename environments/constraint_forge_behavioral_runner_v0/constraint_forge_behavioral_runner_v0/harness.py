@@ -10,11 +10,14 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from contextvars import ContextVar
+import asyncio
 import json
 from typing import Iterator
 
 from constraint_forge_formation_v0.canonical import stable_hash
 from verifiers.v1.clients import ModelContext
+
+from .failures import RETRYABLE_INFRA_STATUSES, native_error_status
 from verifiers.v1.dialects.chat import message_to_wire
 from verifiers.v1.harness import HarnessSession
 from verifiers.v1.harnesses.null import NullHarness, NullHarnessConfig
@@ -28,12 +31,7 @@ from verifiers.v1.types import AssistantMessage, Messages
 # Provider-side retries remain disabled; a timeout is still abort-only.
 CALL_TIMEOUT_SECONDS = 120.0
 
-
-# This is intentionally the smallest possible one-request text program. It uses
-# the native interception endpoint supplied by v1, but disables the OpenAI SDK's
-# automatic retries: the runner's closed failure taxonomy owns retry decisions so
-# a transport retry can never silently create another behavioral sample.
-TEXT_PROGRAM_SOURCE = f'''# /// script
+TEXT_PROGRAM_TEMPLATE = '''# /// script
 # requires-python = ">=3.11"
 # dependencies = ["openai"]
 # ///
@@ -52,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--api-key", required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--messages-json", required=True)
+    parser.add_argument("--timeout", type=float, default={timeout:.1f})
     return parser.parse_args()
 
 
@@ -60,7 +59,7 @@ async def main() -> None:
     client = AsyncOpenAI(
         base_url=args.base_url,
         api_key=args.api_key,
-        timeout={CALL_TIMEOUT_SECONDS:.1f},
+        timeout=args.timeout,
         max_retries=0,
     )
     await client.chat.completions.create(
@@ -73,6 +72,12 @@ async def main() -> None:
 if __name__ == "__main__":
     asyncio.run(main())
 '''
+
+def text_program_source(timeout_seconds: float = CALL_TIMEOUT_SECONDS) -> str:
+    return TEXT_PROGRAM_TEMPLATE.format(timeout=timeout_seconds)
+
+
+TEXT_PROGRAM_SOURCE = text_program_source()
 
 
 # This is an out-of-band referee control. It is set in the runner's task
@@ -94,6 +99,45 @@ def context_epoch_scope(epoch: int) -> Iterator[None]:
 
 class ConstraintForgeTextHarnessConfig(NullHarnessConfig):
     id: str = "constraint-forge-behavioral-runner-v0"
+
+
+# Operational boundary knobs for the text harness. They intentionally do NOT
+# ride the pydantic config schema: verifiers reconstructs pinned harness configs
+# through its plugin registry, so unknown declared fields break config
+# validation. Launchers declare them once per process before any agent runs;
+# the values are persisted in each launcher's freeze record / provider config.
+_TEXT_HARNESS_BOUNDARY: dict[str, float | int | tuple[float, ...]] = {}
+
+
+def configure_text_harness_boundary(
+    *,
+    call_timeout_seconds: float | None = None,
+    infra_retries: int | None = None,
+    infra_backoff_seconds: tuple[float, ...] | None = None,
+) -> None:
+    """Declare process-local boundary knobs (v0 semantics when unset)."""
+
+    if call_timeout_seconds is not None:
+        _TEXT_HARNESS_BOUNDARY["call_timeout_seconds"] = float(call_timeout_seconds)
+    if infra_retries is not None:
+        _TEXT_HARNESS_BOUNDARY["infra_retries"] = int(infra_retries)
+    if infra_backoff_seconds is not None:
+        _TEXT_HARNESS_BOUNDARY["infra_backoff_seconds"] = tuple(
+            float(s) for s in infra_backoff_seconds
+        )
+
+
+def text_harness_boundary() -> tuple[float, int, tuple[float, ...]]:
+    """The (timeout, infra_retries, backoff) triple currently in force."""
+
+    return (
+        float(_TEXT_HARNESS_BOUNDARY.get("call_timeout_seconds", CALL_TIMEOUT_SECONDS)),
+        int(_TEXT_HARNESS_BOUNDARY.get("infra_retries", 0)),
+        tuple(
+            float(s)
+            for s in _TEXT_HARNESS_BOUNDARY.get("infra_backoff_seconds", (4.0, 8.0))
+        ),
+    )
 
 
 class ConstraintForgeTextHarnessSession(HarnessSession):
@@ -131,6 +175,7 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
             "native_call_index": None,
             "finish_reason": None,
             "completed": False,
+            "attempts": [],
         }
         self.trace.info.setdefault("constraint_forge_provider_requests", []).append(
             request_receipt
@@ -138,26 +183,33 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
 
         assistant_count = len(self.trace.assistant_messages)
         call_count = len(self.trace.calls)
-        result = await self.harness.launch(
-            self.ctx,
-            self.trace,
-            self.runtime,
-            self.endpoint,
-            self.secret,
-            self.mcp_urls,
-            data,
+        result = await self._launch_with_infra_retries(
+            ctx=self.ctx,
+            runtime=self.runtime,
+            endpoint=self.endpoint,
+            secret=self.secret,
+            data=data,
+            request_receipt=request_receipt,
+            call_count=call_count,
         )
         if result.exit_code != 0:
             return result
 
         new_calls = self.trace.calls[call_count:]
-        if len(new_calls) != 1:
+        if not new_calls:
             raise ValueError(
-                "Constraint Forge expected exactly one native model call per harness segment"
+                "Constraint Forge segment produced no native provider call"
             )
-        call = new_calls[0]
+        for earlier in new_calls[:-1]:
+            finish_reason = getattr(earlier.finish_reason, "value", earlier.finish_reason)
+            error_status = native_error_status(earlier)
+            if finish_reason is not None or error_status is None:
+                raise ValueError(
+                    "intermediate behavioral attempt was not an infrastructure failure"
+                )
+        call = new_calls[-1]
         finish_reason = getattr(call.finish_reason, "value", call.finish_reason)
-        request_receipt["native_call_index"] = call_count
+        request_receipt["native_call_index"] = call_count + len(new_calls) - 1
         request_receipt["finish_reason"] = finish_reason
         request_receipt["completed"] = call.error is None and finish_reason == "stop"
         if call.error is not None:
@@ -185,6 +237,73 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
             AssistantMessage(content=last.content or ""),
         ]
         return result
+
+    async def _launch_with_infra_retries(
+        self,
+        *,
+        ctx,
+        runtime: Runtime,
+        endpoint: str,
+        secret: str,
+        data: TaskData,
+        request_receipt: dict,
+        call_count: int,
+    ) -> ProgramResult:
+        """Launch the identical wire request until it delivers or budget ends.
+
+        Re-launches happen inside the still-open harness session, so the v1
+        interaction is never re-entered after a failed exchange. Every attempt
+        lands as its own native call and receipt entry.
+        """
+
+        program = await runtime.prepare_uv_script(
+            text_program_source(text_harness_boundary()[0]),
+            self.harness.config.resolved_env,
+        )
+        messages = self.harness._wire_messages(data)
+        args = [
+            f"--base-url={endpoint}",
+            f"--api-key={secret}",
+            f"--model={ctx.model}",
+            f"--timeout={text_harness_boundary()[0]:.1f}",
+            "--messages-json=" + json.dumps(messages, separators=(",", ":")),
+        ]
+        _, infra_retries, infra_backoff_seconds = text_harness_boundary()
+        attempts_allowed = 1 + max(0, infra_retries)
+        attempt = 0
+        while True:
+            result = await runtime.run_program([*program, *args], self.harness.config.resolved_env)
+            calls = self.trace.calls[call_count:]
+            last_call = calls[-1] if calls else None
+            status = native_error_status(last_call) if last_call is not None else None
+            finish_reason = (
+                getattr(last_call.finish_reason, "value", last_call.finish_reason)
+                if last_call is not None
+                else None
+            )
+            request_receipt["attempts"].append(
+                {
+                    "attempt": attempt,
+                    "native_call_index": call_count + len(calls) - 1 if calls else None,
+                    "exit_code": result.exit_code,
+                    "finish_reason": finish_reason,
+                    "error_status": status,
+                }
+            )
+            retryable = (
+                result.exit_code != 0
+                and last_call is not None
+                and finish_reason is None
+                and status in RETRYABLE_INFRA_STATUSES
+            )
+            attempt += 1
+            if not retryable or attempt >= attempts_allowed:
+                return result
+            backoff = infra_backoff_seconds[
+                min(attempt - 1, len(infra_backoff_seconds) - 1)
+            ]
+            if backoff > 0:
+                await asyncio.sleep(backoff)
 
 
 class ConstraintForgeTextHarness(NullHarness):
@@ -273,4 +392,7 @@ __all__ = [
     "CALL_TIMEOUT_SECONDS",
     "TEXT_PROGRAM_SOURCE",
     "context_epoch_scope",
+    "text_program_source",
+    "configure_text_harness_boundary",
+    "text_harness_boundary",
 ]

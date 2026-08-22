@@ -38,7 +38,11 @@ from .cohort import (
     utc_now,
     write_atomic,
 )
-from .harness import CALL_TIMEOUT_SECONDS, ConstraintForgeTextHarnessConfig
+from .harness import (
+    CALL_TIMEOUT_SECONDS,
+    ConstraintForgeTextHarnessConfig,
+    configure_text_harness_boundary,
+)
 from .live_canary import _trace_evidence
 from .runner import run_behavioral_sequence
 from .taskset import ConstraintForgeBehavioralTask
@@ -52,6 +56,9 @@ COHORT_REASONING_EFFORT = "low"
 # delivered no response; everything else stays abort-only.
 COHORT_INFRA_RETRIES = 2
 COHORT_INFRA_BACKOFF_SECONDS = (4, 8)
+# Slow-but-successful long generations must not be misread as ambiguous
+# failures; the timeout stays abort-only, so give it real headroom.
+COHORT_CALL_TIMEOUT_SECONDS = 300
 DEFAULT_X_KEY_VAR = "OPENCODE_ZEN_API_KEY_X"
 DEFAULT_Y_KEY_VAR = "OPENCODE_ZEN_API_KEY_Y"
 QUALIFICATION_CANARY_SHA256 = (
@@ -77,10 +84,22 @@ def _provider_config(args) -> CohortProviderConfigV0:
         shared_credential=True,
         max_completion_tokens=COHORT_MAX_COMPLETION_TOKENS,
         reasoning_effort=COHORT_REASONING_EFFORT,
-        call_timeout_seconds=int(CALL_TIMEOUT_SECONDS),
+        call_timeout_seconds=COHORT_CALL_TIMEOUT_SECONDS,
         max_retries=0,
         infra_retries=COHORT_INFRA_RETRIES,
         infra_backoff_seconds=COHORT_INFRA_BACKOFF_SECONDS,
+    )
+
+
+def _declare_boundary() -> None:
+    """Declare the frozen cohort-v2 boundary knobs for this process."""
+
+    configure_text_harness_boundary(
+        call_timeout_seconds=COHORT_CALL_TIMEOUT_SECONDS,
+        infra_retries=COHORT_INFRA_RETRIES,
+        infra_backoff_seconds=tuple(
+            float(s) for s in COHORT_INFRA_BACKOFF_SECONDS
+        ),
     )
 
 
@@ -185,14 +204,16 @@ def _write_freeze_record(directory: Path, manifest, tests: dict) -> Path:
         "provider_config": manifest.provider_config.model_dump(mode="json"),
         "retry_policy": (
             "Per behavioral opportunity: on an explicit infrastructure status "
-            "(429/500/502/503/504) with no delivered response, re-dispatch the "
-            f"identical request up to {manifest.provider_config.infra_retries} "
-            "times with backoff "
-            f"{list(manifest.provider_config.infra_backoff_seconds)}s; every "
-            "attempt is persisted in the audit ledger with the same request "
-            "hash/context; completed responses, malformed actions, length "
-            "stops, refusals, and timeouts are never retried; the whole chain "
-            "counts as exactly one behavioral opportunity."
+            "(429/500/502/503/504) with no delivered response, the harness "
+            f"session re-launches the identical request up to "
+            f"{manifest.provider_config.infra_retries} times with backoff "
+            f"{list(manifest.provider_config.infra_backoff_seconds)}s below "
+            "the agent boundary (the v1 interaction is never re-entered); "
+            "every attempt is persisted as a native call, receipt entry, and "
+            "infra_retry audit event with the same request hash/context; "
+            "completed responses, malformed actions, length stops, refusals, "
+            "and timeouts are never retried; the whole chain counts as exactly "
+            "one behavioral opportunity."
         ),
         "qualification_canary_sha256": manifest.qualification_canary_sha256,
         "test_results": tests,
@@ -329,7 +350,6 @@ async def _run(args) -> int:
             actor_x=actor_x,
             actor_y=actor_y,
             task=operational,
-            max_infra_retries=COHORT_INFRA_RETRIES,
         )
         bundle = _bundle_from_result(
             result,
@@ -387,7 +407,7 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="materialize the freeze record and manifest without model calls",
     )
-    parser.add_argument("--cohort-id", default="constraint-forge-formation-cohort-ox-v1")
+    parser.add_argument("--cohort-id", default="constraint-forge-formation-cohort-ox-v2")
     parser.add_argument("--output-dir", default="cohort_artifacts")
     parser.add_argument("--x-key-var", default=DEFAULT_X_KEY_VAR)
     parser.add_argument("--y-key-var", default=DEFAULT_Y_KEY_VAR)

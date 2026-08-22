@@ -78,6 +78,21 @@ def infrastructure_failure(status_code: int) -> BehavioralCallFailure:
     )
 
 
+def native_error_status(call) -> int | None:
+    """The explicit HTTP status carried by a failed native provider call."""
+
+    error = getattr(call, "error", None)
+    if error is None:
+        return None
+    payload = (
+        error.model_dump(mode="json", exclude_none=True)
+        if hasattr(error, "model_dump")
+        else {}
+    )
+    status = payload.get("status_code")
+    return int(status) if isinstance(status, int) else None
+
+
 def retryable_infrastructure(evidence: FailureEvidence) -> bool:
     """True only for an explicit infra status with provably no sample."""
 
@@ -106,6 +121,7 @@ __all__ = [
     "RETRYABLE_INFRA_STATUSES",
     "ambiguous_failure",
     "infrastructure_failure",
+    "native_error_status",
     "retryable_infrastructure",
     "safe_to_retry",
 ]
