@@ -111,12 +111,17 @@ def _native_call_summary(index: int, call) -> dict:
                 "type": type(error).__qualname__,
                 "message": str(error),
             }
+    usage = getattr(call, "usage", None)
+    usage_payload = None
+    if usage is not None and hasattr(usage, "model_dump"):
+        usage_payload = usage.model_dump(mode="json", exclude_none=True)
     return {
         "native_call_index": index,
         "model": getattr(call, "model", None),
         "endpoint": getattr(call, "endpoint", None),
         "finish_reason": finish_reason,
         "error": error_payload,
+        "usage": usage_payload,
     }
 
 

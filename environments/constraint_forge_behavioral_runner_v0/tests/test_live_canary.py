@@ -84,11 +84,19 @@ def test_live_canary_persists_human_readable_native_provider_error() -> None:
             "traceback": "do not persist this",
         }
     )
+    usage = SimpleNamespace(
+        model_dump=lambda **_: {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15,
+        }
+    )
     call = SimpleNamespace(
         finish_reason=None,
         error=error,
         model="gemini-3.7-flash",
         endpoint="/chat/completions",
+        usage=usage,
     )
     summary = _native_call_summary(0, call)
 
@@ -101,6 +109,11 @@ def test_live_canary_persists_human_readable_native_provider_error() -> None:
             "type": "ProviderError",
             "message": "429 RESOURCE_EXHAUSTED",
             "status_code": 429,
+        },
+        "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15,
         },
     }
 

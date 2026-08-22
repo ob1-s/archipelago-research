@@ -299,3 +299,54 @@ def test_dyad_summary_row_reports_execution_facts_only(tmp_path) -> None:
     assert payload["live_model_calls"] == 0
     assert payload["final_eight_nonoccluded_success_mean"] == 0.0
     assert payload["evidence_sha256"]
+
+
+def test_luna_qualification_boundary_and_config_are_proxy_local() -> None:
+    from verifiers.v1.dialects.chat import ChatDialect
+    from verifiers.v1.clients.eval import join_url
+    from constraint_forge_behavioral_runner_v0.taskset import (
+        ConstraintForgeBehavioralTaskset,
+        ConstraintForgeBehavioralTasksetConfig,
+    )
+    from constraint_forge_behavioral_runner_v0.luna_qualification import (
+        LUNA_BASE_URL,
+        LUNA_MODEL,
+        _agent_config,
+        _build_task,
+        _declare_boundary,
+    )
+    from constraint_forge_behavioral_runner_v0.harness import text_harness_boundary
+    from constraint_forge_behavioral_runner_v0.harness import (
+        _TEXT_HARNESS_BOUNDARY as _boundary,
+    )
+
+    saved = dict(_boundary)
+    try:
+        monkey = None  # no fixture here; restore manually below
+        _declare_boundary()
+        assert text_harness_boundary() == (300.0, 2, (4.0, 8.0))
+        agent = _agent_config("low")
+        assert agent.model == LUNA_MODEL == "gpt-5.6-luna"
+        assert agent.client.base_url == LUNA_BASE_URL == "http://127.0.0.1:10531/v1"
+        assert join_url(LUNA_BASE_URL, ChatDialect().upstream_path) == (
+            "http://127.0.0.1:10531/v1/chat/completions"
+        )
+        assert ChatDialect().auth_headers("k") == {"Authorization": "Bearer k"}
+        assert agent.sampling.reasoning_effort == "low"
+        assert agent.sampling.max_tokens == 16384
+        assert agent.max_turns == COHORT_MAX_TURNS_PER_ROLE
+        assert agent.retries.max_retries == 0
+        task = _build_task()
+        # Throwaway seeds: never the scientific manifest.
+        scientific = next(
+            iter(
+                ConstraintForgeBehavioralTaskset(
+                    ConstraintForgeBehavioralTasksetConfig(id="sci")
+                )
+            )
+        )
+        assert task.data.job_seeds != scientific.data.job_seeds
+        assert len(task.data.job_seeds) == 24
+    finally:
+        _boundary.clear()
+        _boundary.update(saved)
