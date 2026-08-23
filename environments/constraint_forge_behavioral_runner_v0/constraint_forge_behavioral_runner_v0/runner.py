@@ -1069,6 +1069,9 @@ async def run_behavioral_sequence(
             job_evidence.append(_session_evidence(active_session, complete=False))
             active_session = None
     except Exception as exc:
+        import os as _os, traceback as _tb
+        if _os.environ.get("CF_DEBUG_TRACEBACK"):
+            _tb.print_exc()
         abort_class = f"runner_error:{type(exc).__name__}"
         if active_session is not None:
             job_evidence.append(_session_evidence(active_session, complete=False))

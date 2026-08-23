@@ -13,6 +13,7 @@ from contextvars import ContextVar
 import asyncio
 import json
 import time
+from uuid import uuid4
 from typing import Iterator
 
 from constraint_forge_formation_v0.canonical import stable_hash
@@ -41,6 +42,7 @@ TEXT_PROGRAM_TEMPLATE = '''# /// script
 import argparse
 import asyncio
 import json
+from pathlib import Path
 
 from openai import AsyncOpenAI
 
@@ -50,7 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--api-key", required=True)
     parser.add_argument("--model", required=True)
-    parser.add_argument("--messages-json", required=True)
+    parser.add_argument("--messages-file", required=True)
     parser.add_argument("--timeout", type=float, default={timeout:.1f})
     return parser.parse_args()
 
@@ -65,7 +67,7 @@ async def main() -> None:
     )
     await client.chat.completions.create(
         model=args.model,
-        messages=json.loads(args.messages_json),
+        messages=json.loads(Path(args.messages_file).read_text(encoding="utf-8")),
         stream=False,
     )
 
@@ -261,13 +263,13 @@ class ConstraintForgeTextHarnessSession(HarnessSession):
             text_program_source(text_harness_boundary()[0]),
             self.harness.config.resolved_env,
         )
-        messages = self.harness._wire_messages(data)
+        messages_file = await self.harness._write_messages_file(runtime, data)
         args = [
             f"--base-url={endpoint}",
             f"--api-key={secret}",
             f"--model={ctx.model}",
             f"--timeout={text_harness_boundary()[0]:.1f}",
-            "--messages-json=" + json.dumps(messages, separators=(",", ":")),
+            f"--messages-file={messages_file}",
         ]
         _, infra_retries, infra_backoff_seconds = text_harness_boundary()
         attempts_allowed = 1 + max(0, infra_retries)
@@ -353,6 +355,20 @@ class ConstraintForgeTextHarness(NullHarness):
             messages.extend(message_to_wire(message) for message in prompt)
         return messages
 
+    async def _write_messages_file(self, runtime: Runtime, data: TaskData) -> str:
+        """Stage the model-visible request in the runtime workspace.
+
+        Command-line argument lists are capped by the kernel (~128 KiB per
+        string), so the conversation rides in a workspace file instead of an
+        argv value; long jobs otherwise fail to spawn their interpreter.
+        """
+
+        messages = self._wire_messages(data)
+        payload = json.dumps(messages, separators=(",", ":")).encode("utf-8")
+        name = f"cf-messages-{uuid4().hex}.json"
+        await runtime.write(name, payload)
+        return name
+
     def provider_visible_request(self, ctx: ModelContext, data: TaskData) -> dict:
         """Canonical audit representation of the complete model-visible request."""
 
@@ -379,13 +395,13 @@ class ConstraintForgeTextHarness(NullHarness):
     ) -> ProgramResult:
         if mcp_urls:
             raise ValueError("Constraint Forge behavioral text harness forbids MCP")
-        messages = self._wire_messages(data)
+        messages_path = self._write_messages_file(runtime, data)
         env = {**self.config.resolved_env}
         args = [
             f"--base-url={endpoint}",
             f"--api-key={secret}",
             f"--model={ctx.model}",
-            "--messages-json=" + json.dumps(messages, separators=(",", ":")),
+            f"--messages-file={messages_path}",
         ]
         program = await runtime.prepare_uv_script(
             TEXT_PROGRAM_SOURCE, self.config.resolved_env

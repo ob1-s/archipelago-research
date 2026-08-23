@@ -112,9 +112,13 @@ class _InProcessRuntime(Runtime):
         super().__init__(name)
         self.config = SubprocessConfig()
         self.info = SubprocessRuntimeInfo()
+        self.files: dict[str, bytes] = {}
 
     async def start(self) -> None:
         self.info.id = self.name
+
+    async def write(self, path: str, data: bytes) -> None:
+        self.files[path] = data
 
     async def prepare_uv_script(self, *args, **kwargs) -> list[str]:
         return ["constraint-forge-test-program"]
@@ -142,13 +146,12 @@ class _InProcessRuntime(Runtime):
             for value in argv
             if value.startswith("--model=")
         )
-        messages = json.loads(
-            next(
-                value.split("=", 1)[1]
-                for value in argv
-                if value.startswith("--messages-json=")
-            )
+        messages_file = next(
+            value.split("=", 1)[1]
+            for value in argv
+            if value.startswith("--messages-file=")
         )
+        messages = json.loads(self.files[messages_file].decode("utf-8"))
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
                 f"{endpoint}/chat/completions",
@@ -163,9 +166,6 @@ class _InProcessRuntime(Runtime):
     async def _read(self, path: str) -> bytes:
         del path
         return b""
-
-    async def write(self, path: str, data: bytes) -> None:
-        del path, data
 
 
 async def _run_native(client_type=_DeterministicClient):

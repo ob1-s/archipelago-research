@@ -209,9 +209,14 @@ def _make_session(trace_calls: list, exit_codes: list[int], receipt: dict):
     session.trace = SimpleNamespace(calls=trace_calls)
     from types import SimpleNamespace as _NS
 
+    async def _write_messages_file(runtime, data):
+        del runtime, data
+        return "cf-messages-test.json"
+
     session.harness = _NS(
         config=_NS(resolved_env={}),
         _wire_messages=lambda data: [{"role": "user", "content": "x"}],
+        _write_messages_file=_write_messages_file,
     )
 
     async def prepare_uv_script(source, env):
