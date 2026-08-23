@@ -29,6 +29,7 @@ from .cohort import (
     COHORT_MAX_TURNS_PER_ROLE,
     COHORT_NUM_DYADS,
     CONSECUTIVE_INFRA_ABORT_STOP,
+    PARALLEL_ABORT_STOP_TOTAL,
     DyadEvidenceBundleV0,
     DyadStatus,
     CohortProviderConfigV0,
@@ -180,7 +181,9 @@ def _invariant_violation(bundle: DyadEvidenceBundleV0) -> str | None:
     return None
 
 
-def _write_freeze_record(directory: Path, manifest, tests: dict) -> Path:
+def _write_freeze_record(
+    directory: Path, manifest, tests: dict, concurrency: int
+) -> Path:
     record = {
         "schema_version": "constraint-forge/cohort-freeze-record/v0",
         "written_utc": utc_now(),
@@ -218,6 +221,15 @@ def _write_freeze_record(directory: Path, manifest, tests: dict) -> Path:
         "qualification_canary_sha256": manifest.qualification_canary_sha256,
         "test_results": tests,
         "stop_rule": manifest.stop_rule,
+        "execution_policy": {
+            "concurrency": concurrency,
+            "parallel_stop_rule": (
+                f"with concurrency>1: stop scheduling once "
+                f"{PARALLEL_ABORT_STOP_TOTAL} executed dyads have aborted and "
+                "none has completed; scientific-invariant violations halt "
+                "everything immediately"
+            ),
+        },
     }
     payload = stable_hash(record)
     path = directory / "freeze_record.json"
@@ -291,7 +303,7 @@ async def _run(args) -> int:
         tests = _run_tests_now() if args.run_tests else {}
         if args.run_tests and any(t["returncode"] != 0 for t in tests.values()):
             raise SystemExit(f"freezing refused: tests failed: {tests}")
-        record_path = _write_freeze_record(directory, manifest, tests)
+        record_path = _write_freeze_record(directory, manifest, tests, args.concurrency)
         print(json.dumps({"freeze_record": str(record_path), "manifest_hash": manifest.manifest_hash}))
         write_atomic(manifest_path, json.dumps(_manifest_payload(manifest, rows), indent=2, sort_keys=True).encode())
 
@@ -325,33 +337,46 @@ async def _run(args) -> int:
         print(json.dumps({"stopped_cleanly": "inherited abort streak from manifest"}))
         return 2
 
-    for task in tasks:
-        dyad_index = task.data.idx
-        artifact_path = directory / f"dyad-{dyad_index:02d}.json"
-        marker_path = directory / f"dyad-{dyad_index:02d}.started"
-        rerun_after_crash = False
-        if artifact_path.exists():
-            continue
-        if marker_path.exists():
-            if dyad_index not in resume_crashed:
-                raise SystemExit(
-                    f"dyad {dyad_index} has a started marker but no evidence; "
-                    "pass --resume-crashed explicitly to re-instantiate it after "
-                    "a hard crash (the rerun is recorded)"
-                )
-            rerun_after_crash = True
-        started_utc = utc_now()
-        marker_path.write_text(started_utc)
+    semaphore = asyncio.Semaphore(max(1, args.concurrency))
+    halt = {"reason": None}
+    lock = asyncio.Lock()
 
-        operational = _operational_task(task)
-        actor_x = vf.Agent(_agent_config(args, args.x_key_var))
-        actor_y = vf.Agent(_agent_config(args, args.y_key_var))
-        result = await run_behavioral_sequence(
-            operational.data,
-            actor_x=actor_x,
-            actor_y=actor_y,
-            task=operational,
-        )
+    async def _execute(task: ConstraintForgeBehavioralTask) -> None:
+        nonlocal consecutive_infra_aborts
+        dyad_index = task.data.idx
+        async with lock:
+            if halt["reason"] is not None:
+                return
+            artifact_path = directory / f"dyad-{dyad_index:02d}.json"
+            marker_path = directory / f"dyad-{dyad_index:02d}.started"
+            rerun_after_crash = False
+            if artifact_path.exists():
+                return
+            if marker_path.exists():
+                if dyad_index not in resume_crashed:
+                    halt["reason"] = (
+                        f"dyad {dyad_index} has a started marker but no evidence; "
+                        "pass --resume-crashed explicitly to re-instantiate it "
+                        "after a hard crash (the rerun is recorded)"
+                    )
+                    return
+                rerun_after_crash = True
+            started_utc = utc_now()
+            marker_path.write_text(started_utc)
+
+        async with semaphore:
+            async with lock:
+                if halt["reason"] is not None:
+                    return
+            operational = _operational_task(task)
+            actor_x = vf.Agent(_agent_config(args, args.x_key_var))
+            actor_y = vf.Agent(_agent_config(args, args.y_key_var))
+            result = await run_behavioral_sequence(
+                operational.data,
+                actor_x=actor_x,
+                actor_y=actor_y,
+                task=operational,
+            )
         bundle = _bundle_from_result(
             result,
             cohort_id=args.cohort_id,
@@ -369,24 +394,67 @@ async def _run(args) -> int:
         marker_path.unlink()
 
         row = dyad_summary_row(bundle=bundle, evidence_path=artifact_path)
-        rows[dyad_index] = row.model_dump(mode="json")
-        write_atomic(
-            manifest_path,
-            json.dumps(_manifest_payload(manifest, rows), indent=2, sort_keys=True).encode(),
-        )
+        async with lock:
+            rows[dyad_index] = row.model_dump(mode="json")
+            write_atomic(
+                manifest_path,
+                json.dumps(
+                    _manifest_payload(manifest, rows), indent=2, sort_keys=True
+                ).encode(),
+            )
         print(json.dumps(row.model_dump(mode="json"), sort_keys=True))
 
         if row.status == DyadStatus.ABORTED:
             violation = _invariant_violation(bundle)
             if violation is not None:
-                print(json.dumps({"halted": f"scientific invariant violated at dyad {dyad_index}: {violation}"}))
-                return 3
-            consecutive_infra_aborts += 1
-            if consecutive_infra_aborts >= CONSECUTIVE_INFRA_ABORT_STOP:
-                print(json.dumps({"stopped_cleanly": f"{consecutive_infra_aborts} consecutive infrastructure aborts"}))
-                return 2
+                async with lock:
+                    if halt["reason"] is None:
+                        halt["reason"] = (
+                            f"scientific invariant violated at dyad {dyad_index}: "
+                            f"{violation}"
+                        )
+                return
+            async with lock:
+                if args.concurrency > 1:
+                    completed_so_far = sum(
+                        1
+                        for r in rows.values()
+                        if r["status"] == DyadStatus.COMPLETED.value
+                    )
+                    aborted_total = sum(
+                        1
+                        for r in rows.values()
+                        if r["status"] == DyadStatus.ABORTED.value
+                    )
+                    if (
+                        aborted_total >= PARALLEL_ABORT_STOP_TOTAL
+                        and completed_so_far == 0
+                        and halt["reason"] is None
+                    ):
+                        halt["reason"] = (
+                            f"{aborted_total} infrastructure aborts with no "
+                            "completed dyad"
+                        )
+                else:
+                    consecutive_infra_aborts += 1
+                    if consecutive_infra_aborts >= CONSECUTIVE_INFRA_ABORT_STOP:
+                        halt["reason"] = (
+                            f"{consecutive_infra_aborts} consecutive "
+                            "infrastructure aborts"
+                        )
         else:
-            consecutive_infra_aborts = 0
+            async with lock:
+                consecutive_infra_aborts = 0
+
+    await asyncio.gather(*(_execute(task) for task in tasks))
+
+    if halt["reason"] is not None:
+        reason = halt["reason"]
+        if reason.startswith("scientific invariant"):
+            print(json.dumps({"halted": reason}))
+            return 3
+        print(json.dumps({"stopped_cleanly": reason}))
+        return 2
 
     executed = sum(1 for row in rows.values() if row["status"] != DyadStatus.NOT_STARTED.value)
     print(json.dumps({"cohort_complete": True, "executed_dyads": executed}))
@@ -421,6 +489,8 @@ def _parser() -> argparse.ArgumentParser:
                         default=COHORT_MAX_COMPLETION_TOKENS)
     parser.add_argument("--call-timeout-seconds", type=int,
                         default=COHORT_CALL_TIMEOUT_SECONDS)
+    parser.add_argument("--concurrency", type=int, default=1,
+                        help="how many dyads execute simultaneously")
     parser.add_argument("--resume-crashed", type=int, action="append")
     parser.add_argument(
         "--no-run-tests",

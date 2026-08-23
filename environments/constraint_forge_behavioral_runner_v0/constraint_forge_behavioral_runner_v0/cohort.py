@@ -36,6 +36,9 @@ COHORT_NUM_DYADS = 12
 # 24 jobs x (16 rounds + eviction + retention) is the exact worst case per role.
 COHORT_MAX_TURNS_PER_ROLE = JOB_COUNT * 18
 CONSECUTIVE_INFRA_ABORT_STOP = 3
+# Under --concurrency N the sequential streak translates to: stop scheduling
+# once this many executed dyads have aborted and none has completed.
+PARALLEL_ABORT_STOP_TOTAL = CONSECUTIVE_INFRA_ABORT_STOP
 # Jobs 10..17 are the final eight writable ordinary slots (gate-1 input).
 FINAL_EIGHT_NONOCCLUDED_INDICES = tuple(range(10, 18))
 
@@ -257,6 +260,7 @@ __all__ = [
     "COHORT_SCHEMA_VERSION",
     "COHORT_SEED_PREFIX",
     "CONSECUTIVE_INFRA_ABORT_STOP",
+    "PARALLEL_ABORT_STOP_TOTAL",
     "DyadEvidenceBundleV0",
     "DyadStatus",
     "DyadSummaryRowV0",
