@@ -282,9 +282,6 @@ async def _run(args) -> int:
     _declare_boundary(args)
     tasks = build_cohort_tasks()
     assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
-    if args.only_dyad is not None:
-        tasks = [task for task in tasks if task.data.idx == args.only_dyad]
-        assert len(tasks) == 1
     directory = Path(args.output_dir) / args.cohort_id
     directory.mkdir(parents=True, exist_ok=True)
     # A pre-existing freeze record owns the frozen identity: later
@@ -462,7 +459,14 @@ async def _run(args) -> int:
             async with lock:
                 consecutive_infra_aborts = 0
 
-    await asyncio.gather(*(_execute(task) for task in tasks))
+    # Manifest is always built and verified over the full frozen task list;
+    # --only-dyad narrows execution only (driver control for interleaving).
+    exec_tasks = tasks
+    if args.only_dyad is not None:
+        exec_tasks = [task for task in tasks if task.data.idx == args.only_dyad]
+        assert len(exec_tasks) == 1
+
+    await asyncio.gather(*(_execute(task) for task in exec_tasks))
 
     if halt["reason"] is not None:
         reason = halt["reason"]
