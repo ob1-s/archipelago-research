@@ -23,9 +23,10 @@ from constraint_forge_behavioral_runner_v0.cohort import (
 from constraint_forge_behavioral_runner_v0.cohort_launcher import (
     COHORT_MAX_COMPLETION_TOKENS,
     COHORT_REASONING_EFFORT,
-    OX_ALPHA_MODEL,
-    ZEN_BASE_URL,
+    LUNA_BASE_URL,
+    LUNA_MODEL,
     _agent_config,
+    _declare_boundary,
     _invariant_violation,
     _operational_task,
     _provider_config,
@@ -35,8 +36,8 @@ from constraint_forge_behavioral_runner_v0.handoff import FormationHandoffV0, Fo
 
 def _frozen_provider() -> dict:
     return {
-        "model": OX_ALPHA_MODEL,
-        "base_url": ZEN_BASE_URL,
+        "model": "gpt-5.6-luna",
+        "base_url": "http://127.0.0.1:10531/v1",
         "x_key_var": "OPENCODE_ZEN_API_KEY_X",
         "y_key_var": "OPENCODE_ZEN_API_KEY_Y",
         "shared_credential": True,
@@ -107,15 +108,24 @@ def test_manifest_hash_binds_freeze_commit_provider_and_plans() -> None:
     )
     assert manifest.manifest_hash != other_commit.manifest_hash
     assert manifest.manifest_hash != other_provider.manifest_hash
-    assert manifest.provider_config.model == OX_ALPHA_MODEL
+    assert manifest.provider_config.model == "gpt-5.6-luna"
     assert manifest.protocol_version == "constraint-forge/behavioral-runner-v1"
 
 
-def test_cohort_agent_config_is_zero_retry_high_turn_and_ox_pinned() -> None:
-    x = _agent_config("OPENCODE_ZEN_API_KEY_X")
-    y = _agent_config("OPENCODE_ZEN_API_KEY_Y")
-    assert x.model == y.model == OX_ALPHA_MODEL
-    assert x.client.base_url == y.client.base_url == ZEN_BASE_URL
+def test_cohort_agent_config_is_zero_retry_high_turn_and_luna_pinned() -> None:
+    from types import SimpleNamespace as NS
+
+    args = NS(
+        model=LUNA_MODEL,
+        base_url=LUNA_BASE_URL,
+        reasoning_effort="low",
+        max_completion_tokens=16384,
+        call_timeout_seconds=300,
+    )
+    x = _agent_config(args, "LUNA_PROXY_API_KEY_X")
+    y = _agent_config(args, "LUNA_PROXY_API_KEY_Y")
+    assert x.model == y.model == LUNA_MODEL == "gpt-5.6-luna"
+    assert x.client.base_url == y.client.base_url == LUNA_BASE_URL
     assert x.retries.max_retries == y.retries.max_retries == 0
     assert x.max_turns == y.max_turns == COHORT_MAX_TURNS_PER_ROLE == 24 * 18
     assert x.sampling.max_tokens == y.sampling.max_tokens == 16384
@@ -133,7 +143,7 @@ def test_declared_boundary_knobs_reach_the_harness_process_state(monkeypatch) ->
     monkeypatch.setattr(
         "constraint_forge_behavioral_runner_v0.harness._TEXT_HARNESS_BOUNDARY", {}
     )
-    cohort_launcher._declare_boundary()
+    cohort_launcher._declare_boundary(SimpleNamespace(**_frozen_provider()))
     assert text_harness_boundary() == (300.0, 2, (4.0, 8.0))
     provider = _provider_config(SimpleNamespace(**_frozen_provider()))
     assert provider.call_timeout_seconds == 300.0

@@ -47,8 +47,8 @@ from .live_canary import _trace_evidence
 from .runner import run_behavioral_sequence
 from .taskset import ConstraintForgeBehavioralTask
 
-ZEN_BASE_URL = "https://opencode.ai/zen/v1/"
-OX_ALPHA_MODEL = "x-preview-f-free"
+LUNA_BASE_URL = "http://127.0.0.1:10531/v1"
+LUNA_MODEL = "gpt-5.6-luna"
 COHORT_MAX_COMPLETION_TOKENS = 16384
 COHORT_REASONING_EFFORT = "low"
 # Cohort-v1 declared budget: identical re-dispatch per behavioral opportunity
@@ -77,25 +77,25 @@ def _freeze_commit() -> str:
 
 def _provider_config(args) -> CohortProviderConfigV0:
     return CohortProviderConfigV0(
-        model=OX_ALPHA_MODEL,
-        base_url=ZEN_BASE_URL,
+        model=args.model,
+        base_url=args.base_url,
         x_key_var=args.x_key_var,
         y_key_var=args.y_key_var,
         shared_credential=True,
-        max_completion_tokens=COHORT_MAX_COMPLETION_TOKENS,
-        reasoning_effort=COHORT_REASONING_EFFORT,
-        call_timeout_seconds=COHORT_CALL_TIMEOUT_SECONDS,
+        max_completion_tokens=args.max_completion_tokens,
+        reasoning_effort=args.reasoning_effort,
+        call_timeout_seconds=args.call_timeout_seconds,
         max_retries=0,
         infra_retries=COHORT_INFRA_RETRIES,
         infra_backoff_seconds=COHORT_INFRA_BACKOFF_SECONDS,
     )
 
 
-def _declare_boundary() -> None:
-    """Declare the frozen cohort-v2 boundary knobs for this process."""
+def _declare_boundary(args) -> None:
+    """Declare the frozen boundary knobs for this process."""
 
     configure_text_harness_boundary(
-        call_timeout_seconds=COHORT_CALL_TIMEOUT_SECONDS,
+        call_timeout_seconds=args.call_timeout_seconds,
         infra_retries=COHORT_INFRA_RETRIES,
         infra_backoff_seconds=tuple(
             float(s) for s in COHORT_INFRA_BACKOFF_SECONDS
@@ -103,15 +103,15 @@ def _declare_boundary() -> None:
     )
 
 
-def _agent_config(api_key_var: str) -> AgentConfig:
+def _agent_config(args, api_key_var: str) -> AgentConfig:
     return AgentConfig(
-        model=OX_ALPHA_MODEL,
-        client=EvalClientConfig(base_url=ZEN_BASE_URL, api_key_var=api_key_var),
+        model=args.model,
+        client=EvalClientConfig(base_url=args.base_url, api_key_var=api_key_var),
         harness=ConstraintForgeTextHarnessConfig(),
         runtime=SubprocessConfig(),
         sampling=SamplingConfig(
-            max_tokens=COHORT_MAX_COMPLETION_TOKENS,
-            reasoning_effort=COHORT_REASONING_EFFORT,
+            max_tokens=args.max_completion_tokens,
+            reasoning_effort=args.reasoning_effort,
         ),
         max_turns=COHORT_MAX_TURNS_PER_ROLE,
         retries=RetryConfig(max_retries=0),
@@ -256,7 +256,7 @@ async def _run(args) -> int:
             raise SystemExit(f"required credential environment variable is unset: {name}")
         secrets.append(value)
 
-    _declare_boundary()
+    _declare_boundary(args)
     tasks = build_cohort_tasks()
     assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
     directory = Path(args.output_dir) / args.cohort_id
@@ -344,8 +344,8 @@ async def _run(args) -> int:
         marker_path.write_text(started_utc)
 
         operational = _operational_task(task)
-        actor_x = vf.Agent(_agent_config(args.x_key_var))
-        actor_y = vf.Agent(_agent_config(args.y_key_var))
+        actor_x = vf.Agent(_agent_config(args, args.x_key_var))
+        actor_y = vf.Agent(_agent_config(args, args.y_key_var))
         result = await run_behavioral_sequence(
             operational.data,
             actor_x=actor_x,
@@ -412,6 +412,15 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", default="cohort_artifacts")
     parser.add_argument("--x-key-var", default=DEFAULT_X_KEY_VAR)
     parser.add_argument("--y-key-var", default=DEFAULT_Y_KEY_VAR)
+    parser.add_argument("--model", default=LUNA_MODEL)
+    parser.add_argument("--base-url", default=LUNA_BASE_URL)
+    parser.add_argument(
+        "--reasoning-effort", choices=["low", "medium"], default=COHORT_REASONING_EFFORT
+    )
+    parser.add_argument("--max-completion-tokens", type=int,
+                        default=COHORT_MAX_COMPLETION_TOKENS)
+    parser.add_argument("--call-timeout-seconds", type=int,
+                        default=COHORT_CALL_TIMEOUT_SECONDS)
     parser.add_argument("--resume-crashed", type=int, action="append")
     parser.add_argument(
         "--no-run-tests",
