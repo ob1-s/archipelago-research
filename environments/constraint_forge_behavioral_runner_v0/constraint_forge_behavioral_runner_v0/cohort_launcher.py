@@ -59,8 +59,8 @@ COHORT_INFRA_BACKOFF_SECONDS = (4, 8)
 # Slow-but-successful long generations must not be misread as ambiguous
 # failures; the timeout stays abort-only, so give it real headroom.
 COHORT_CALL_TIMEOUT_SECONDS = 300
-DEFAULT_X_KEY_VAR = "OPENCODE_ZEN_API_KEY_X"
-DEFAULT_Y_KEY_VAR = "OPENCODE_ZEN_API_KEY_Y"
+DEFAULT_X_KEY_VAR = "LUNA_PROXY_API_KEY_X"
+DEFAULT_Y_KEY_VAR = "LUNA_PROXY_API_KEY_Y"
 QUALIFICATION_CANARY_SHA256 = (
     "0669b6c0ef0e83d2ca0a9410c9704dcb3413ba14cee7c6c3d93e9030f7c997fe"
 )
