@@ -182,7 +182,11 @@ def _invariant_violation(bundle: DyadEvidenceBundleV0) -> str | None:
 
 
 def _write_freeze_record(
-    directory: Path, manifest, tests: dict, concurrency: int
+    directory: Path,
+    manifest,
+    tests: dict,
+    concurrency: int,
+    interleave_with: str | None = None,
 ) -> Path:
     record = {
         "schema_version": "constraint-forge/cohort-freeze-record/v0",
@@ -223,11 +227,18 @@ def _write_freeze_record(
         "stop_rule": manifest.stop_rule,
         "execution_policy": {
             "concurrency": concurrency,
-            "parallel_stop_rule": (
-                f"with concurrency>1: stop scheduling once "
-                f"{PARALLEL_ABORT_STOP_TOTAL} executed dyads have aborted and "
-                "none has completed; scientific-invariant violations halt "
-                "everything immediately"
+            "interleave_with": interleave_with,
+            "interleaved_pairs": interleave_with is not None,
+            "pairing": (
+                "matched dyad pairs execute concurrently: this arm's dyad i "
+                "runs alongside the partner arm's dyad i; total in-flight "
+                "dyads across arms <= 2 (<= 4 simultaneous provider calls)"
+            ),
+            "stop_rule": (
+                f"per-arm: stop scheduling further pairs once "
+                f"{PARALLEL_ABORT_STOP_TOTAL} executed dyads of this arm have "
+                "aborted and none of this arm has completed; "
+                "scientific-invariant violations halt everything immediately"
             ),
         },
     }
@@ -271,6 +282,9 @@ async def _run(args) -> int:
     _declare_boundary(args)
     tasks = build_cohort_tasks()
     assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
+    if args.only_dyad is not None:
+        tasks = [task for task in tasks if task.data.idx == args.only_dyad]
+        assert len(tasks) == 1
     directory = Path(args.output_dir) / args.cohort_id
     directory.mkdir(parents=True, exist_ok=True)
     # A pre-existing freeze record owns the frozen identity: later
@@ -303,7 +317,9 @@ async def _run(args) -> int:
         tests = _run_tests_now() if args.run_tests else {}
         if args.run_tests and any(t["returncode"] != 0 for t in tests.values()):
             raise SystemExit(f"freezing refused: tests failed: {tests}")
-        record_path = _write_freeze_record(directory, manifest, tests, args.concurrency)
+        record_path = _write_freeze_record(
+            directory, manifest, tests, args.concurrency, args.interleave_with
+        )
         print(json.dumps({"freeze_record": str(record_path), "manifest_hash": manifest.manifest_hash}))
         write_atomic(manifest_path, json.dumps(_manifest_payload(manifest, rows), indent=2, sort_keys=True).encode())
 
@@ -491,6 +507,10 @@ def _parser() -> argparse.ArgumentParser:
                         default=COHORT_CALL_TIMEOUT_SECONDS)
     parser.add_argument("--concurrency", type=int, default=1,
                         help="how many dyads execute simultaneously")
+    parser.add_argument("--only-dyad", type=int,
+                        help="execute exactly this manifest dyad (driver control)")
+    parser.add_argument("--interleave-with", default=None,
+                        help="partner cohort id declared in the freeze record")
     parser.add_argument("--resume-crashed", type=int, action="append")
     parser.add_argument(
         "--no-run-tests",
