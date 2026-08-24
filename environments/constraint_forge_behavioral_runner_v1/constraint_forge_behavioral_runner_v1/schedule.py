@@ -152,16 +152,18 @@ def _probe_order(sequence_index: int) -> tuple[tuple[str, ProbeCondition], ...]:
     wiped-first, counterbalancing intra-block position against condition.
     """
 
-    first = "film_intact" if sequence_index % 2 == 0 else "film_wiped"
-    second = "film_wiped" if first == "film_intact" else "film_intact"
-    return (
-        ("probe-pair-0", first),
-        ("probe-pair-0", second),
-        ("probe-pair-1", first),
-        ("probe-pair-1", second),
-        ("probe-pair-2", first),
-        ("probe-pair-2", second),
-    )
+    # Rotate which pair runs intact-first by sequence_index % 3, so no
+    # condition is coupled to a fixed block position (adversarial finding 2).
+    rotation = sequence_index % 3
+    order = []
+    for offset in range(3):
+        pair_id = f"probe-pair-{offset}"
+        intact_first = (offset == rotation)
+        cond_a = "film_intact" if intact_first else "film_wiped"
+        cond_b = "film_wiped" if intact_first else "film_intact"
+        order.append((pair_id, cond_a))
+        order.append((pair_id, cond_b))
+    return tuple(order)
 
 
 def _probe_intervention(

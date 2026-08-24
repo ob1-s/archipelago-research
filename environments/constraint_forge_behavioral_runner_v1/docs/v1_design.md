@@ -104,3 +104,29 @@ dyads complete. LOW arm reported descriptively under the same thresholds.
 
 ≤ 24 dyads × ~700 calls × ≤450 tok avg completion ≈ ≤17k calls, ≤75M prompt +
 ≤8M completion tokens; wall-clock ≤ 30 h at ≤2 concurrent dyads.
+
+## B.9 Adversarial review adjudication (pre-freeze)
+
+Independent review raised 8 threats; disposition:
+
+1. ADOPTED (framing): Q2 estimand renamed *film-state availability at job start*
+   (includes any round-1 memory cue), not narrow "film content". Demand-effect
+   risk noted; no signaling added.
+2. ADOPTED: condition order rotates by `sequence_index % 3` across probe pairs,
+   breaking the fixed intact-at-18/20/22 position coupling.
+3. ADOPTED: pre-registered condition×intra-pair-position interaction test
+   (thread-leakage check) in the analysis plan.
+4. ADOPTED: power honesty — Q2 analyzed by exact within-dyad permutation with
+   simulation-based MDE reported from qualification rates; treated as
+   confirmatory only if simulated power ≥0.6, else explicitly exploratory.
+5. ADOPTED: gate threshold one-shot — T = max(0.15, 1.5 × pooled qualification
+   final-eight mean), fixed after exactly 2 qualification dyads per arm; no
+   re-tuning; qualification N declared now.
+6. PARTIAL: scope statement — Q2 tests *expression*. The developmental role of
+   films (formation scaffolding) is out of V1 scope; mid-sequence wipes are a
+   recorded V2 candidate.
+7. ADOPTED: pre-registered attrition rule — matched-index cross-arm analyses
+   use only indices where BOTH arms completed; aborts never imputed.
+8. PARTIAL: probes stay both-visible BUT qualification must exhibit ≥1
+   formation event under visible probes; if zero across 4 qualification dyads,
+   visibility is revisited before freeze (recorded decision point).

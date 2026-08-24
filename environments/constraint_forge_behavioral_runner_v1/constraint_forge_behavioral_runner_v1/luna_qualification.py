@@ -40,7 +40,7 @@ from .taskset import (
     ConstraintForgeBehavioralTasksetConfig,
 )
 
-QUALIFICATION_SEED_PREFIX = "constraint-forge/luna-qualification-v0"
+QUALIFICATION_SEED_PREFIX = "constraint-forge/v1-qualification-v0"
 LUNA_BASE_URL = "http://127.0.0.1:10531/v1"
 LUNA_MODEL = "gpt-5.6-luna"
 LUNA_MAX_COMPLETION_TOKENS = 16384
@@ -192,6 +192,9 @@ def _parser() -> argparse.ArgumentParser:
         description="Run one throwaway full-dyad Luna qualification."
     )
     parser.add_argument("--reasoning-effort", choices=["low", "medium"], default="low")
+    parser.add_argument("--cohort-id-suffix", default="v1-qualification",
+                        help="qualifier identity; never a scientific cohort")
+    parser.add_argument("--skip-preflight", action="store_true")
     parser.add_argument("--output-dir", default="qual_artifacts")
     return parser
 

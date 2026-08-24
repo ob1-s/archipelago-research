@@ -103,10 +103,14 @@ def test_probe_schedule_pairs_contrast_film_conditions():
                 "film_wiped",
             ]
             assert len({j.matched_difficulty_key for j in pair}) == 1
-            # parity counterbalancing of intra-pair order
+            # rotation counterbalancing: intact-first pair rotates %3
             first = min(pair, key=lambda j: j.job_index)
-            expected = "film_intact" if sequence_index % 2 == 0 else "film_wiped"
-            assert first.rack_condition == expected
+            expected = (
+                "film_intact"
+                if (int(pair_id.split("-")[-1]) == sequence_index % 3)
+                else "film_wiped"
+            )
+            assert first.rack_condition == expected, (pair_id, sequence_index)
         assert all(j.intervention is None for j in probes)
 
 
