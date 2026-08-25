@@ -2,3 +2,53 @@
   class PendingWrite(StrictModel):
 /home/ob1/Projects/archipelago/environments/constraint_forge_formation_v0/constraint_forge_formation_v0/actions.py:17: UserWarning: Field name "register" in "WriteAction" shadows an attribute in parent "ActionModel"
   class WriteAction(ActionModel):
+{
+  "base_url": "http://127.0.0.1:10531/v1",
+  "boundary": {
+    "call_timeout_seconds": 300,
+    "infra_backoff_seconds": [
+      4,
+      8
+    ],
+    "infra_retries": 2
+  },
+  "elapsed_seconds": 6375.5,
+  "endpoint": "/chat/completions",
+  "evidence_path": "qual_artifacts/dyad-luna-medium.json",
+  "evidence_sha256": "2ae6849346e17eb3cd905b410496b74ee9503192cfd2e41234137ed46201bff3",
+  "finished_utc": "2026-08-24T21:50:47Z",
+  "freeze_commit": "4daf5fa3dd7fffe5937827828add860b66b7b94a",
+  "max_completion_tokens": 16384,
+  "model": "gpt-5.6-luna",
+  "plan_hash": "7aa9332a69822727ec3e17788c43c8c9c865efb61fc2a248375d182d77aff91e",
+  "proxy": "openai-oauth@2.0.0",
+  "reasoning_effort": "medium",
+  "scientific": false,
+  "seed_prefix": "constraint-forge/v1-qualification-v0",
+  "started_utc": "2026-08-24T20:04:32Z",
+  "summary_row": {
+    "abort_class": null,
+    "completed_jobs": 24,
+    "dyad_index": 0,
+    "evidence_path": "qual_artifacts/dyad-luna-medium.json",
+    "evidence_sha256": "2ae6849346e17eb3cd905b410496b74ee9503192cfd2e41234137ed46201bff3",
+    "final_eight_nonoccluded_success_mean": 0.125,
+    "infra_retry_events": 0,
+    "job_success_mean": 0.041666666666666664,
+    "live_model_calls": 622,
+    "plan_hash": "7aa9332a69822727ec3e17788c43c8c9c865efb61fc2a248375d182d77aff91e",
+    "rerun_after_crash": false,
+    "retained_films_x": 0,
+    "retained_films_y": 0,
+    "sequence_id": "sequence-000000",
+    "status": "completed",
+    "successful_jobs": 1
+  },
+  "token_usage": {
+    "calls_with_usage": 622,
+    "completion_tokens": 224492,
+    "prompt_tokens": 6006395,
+    "reasoning_tokens": 0,
+    "total_tokens": 0
+  }
+}
