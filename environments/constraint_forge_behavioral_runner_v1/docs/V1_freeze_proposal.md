@@ -73,3 +73,78 @@ risks: (a) wipe detectability/demand effects — mitigated by honest estimand
 framing; (b) expression-vs-development scope limit on Q2 — documented, V2
 candidate mid-sequence wipes; (c) LOW qualification gap — hard gate before launch;
 (d) power for Q2 likely modest — exploratory fallback pre-declared.
+
+---
+
+## POST-REVIEW RESOLUTION (reviewer NO-GO round 1)
+
+**Commit reconciliation**: `4daf5fa` = last CODE commit at drafting;
+`23a0526` = the doc-adding commit on top. No divergence in code lineage;
+the freeze record at GO pins whatever HEAD is at freeze time, and §11 above
+is superseded by that statement.
+
+**Q1 resolution — option 2 chosen (rename/rescope), option 3 rejected with
+reason**: any substrate change breaks bit-identical comparability with V0 and
+adds world-fork risk without evidence that repair is needed for the phenomenon
+V1 actually studies. V1 therefore honestly targets **formation incidence &
+expression reliability at the substrate's native competence level**:
+
+- Q1' (gate): ≥60% of completed dyads per arm contain ≥1 formation event.
+- Late-sequence competence (final-eight mean) is DEMOTED to a descriptive
+  statistic reported per arm; it gates nothing. No goalpost redefinition is
+  claimed: we assert nothing about competence repair, and say so.
+- Q2 unchanged (expression estimand); its power statement already carries the
+  exploratory fallback if probe-success counts are too low.
+
+**Predeclared one-shot development decision rule (before further
+qualification — no iterative tuning)**:
+1. Complete exactly ONE LOW qualification dyad (no others).
+2. Pool MEDIUM+LOW qualification dyads. Require ALL of:
+   (a) mean formation events per qualification dyad ≥ 1.0;
+   (b) ≥1 formation under a both-visible probe somewhere in the pool
+       (adversarial decision point B.9#8);
+   (c) every qualification lifecycle sealed `completed` with zero infra aborts.
+3. If all hold → freeze as designed (with Q1'). If ANY fails → NO-GO for V1
+   as designed; escalate option-3 substrate redesign as a separate named
+   round with fresh qualification. Qualifications are never re-run to seek
+   a pass.
+
+---
+
+## QUALIFICATION RESULTS & ADJUDICATION (2026-08-25, post-review)
+
+**Execution integrity.** LOW attempt 1 was killed by a host reboot
+(04:12 UTC) after import but before any observation existed; its log is
+preserved as `qual_low_attempt1_reboot_killed.log`. This is an infra
+event, not a scientific outcome. Attempt 2 is the single clean LOW
+qualification dyad required by rule step 1. Both qualification dyads
+sealed `completed` (24/24 jobs), `abort_class` null on both. LOW
+recorded 3 infra *retry* events (recovered by designed backoff); retries
+are not aborts, so criterion (c) is evaluated on aborts. Evidence
+sha256 digests verify against the run summaries.
+
+**Behavioral adjudication** (formation = cross-lineage kind adoption;
+conservative counting, uncertain candidates excluded):
+
+- MEDIUM dyad: **1 formation** — job 16, Y adopts write-symbol 0,
+  first used by X at job 11. Zero formations on armed probes (jobs
+  4–7) or triggered interventions (job 6 DELAY_LAYER_VISIBILITY,
+  job 7 CLEAR_LAYER_ENTRY).
+- LOW dyad: **0 formations** — neither agent submitted any legal
+  `write` action in any of the 24 jobs (participation-floor pathology:
+  effort level removed engagement with the core mechanic entirely).
+
+**Pooled decision rule applied (no discretion):**
+
+- (a) mean formation events per qualification dyad = (1+0)/2 = **0.5**
+  — FAILS (< 1.0).
+- (b) formations under a both-visible probe anywhere in pool = **0**
+  — FAILS.
+- (c) all lifecycles sealed `completed`, zero infra aborts — PASSES.
+
+**VERDICT: NO-GO for V1 as designed**, per predeclared rule step 3.
+Qualifications are not re-run to seek a pass. Option-3 substrate
+redesign escalates as a separate named round with fresh qualification.
+Descriptive note carried to that round, changing no gate here: any
+redesign must first restore mechanical participation at LOW effort
+before formation phenomena can be measured at all.
