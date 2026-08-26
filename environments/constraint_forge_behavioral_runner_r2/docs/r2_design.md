@@ -17,9 +17,11 @@ private-mask matching problem — nothing else.
 
 ## Difficulty ladder (predefined, ordered, minimal-lever first)
 
-Physics constants currently pin zero slack: mutation budget 6 == exact number
-of sets a perfect assignment needs (any collision costs unset+set = 2/6 of
-budget), round cap 16.
+Physics constants pin thin margins: mutation budget is 8 vs the 6 sets a
+perfect assignment needs (ONE recoverable mistake per job), write budget 3,
+round cap 16 with observed round-16 unresolved deaths. Correction of an
+earlier draft that claimed a 6-mutation zero-slack budget; recorded for
+honesty.
 
 - L1 "slack": mutation budget 6 -> 12/station/job, write budget 3 -> 4,
   round cap 16 -> 24. Instance distribution, n=6, masks, generator untouched.
