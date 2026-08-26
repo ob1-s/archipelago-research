@@ -1,0 +1,59 @@
+/home/ob1/Projects/archipelago/environments/constraint_forge_behavioral_runner_r2/constraint_forge_behavioral_runner_r2/_r2_world/models.py:191: UserWarning: Field name "register" in "PendingWrite" shadows an attribute in parent "StrictModel"
+  class PendingWrite(StrictModel):
+/home/ob1/Projects/archipelago/environments/constraint_forge_behavioral_runner_r2/constraint_forge_behavioral_runner_r2/_r2_world/actions.py:26: UserWarning: Field name "register" in "WriteAction" shadows an attribute in parent "ActionModel"
+  class WriteAction(ActionModel):
+{
+  "base_url": "http://127.0.0.1:10531/v1",
+  "boundary": {
+    "call_timeout_seconds": 300,
+    "infra_backoff_seconds": [
+      4,
+      8
+    ],
+    "infra_retries": 2
+  },
+  "difficulty": {
+    "max_rounds": 24,
+    "mutation_budget": 12,
+    "write_budget": 4
+  },
+  "elapsed_seconds": 4040.1,
+  "endpoint": "/chat/completions",
+  "evidence_path": "qual_artifacts/dyad-luna-medium.json",
+  "evidence_sha256": "0cc70d8e3699d7b309adbb88e772f6f8e25ba9d929ddcb8513abfb71e8639e47",
+  "finished_utc": "2026-08-26T12:12:50Z",
+  "freeze_commit": "0f360694300107fb73ecda97c4d18d40f3f39f11",
+  "max_completion_tokens": 16384,
+  "model": "gpt-5.6-luna",
+  "plan_hash": "09220a21ad19d008af2439c29fc4bec6cb393404c1c0f3e2e2a79c5053183141",
+  "proxy": "openai-oauth@2.0.0",
+  "reasoning_effort": "medium",
+  "scientific": false,
+  "seed_prefix": "constraint-forge/r2-calibration-v0",
+  "started_utc": "2026-08-26T11:05:30Z",
+  "summary_row": {
+    "abort_class": null,
+    "completed_jobs": 24,
+    "dyad_index": 0,
+    "evidence_path": "qual_artifacts/dyad-luna-medium.json",
+    "evidence_sha256": "0cc70d8e3699d7b309adbb88e772f6f8e25ba9d929ddcb8513abfb71e8639e47",
+    "final_eight_nonoccluded_success_mean": 0.375,
+    "infra_retry_events": 0,
+    "job_success_mean": 0.16666666666666666,
+    "live_model_calls": 774,
+    "plan_hash": "09220a21ad19d008af2439c29fc4bec6cb393404c1c0f3e2e2a79c5053183141",
+    "rerun_after_crash": false,
+    "retained_films_x": 6,
+    "retained_films_y": 6,
+    "sequence_id": "sequence-000000",
+    "status": "completed",
+    "successful_jobs": 4
+  },
+  "token_usage": {
+    "calls_with_usage": 774,
+    "completion_tokens": 216213,
+    "prompt_tokens": 7985235,
+    "reasoning_tokens": 0,
+    "total_tokens": 0
+  }
+}
