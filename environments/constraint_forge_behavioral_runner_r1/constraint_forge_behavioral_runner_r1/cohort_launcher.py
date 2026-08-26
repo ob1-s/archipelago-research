@@ -1,0 +1,623 @@
+"""Explicit live launcher for the frozen 12-dyad exploratory formation cohort.
+
+Run `--freeze-only` first to materialize the freeze record before any model
+call. A plain `--live` run executes every remaining dyad exactly once under
+the frozen provider configuration; aborted dyads are preserved and never
+re-executed (a crashed dyad requires an explicit `--resume-crashed INDEX`).
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import json
+import os
+import subprocess  # noqa: S404 - only reads the local git revision
+from pathlib import Path
+
+import verifiers.v1 as vf
+from verifiers.v1.configs.agent import AgentConfig
+from verifiers.v1.configs.client import EvalClientConfig
+from verifiers.v1.configs.retries import RetryConfig
+from verifiers.v1.runtimes.subprocess import SubprocessConfig
+from verifiers.v1.types import SamplingConfig
+
+from constraint_forge_formation_v0.canonical import stable_hash
+
+from .audit import AuditLedger
+from .cohort import (
+    COHORT_MAX_TURNS_PER_ROLE,
+    COHORT_NUM_DYADS,
+    PARALLEL_ABORT_STOP_TOTAL,
+    DyadEvidenceBundleV0,
+    DyadStatus,
+    CohortProviderConfigV0,
+    build_cohort_tasks,
+    build_manifest,
+    dyad_summary_row,
+    utc_now,
+    write_atomic,
+)
+from .harness import (
+    CALL_TIMEOUT_SECONDS,
+    ConstraintForgeTextHarnessConfig,
+    configure_text_harness_boundary,
+)
+from .live_canary import _trace_evidence
+from .runner import run_behavioral_sequence
+from .taskset import ConstraintForgeBehavioralTask
+
+LUNA_BASE_URL = "http://127.0.0.1:10531/v1"
+LUNA_MODEL = "gpt-5.6-luna"
+COHORT_MAX_COMPLETION_TOKENS = 16384
+COHORT_REASONING_EFFORT = "low"
+# Cohort-v1 declared budget: identical re-dispatch per behavioral opportunity
+# after explicit infrastructure statuses (429/500/502/503/504) that provably
+# delivered no response; everything else stays abort-only.
+COHORT_INFRA_RETRIES = 2
+COHORT_INFRA_BACKOFF_SECONDS = (4, 8)
+# Slow-but-successful long generations must not be misread as ambiguous
+# failures; the timeout stays abort-only, so give it real headroom.
+COHORT_CALL_TIMEOUT_SECONDS = 300
+DEFAULT_X_KEY_VAR = "LUNA_PROXY_API_KEY_X"
+DEFAULT_Y_KEY_VAR = "LUNA_PROXY_API_KEY_Y"
+QUALIFICATION_CANARY_SHA256 = (
+    "0669b6c0ef0e83d2ca0a9410c9704dcb3413ba14cee7c6c3d93e9030f7c997fe"
+)
+
+
+def _freeze_commit() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
+def _provider_config(args) -> CohortProviderConfigV0:
+    return CohortProviderConfigV0(
+        model=args.model,
+        base_url=args.base_url,
+        x_key_var=args.x_key_var,
+        y_key_var=args.y_key_var,
+        shared_credential=True,
+        max_completion_tokens=args.max_completion_tokens,
+        reasoning_effort=args.reasoning_effort,
+        call_timeout_seconds=args.call_timeout_seconds,
+        max_retries=0,
+        infra_retries=COHORT_INFRA_RETRIES,
+        infra_backoff_seconds=COHORT_INFRA_BACKOFF_SECONDS,
+    )
+
+
+def _declare_boundary(args) -> None:
+    """Declare the frozen boundary knobs for this process."""
+
+    configure_text_harness_boundary(
+        call_timeout_seconds=args.call_timeout_seconds,
+        infra_retries=COHORT_INFRA_RETRIES,
+        infra_backoff_seconds=tuple(
+            float(s) for s in COHORT_INFRA_BACKOFF_SECONDS
+        ),
+    )
+
+
+def _agent_config(args, api_key_var: str) -> AgentConfig:
+    return AgentConfig(
+        model=args.model,
+        client=EvalClientConfig(base_url=args.base_url, api_key_var=api_key_var),
+        harness=ConstraintForgeTextHarnessConfig(),
+        runtime=SubprocessConfig(),
+        sampling=SamplingConfig(
+            max_tokens=args.max_completion_tokens,
+            reasoning_effort=args.reasoning_effort,
+        ),
+        max_turns=COHORT_MAX_TURNS_PER_ROLE,
+        retries=RetryConfig(max_retries=0),
+    )
+
+
+def _operational_task(task: ConstraintForgeBehavioralTask) -> ConstraintForgeBehavioralTask:
+    """Relax only the operational network policy on a task copy (see canary)."""
+
+    data = task.data.model_copy(update={"network_allow": ["*"], "network_block": []})
+    return ConstraintForgeBehavioralTask(data, task.config)
+
+
+def _bundle_from_result(
+    result,
+    *,
+    cohort_id: str,
+    dyad_index: int,
+    sequence_id: str,
+    plan_hash: str,
+    freeze_commit: str,
+    started_utc: str,
+    rerun_after_crash: bool,
+) -> DyadEvidenceBundleV0:
+    seal = result.ledger.seal_record
+    if seal is None:
+        raise RuntimeError("dyad returned without a sealed audit ledger")
+    return DyadEvidenceBundleV0(
+        cohort_id=cohort_id,
+        dyad_index=dyad_index,
+        sequence_id=sequence_id,
+        plan_hash=plan_hash,
+        freeze_commit=freeze_commit,
+        started_utc=started_utc,
+        finished_utc=utc_now(),
+        rerun_after_crash=rerun_after_crash,
+        handoff=result.handoff,
+        audit_events=result.ledger.events,
+        audit_seal=seal,
+        jobs=result.jobs,
+        traces=_trace_evidence(result),
+    )
+
+
+def _invariant_violation(bundle: DyadEvidenceBundleV0) -> str | None:
+    """Mechanical post-abort integrity screen for scientific-invariant breaks."""
+
+    if not AuditLedger.verify_events(list(bundle.audit_events), bundle.audit_seal).valid:
+        return "audit chain or seal failed verification"
+    models = {call.get("model") for trace in bundle.traces for call in trace.native_calls}
+    if len(models) > 1:
+        return f"multiple provider models observed: {sorted(models)}"
+    for role, lineage_field in (("X", "lineage_x"), ("Y", "lineage_y")):
+        expected = getattr(bundle.handoff, lineage_field)
+        ids = {event.lifecycle_id for event in bundle.audit_events if event.actor == role}
+        if ids - {expected}:
+            return f"{role} lifecycle drift"
+    groups: dict[tuple, set[str]] = {}
+    for event in bundle.audit_events:
+        if getattr(event.status, "value", event.status) == "completed":
+            groups.setdefault(
+                (event.job_index, event.phase, event.round), set()
+            ).add(event.pre_state_hash)
+    if any(len(hashes) != 1 for hashes in groups.values()):
+        return "paired pre-state mismatch"
+    return None
+
+
+def _write_freeze_record(
+    directory: Path,
+    manifest,
+    tests: dict,
+    concurrency: int,
+    interleave_with: str | None = None,
+) -> Path:
+    record = {
+        "schema_version": "constraint-forge/cohort-freeze-record/v0",
+        "written_utc": utc_now(),
+        "statement": (
+            "Scientific execution has not started yet: this record was produced "
+            "before the first cohort model call."
+        ),
+        "freeze_commit": manifest.freeze_commit,
+        "manifest_hash": manifest.manifest_hash,
+        "protocol_version": manifest.protocol_version,
+        "seed_prefix": manifest.seed_prefix,
+        "num_dyads": manifest.num_dyads,
+        "sequences": [
+            {
+                "dyad_index": row.dyad_index,
+                "sequence_id": row.sequence_id,
+                "plan_hash": row.plan_hash,
+            }
+            for row in manifest.sequences
+        ],
+        "provider_config": manifest.provider_config.model_dump(mode="json"),
+        "retry_policy": (
+            "Per behavioral opportunity: on an explicit infrastructure status "
+            "(429/500/502/503/504) with no delivered response, the harness "
+            f"session re-launches the identical request up to "
+            f"{manifest.provider_config.infra_retries} times with backoff "
+            f"{list(manifest.provider_config.infra_backoff_seconds)}s below "
+            "the agent boundary (the v1 interaction is never re-entered); "
+            "every attempt is persisted as a native call, receipt entry, and "
+            "infra_retry audit event with the same request hash/context; "
+            "completed responses, malformed actions, length stops, refusals, "
+            "and timeouts are never retried; the whole chain counts as exactly "
+            "one behavioral opportunity."
+        ),
+        "qualification_canary_sha256": manifest.qualification_canary_sha256,
+        "test_results": tests,
+        "stop_rule": manifest.stop_rule,
+        "execution_policy": {
+            "concurrency": concurrency,
+            "interleave_with": interleave_with,
+            "interleaved_pairs": interleave_with is not None,
+            "pairing": (
+                "matched dyad pairs execute concurrently: this arm's dyad i "
+                "runs alongside the partner arm's dyad i; total in-flight "
+                "dyads across arms <= 2 (<= 4 simultaneous provider calls)"
+            ),
+            "stop_rule": (
+                f"per-arm: stop scheduling further pairs once "
+                f"{PARALLEL_ABORT_STOP_TOTAL} executed dyads of this arm have "
+                "aborted and none of this arm has completed; "
+                "scientific-invariant violations halt everything immediately"
+            ),
+        },
+    }
+    payload = stable_hash(record)
+    path = directory / "freeze_record.json"
+    write_atomic(path, json.dumps({**record, "record_hash": payload}, indent=2, sort_keys=True).encode("utf-8"))
+    return path
+
+
+def _run_tests_now() -> dict:
+    root = Path(__file__).resolve().parent.parent
+    results = {}
+    for name, target in (
+        ("behavioral_runner", "."),
+        ("formation", "../constraint_forge_formation_v0"),
+    ):
+        proc = subprocess.run(
+            ["uv", "run", "pytest", "-q", target],
+            capture_output=True,
+            text=True,
+            cwd=root,
+        )
+        tail = proc.stdout.strip().splitlines()[-1] if proc.stdout.strip() else ""
+        results[name] = {"returncode": proc.returncode, "summary": tail}
+    return results
+
+
+async def _run(args) -> int:
+    if args.freeze_only and args.live:
+        raise SystemExit("--freeze-only must not be combined with --live")
+    if not args.freeze_only and not args.live:
+        raise SystemExit("refusing to make model calls without explicit --live")
+
+    secrets: list[str] = []
+    for name in (args.x_key_var, args.y_key_var):
+        value = os.environ.get(name)
+        if not value:
+            raise SystemExit(f"required credential environment variable is unset: {name}")
+        secrets.append(value)
+
+    if args.reconcile:
+        return _reconcile_manifest(Path(args.output_dir) / args.cohort_id)
+    _declare_boundary(args)
+    if args.live and not args.skip_preflight:
+        problem = _preflight_provider_check(args)
+        if problem is not None:
+            print(json.dumps({"preflight_failed": problem}))
+            return 4
+        headroom = _memory_headroom_mb()
+        if headroom is not None and headroom < 1500:
+            print(json.dumps(
+                {"preflight_failed": f"low memory: {headroom}MB available"}))
+            return 4
+
+    tasks = build_cohort_tasks()
+    assert [task.data.idx for task in tasks] == list(range(COHORT_NUM_DYADS))
+    directory = Path(args.output_dir) / args.cohort_id
+    directory.mkdir(parents=True, exist_ok=True)
+    # A pre-existing freeze record owns the frozen identity: later
+    # launcher-only commits must not invalidate a running cohort.
+    record_path = directory / "freeze_record.json"
+    frozen_record = (
+        json.loads(record_path.read_text()) if record_path.exists() else None
+    )
+    freeze_commit = (
+        frozen_record["freeze_commit"] if frozen_record else _freeze_commit()
+    )
+    manifest = build_manifest(
+        cohort_id=args.cohort_id,
+        freeze_commit=freeze_commit,
+        provider_config=_provider_config(args),
+        qualification_canary_sha256=QUALIFICATION_CANARY_SHA256,
+        tasks=tasks,
+    )
+    manifest_path = directory / "manifest.json"
+
+    resume_crashed = set(args.resume_crashed or ())
+    rows = {}
+    if manifest_path.exists():
+        existing = json.loads(manifest_path.read_text())
+        if existing["manifest_hash"] != manifest.manifest_hash:
+            raise SystemExit("existing cohort manifest does not match this frozen plan")
+        for row in existing["dyads"]:
+            rows[row["dyad_index"]] = row
+    else:
+        tests = _run_tests_now() if args.run_tests else {}
+        if args.run_tests and any(t["returncode"] != 0 for t in tests.values()):
+            raise SystemExit(f"freezing refused: tests failed: {tests}")
+        record_path = _write_freeze_record(
+            directory, manifest, tests, args.concurrency, args.interleave_with
+        )
+        print(json.dumps({"freeze_record": str(record_path), "manifest_hash": manifest.manifest_hash}))
+        write_atomic(manifest_path, json.dumps(_manifest_payload(manifest, rows), indent=2, sort_keys=True).encode())
+
+    if args.freeze_only:
+        print(json.dumps({"status": "frozen", "directory": str(directory)}))
+        return 0
+
+    # Freeze gate: scientific calls require a pre-existing freeze record for
+    # exactly this manifest hash; the launcher never creates one mid-flight.
+    if not record_path.exists():
+        raise SystemExit(
+            "freeze gate: no freeze record found; run --freeze-only before any "
+            "scientific model call"
+        )
+    assert frozen_record is not None
+    if frozen_record.get("manifest_hash") != manifest.manifest_hash:
+        raise SystemExit(
+            "freeze gate: freeze record does not match this frozen plan hash"
+        )
+
+    # V1 stop rule is evaluated uniformly over manifest history at each dyad
+    # completion; no separate inherited-streak pre-check exists (V0 tooling
+    # finding: code/text divergence is closed here).
+
+    semaphore = asyncio.Semaphore(max(1, args.concurrency))
+    halt = {"reason": None}
+    lock = asyncio.Lock()
+
+    async def _execute(task: ConstraintForgeBehavioralTask) -> None:
+        dyad_index = task.data.idx
+        async with lock:
+            if halt["reason"] is not None:
+                return
+            artifact_path = directory / f"dyad-{dyad_index:02d}.json"
+            marker_path = directory / f"dyad-{dyad_index:02d}.started"
+            rerun_after_crash = False
+            if artifact_path.exists():
+                return
+            if marker_path.exists():
+                if dyad_index not in resume_crashed:
+                    halt["reason"] = (
+                        f"dyad {dyad_index} has a started marker but no evidence; "
+                        "pass --resume-crashed explicitly to re-instantiate it "
+                        "after a hard crash (the rerun is recorded)"
+                    )
+                    return
+                rerun_after_crash = True
+            started_utc = utc_now()
+            marker_path.write_text(started_utc)
+
+        async with semaphore:
+            async with lock:
+                if halt["reason"] is not None:
+                    return
+            operational = _operational_task(task)
+            actor_x = vf.Agent(_agent_config(args, args.x_key_var))
+            actor_y = vf.Agent(_agent_config(args, args.y_key_var))
+            result = await run_behavioral_sequence(
+                operational.data,
+                actor_x=actor_x,
+                actor_y=actor_y,
+                task=operational,
+            )
+        bundle = _bundle_from_result(
+            result,
+            cohort_id=args.cohort_id,
+            dyad_index=dyad_index,
+            sequence_id=task.data.sequence_id,
+            plan_hash=task.data.plan_hash,
+            freeze_commit=manifest.freeze_commit,
+            started_utc=started_utc,
+            rerun_after_crash=rerun_after_crash,
+        )
+        payload = bundle.serialization_bytes
+        if any(secret.encode("utf-8") in payload for secret in secrets):
+            raise RuntimeError("credential bytes unexpectedly appeared in dyad evidence")
+        write_atomic(artifact_path, payload)
+        marker_path.unlink()
+
+        row = dyad_summary_row(bundle=bundle, evidence_path=artifact_path)
+        async with lock:
+            rows[dyad_index] = row.model_dump(mode="json")
+            write_atomic(
+                manifest_path,
+                json.dumps(
+                    _manifest_payload(manifest, rows), indent=2, sort_keys=True
+                ).encode(),
+            )
+        payload = row.model_dump(mode="json")
+        payload["row_type"] = "dyad"
+        print("@ROW:" + json.dumps(payload, sort_keys=True))
+
+        if row.status == DyadStatus.ABORTED:
+            violation = _invariant_violation(bundle)
+            if violation is not None:
+                async with lock:
+                    if halt["reason"] is None:
+                        halt["reason"] = (
+                            f"scientific invariant violated at dyad {dyad_index}: "
+                            f"{violation}"
+                        )
+                return
+            async with lock:
+                completed_so_far = sum(
+                    1
+                    for r in rows.values()
+                    if r["status"] == DyadStatus.COMPLETED.value
+                )
+                aborted_total = sum(
+                    1
+                    for r in rows.values()
+                    if r["status"] == DyadStatus.ABORTED.value
+                )
+                # Frozen text, implemented literally: stop scheduling once
+                # >=3 executed dyads of this arm have aborted AND none of its
+                # dyads has completed. Concurrency-independent by design.
+                if (
+                    aborted_total >= PARALLEL_ABORT_STOP_TOTAL
+                    and completed_so_far == 0
+                    and halt["reason"] is None
+                ):
+                    halt["reason"] = (
+                        f"{aborted_total} infrastructure aborts with no "
+                        "completed dyad"
+                    )
+
+    # Manifest is always built and verified over the full frozen task list;
+    # --only-dyad narrows execution only (driver control for interleaving).
+    exec_tasks = tasks
+    if args.only_dyad is not None:
+        exec_tasks = [task for task in tasks if task.data.idx == args.only_dyad]
+        assert len(exec_tasks) == 1
+
+    await asyncio.gather(*(_execute(task) for task in exec_tasks))
+
+    if halt["reason"] is not None:
+        reason = halt["reason"]
+        if reason.startswith("scientific invariant"):
+            print(json.dumps({"halted": reason}))
+            return 3
+        print(json.dumps({"stopped_cleanly": reason}))
+        return 2
+
+    executed = sum(1 for row in rows.values() if row["status"] != DyadStatus.NOT_STARTED.value)
+    print(json.dumps({"cohort_complete": True, "executed_dyads": executed}))
+    return 0
+
+
+def _manifest_payload(manifest, rows: dict) -> dict:
+    ordered = [rows[index] for index in sorted(rows)]
+    return {**manifest.model_dump(mode="json"), "dyads": ordered}
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Run the frozen 12-dyad Constraint Forge formation cohort."
+    )
+    parser.add_argument("--live", action="store_true", help="required live-inference gate")
+    parser.add_argument(
+        "--freeze-only",
+        action="store_true",
+        help="materialize the freeze record and manifest without model calls",
+    )
+    parser.add_argument("--cohort-id", default="constraint-forge-formation-cohort-ox-v2")
+    parser.add_argument("--output-dir", default="cohort_artifacts")
+    parser.add_argument("--x-key-var", default=DEFAULT_X_KEY_VAR)
+    parser.add_argument("--y-key-var", default=DEFAULT_Y_KEY_VAR)
+    parser.add_argument("--model", default=LUNA_MODEL)
+    parser.add_argument("--base-url", default=LUNA_BASE_URL)
+    parser.add_argument(
+        "--reasoning-effort", choices=["low", "medium"], default=COHORT_REASONING_EFFORT
+    )
+    parser.add_argument("--max-completion-tokens", type=int,
+                        default=COHORT_MAX_COMPLETION_TOKENS)
+    parser.add_argument("--call-timeout-seconds", type=int,
+                        default=COHORT_CALL_TIMEOUT_SECONDS)
+    parser.add_argument("--concurrency", type=int, default=1,
+                        help="how many dyads execute simultaneously")
+    parser.add_argument("--only-dyad", type=int,
+                        help="execute exactly this manifest dyad (driver control)")
+    parser.add_argument("--skip-preflight", action="store_true",
+                        help="bypass provider health check (tests only)")
+    parser.add_argument("--api-key", default="local-proxy",
+                        help="bearer token for preflight checks")
+    parser.add_argument("--reconcile", action="store_true",
+                        help="adopt orphan evidence into the manifest; no science")
+    parser.add_argument("--interleave-with", default=None,
+                        help="partner cohort id declared in the freeze record")
+    parser.add_argument("--resume-crashed", type=int, action="append")
+    parser.add_argument(
+        "--no-run-tests",
+        dest="run_tests",
+        action="store_false",
+        help="skip the pytest gate when writing the freeze record",
+    )
+    parser.set_defaults(run_tests=True)
+    return parser
+
+
+def _memory_headroom_mb() -> int | None:
+    try:
+        with open("/proc/meminfo") as handle:
+            for line in handle:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) // 1024
+    except OSError:
+        return None
+    return None
+
+
+def _preflight_provider_check(args) -> str | None:
+    """Fail fast when the inference bridge is down (V0 incident class)."""
+
+    import urllib.request
+
+    base = args.base_url.rstrip("/")
+    try:
+        req = urllib.request.Request(
+            f"{base}/models", headers={"Authorization": f"Bearer {args.api_key}"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status != 200:
+                return f"models endpoint status {resp.status}"
+    except Exception as exc:  # noqa: BLE001 - preflight reports any failure
+        return f"models endpoint unreachable: {exc}"
+    try:
+        body = json.dumps(
+            {
+                "model": args.model,
+                "messages": [{"role": "user", "content": "ping"}],
+                "max_completion_tokens": 8,
+            }
+        ).encode()
+        req = urllib.request.Request(
+            f"{base}/chat/completions",
+            data=body,
+            headers={
+                "Authorization": f"Bearer {args.api_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            payload = json.loads(resp.read())
+        choice = payload["choices"][0]["message"]["content"]
+        return None if isinstance(choice, str) else "empty completion"
+    except Exception as exc:  # noqa: BLE001
+        return f"completion probe failed: {exc}"
+
+
+def _reconcile_manifest(directory: Path) -> int:
+    """Adopt sealed evidence files missing from the manifest (V0 incident)."""
+
+    manifest_path = directory / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    known = {row["dyad_index"] for row in manifest["dyads"]}
+    added = []
+    for evidence_path in sorted(directory.glob("dyad-*.json")):
+        index = int(evidence_path.stem.split("-")[1])
+        if index in known:
+            continue
+        evidence = json.loads(evidence_path.read_text())
+        seal = evidence.get("audit_seal") or {}
+        status = (
+            "completed" if seal.get("status") == "completed"
+            else "aborted" if seal.get("status") == "aborted"
+            else "unknown"
+        )
+        digest = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+        manifest["dyads"].append(
+            {
+                "dyad_index": index,
+                "status": status,
+                "evidence_sha256": digest,
+                "reconciled": True,
+            }
+        )
+        added.append(index)
+    manifest["dyads"].sort(key=lambda row: row["dyad_index"])
+    manifest_path.write_text(json.dumps(manifest, indent=2))
+    print(json.dumps({"reconciled": added}))
+    return 0
+
+
+def main() -> int:
+    args = _parser().parse_args()
+    raise SystemExit(asyncio.run(_run(args)))
+    return 0
+
+
+if __name__ == "__main__":
+    main()
