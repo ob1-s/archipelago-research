@@ -85,6 +85,8 @@ class FormationHandoffV0(StrictModel):
             self.successful_jobs / self.completed_jobs
         ):
             raise ValueError("job_success_mean does not match retained receipts")
+        if self.successful_jobs != sum(receipt.success for receipt in self.job_receipts):
+            raise ValueError("successful_jobs does not equal the receipt success tally")
         if self.accepted != self.run_valid:
             raise ValueError("accepted is the compatibility alias for run_valid")
         return self

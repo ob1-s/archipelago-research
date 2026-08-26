@@ -9,9 +9,58 @@ from constraint_forge_formation_v0.canonical import stable_hash
 from constraint_forge_formation_v0.generator import generate_job
 from constraint_forge_formation_v0.models import JobRecord, Pair
 
+from .r1_physics import r1_void
 
-def r1_void(job_seed: str) -> int:
-    return int(stable_hash({"void": job_seed})[:8], 16) % 4
+
+def _observation_fixture():
+    from constraint_forge_formation_v0.models import RegisterState, Station
+    from constraint_forge_formation_v0.rack import empty_rack, full_rack_view
+    from constraint_forge_formation_v0.world import Observation
+
+    return Observation(
+        station=Station.X,
+        round=1,
+        private_pairs=((0, 1),),
+        layers={"X": tuple([None] * 6), "Y": tuple([None] * 6)},
+        registers={
+            "X": (RegisterState(), RegisterState()),
+            "Y": (RegisterState(), RegisterState()),
+        },
+        remaining={},
+        finished={"X": False, "Y": False},
+        rack=full_rack_view(empty_rack()),
+    )
+
+
+def screen_s2b_note_privacy() -> dict:
+    from .requests import round_request
+    from .r1_physics import station_note
+
+    marker = "void symbol for register 0 is"
+    x_req = round_request(
+        role="X", job_index=0, job_id="j", context_epoch=0,
+        pre_state_hash="h", observation=_observation_fixture(),
+        station_note=station_note(3),
+    )
+    y_req = round_request(
+        role="Y", job_index=0, job_id="j", context_epoch=0,
+        pre_state_hash="h", observation=_observation_fixture(),
+    )
+    x_text = json.dumps(x_req.visible_payload)
+    y_text = json.dumps(y_req.visible_payload)
+    assert x_req.visible_payload["instructions"].count(marker) == 1
+    assert marker not in y_text
+    try:
+        round_request(
+            role="Y", job_index=0, job_id="j", context_epoch=0,
+            pre_state_hash="h", observation=_observation_fixture(),
+            station_note=station_note(3),
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("station note accepted for Y")
+    return {"x_note_visible_once": True, "y_note_absent": True, "y_constructor_rejects": True}
 
 
 def perfect_matchings(pairs: set[Pair]) -> list[tuple[Pair, ...]]:
@@ -117,6 +166,7 @@ if __name__ == "__main__":
         "S1_S2": screen_s1_s2(),
         "S3": screen_s3(),
         "S4": screen_s4(),
+        "S2B": screen_s2b_note_privacy(),
         "S5": screen_s5(),
     }
     print(json.dumps(out, indent=2))

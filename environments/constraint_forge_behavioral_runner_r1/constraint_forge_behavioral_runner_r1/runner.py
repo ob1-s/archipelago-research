@@ -987,6 +987,11 @@ async def run_behavioral_sequence(
 
                     eviction_offer = session.begin_eviction()
                     if eviction_offer is not None:
+                        job_adj = r1_adjudicate(
+                            world_success=eviction_offer.success,
+                            job_seed=job.job_seed,
+                            events=session.event_log.events,
+                        )
                         request_x = memory_request(
                             role="X",
                             phase="eviction",
@@ -996,7 +1001,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=eviction_offer.state_hash,
                             rack=eviction_offer.rack_view_x,
                             frames=eviction_offer.frames_x,
-                            success=eviction_offer.success,
+                            success=job_adj["success"],
                         )
                         request_y = memory_request(
                             role="Y",
@@ -1007,7 +1012,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=eviction_offer.state_hash,
                             rack=eviction_offer.rack_view_y,
                             frames=eviction_offer.frames_y,
-                            success=eviction_offer.success,
+                            success=job_adj["success"],
                         )
                         calls = await _dispatch_pair(
                             interaction_x=interaction_x,
@@ -1040,7 +1045,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=retention_offer.state_hash,
                             rack=retention_offer.rack_view_x,
                             frames=retention_offer.frames_x,
-                            success=retention_offer.success,
+                            success=job_adj["success"],
                         )
                         request_y = memory_request(
                             role="Y",
@@ -1051,7 +1056,7 @@ async def run_behavioral_sequence(
                             pre_state_hash=retention_offer.state_hash,
                             rack=retention_offer.rack_view_y,
                             frames=retention_offer.frames_y,
-                            success=retention_offer.success,
+                            success=job_adj["success"],
                         )
                         calls = await _dispatch_pair(
                             interaction_x=interaction_x,

@@ -11,6 +11,7 @@ from constraint_forge_formation_v0.world import JobResult
 from .audit import AuditLedger, AuditSealStatus
 from .handoff import FormationHandoffV0, FormationJobReceipt
 from .requests import memory_request, round_request
+from .r1_physics import r1_adjudicate, r1_void, station_note
 from .runner import (
     DyadAbort,
     SequenceResult,
@@ -240,7 +241,11 @@ async def run_throwaway_canary(
                     job_index=0,
                     job_id=job_id,
                     job_seed=first_result.job_seed,
-                    success=first_result.success,
+                    **r1_adjudicate(
+                        world_success=first_result.success,
+                        job_seed=first_result.job_seed,
+                        events=first_result.event_log.events,
+                    ),
                     failure_reason=first_result.failure_reason,
                     final_state_hash=first_result.final_state_hash,
                     event_log_hash=first_result.event_log.content_hash,
@@ -272,6 +277,7 @@ async def run_throwaway_canary(
                         context_epoch=job_index,
                         pre_state_hash=offer.pre_state_hash,
                         observation=offer.observation_x,
+                        station_note=station_note(r1_void(second.job_seed)),
                     ),
                     request_y=round_request(
                         role="Y",
