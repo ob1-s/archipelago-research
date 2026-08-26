@@ -1,0 +1,109 @@
+{
+  "execution_policy": {
+    "concurrency": 1,
+    "interleave_with": "constraint-forge-formation-cohort-luna-medium-v0",
+    "interleaved_pairs": true,
+    "pairing": "matched dyad pairs execute concurrently: this arm's dyad i runs alongside the partner arm's dyad i; total in-flight dyads across arms <= 2 (<= 4 simultaneous provider calls)",
+    "stop_rule": "per-arm: stop scheduling further pairs once 3 executed dyads of this arm have aborted and none of this arm has completed; scientific-invariant violations halt everything immediately"
+  },
+  "freeze_commit": "117bace0ccb3f151f28f06fce6f49df8ed035164",
+  "manifest_hash": "9b8eb9102296f6c956ae37aa16eae1681819bb027e7aa8745fe8f36671bf884d",
+  "num_dyads": 12,
+  "protocol_version": "constraint-forge/behavioral-runner-v1",
+  "provider_config": {
+    "base_url": "http://127.0.0.1:10531/v1",
+    "call_timeout_seconds": 300,
+    "infra_backoff_seconds": [
+      4,
+      8
+    ],
+    "infra_retries": 2,
+    "max_completion_tokens": 16384,
+    "max_retries": 0,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "shared_credential": true,
+    "x_key_var": "LUNA_PROXY_API_KEY_X",
+    "y_key_var": "LUNA_PROXY_API_KEY_Y"
+  },
+  "qualification_canary_sha256": "0669b6c0ef0e83d2ca0a9410c9704dcb3413ba14cee7c6c3d93e9030f7c997fe",
+  "record_hash": "6d0f17ff86deda1cc75a8ff6b525c8083f95142f57b2fecf156964a42bc0a676",
+  "retry_policy": "Per behavioral opportunity: on an explicit infrastructure status (429/500/502/503/504) with no delivered response, the harness session re-launches the identical request up to 2 times with backoff [4, 8]s below the agent boundary (the v1 interaction is never re-entered); every attempt is persisted as a native call, receipt entry, and infra_retry audit event with the same request hash/context; completed responses, malformed actions, length stops, refusals, and timeouts are never retried; the whole chain counts as exactly one behavioral opportunity.",
+  "schema_version": "constraint-forge/cohort-freeze-record/v0",
+  "seed_prefix": "constraint-forge/behavioral-sequence-v0",
+  "sequences": [
+    {
+      "dyad_index": 0,
+      "plan_hash": "8405999eda4267c9f5defe73280a57dd7863156b56ec847800a6472c6255cc9a",
+      "sequence_id": "sequence-000000"
+    },
+    {
+      "dyad_index": 1,
+      "plan_hash": "13c0d858d0afc52864253bdf6ad2e3617b27e403cd9a4a37a5f8635765f7cc24",
+      "sequence_id": "sequence-000001"
+    },
+    {
+      "dyad_index": 2,
+      "plan_hash": "9bb8c9764840a66bd586fcab346ba91f71e48260c00ff4d19277e3640793ae77",
+      "sequence_id": "sequence-000002"
+    },
+    {
+      "dyad_index": 3,
+      "plan_hash": "fb9fc599596fb2b607b17410b56c7f7311f1ea9ffd3a5c0877d35286d5052748",
+      "sequence_id": "sequence-000003"
+    },
+    {
+      "dyad_index": 4,
+      "plan_hash": "73dce1049977768edb4331e430efec2a9779db9a333ea80cf9ed252bc9fa254d",
+      "sequence_id": "sequence-000004"
+    },
+    {
+      "dyad_index": 5,
+      "plan_hash": "304cb32f92f107243b8d39a24d4df1fcf339a4413cc5a2295f8e3410144b9cc9",
+      "sequence_id": "sequence-000005"
+    },
+    {
+      "dyad_index": 6,
+      "plan_hash": "938a7c83d54e16697264d43fee8a5af96b8e61c1c22054f9cd8cb1c6f360c73e",
+      "sequence_id": "sequence-000006"
+    },
+    {
+      "dyad_index": 7,
+      "plan_hash": "7f1a69739683b256bcfc6df6390ffbb9d4908e1fdcb5c4e7b7bf4b317d788db7",
+      "sequence_id": "sequence-000007"
+    },
+    {
+      "dyad_index": 8,
+      "plan_hash": "b2b26ab48321fd133b7cf82b3b545f95a16ff9ec0b9d6945bb4099c344da658b",
+      "sequence_id": "sequence-000008"
+    },
+    {
+      "dyad_index": 9,
+      "plan_hash": "3ed2fa0e2192c637485da073784fd4fbc38d5b4a69bc849392143d79db8495b9",
+      "sequence_id": "sequence-000009"
+    },
+    {
+      "dyad_index": 10,
+      "plan_hash": "022832d570d14d9a8e7513180088f3edc9054319428b67ed8cc1e119433c7f9f",
+      "sequence_id": "sequence-000010"
+    },
+    {
+      "dyad_index": 11,
+      "plan_hash": "405d1e56f6f0e72b52cb1ea9db07ed71f2529d391f4297f7b3000401e31985d0",
+      "sequence_id": "sequence-000011"
+    }
+  ],
+  "statement": "Scientific execution has not started yet: this record was produced before the first cohort model call.",
+  "stop_rule": "one execution attempt per dyad; aborts are final and preserved; stop cleanly after 3 consecutive infrastructure-class dyad aborts",
+  "test_results": {
+    "behavioral_runner": {
+      "returncode": 0,
+      "summary": "55 passed, 2 warnings in 27.23s"
+    },
+    "formation": {
+      "returncode": 0,
+      "summary": "28 passed, 2 warnings in 5.06s"
+    }
+  },
+  "written_utc": "2026-08-23T08:57:33Z"
+}

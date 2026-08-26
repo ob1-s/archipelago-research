@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archipelago trajectory viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="topbar">
+  <div class="brand">
+    <span class="logo">◈</span>
+    <span class="brand-name">Archipelago</span>
+    <span class="brand-sub">trajectory viewer</span>
+  </div>
+  <div class="episode-pick">
+    <label for="demo-select">demo</label>
+    <select id="demo-select"></select>
+    <button id="btn-sources" title="browse raw source files">sources</button>
+  </div>
+  <span id="scene-tag" class="pill"></span>
+  <span id="fixture-banner" class="fixture-banner hidden">VISUALIZATION FIXTURE — NOT SCIENTIFIC DATA</span>
+  <div class="episode-info">
+    <div id="ep-title" class="ep-title">—</div>
+    <div id="ep-sub" class="ep-sub"></div>
+  </div>
+  <div class="status">
+    <span id="pill-fixture" class="pill hidden">fixture</span>
+    <a id="src-open" class="pill hidden">source</a>
+  </div>
+</header>
+
+<main>
+  <div id="stage">
+    <div id="canvas-wrap">
+      <canvas id="town" width="1400" height="760"></canvas>
+      <div id="hover-tip" class="hidden"></div>
+      <div id="phase-banner" class="hidden"></div>
+    </div>
+    <aside id="side">
+      <section class="panel" id="agents-panel">
+        <header class="panel-head"><h2>cast</h2><span class="panel-note" id="agents-note"></span></header>
+        <div class="panel-body" id="agents-list"></div>
+      </section>
+      <section class="panel" id="log-panel">
+        <header class="panel-head">
+          <h2>event log</h2>
+          <nav class="log-filters" id="log-filters"></nav>
+        </header>
+        <div class="panel-body" id="log"></div>
+      </section>
+      <section class="panel" id="inspector-panel">
+        <header class="panel-head"><h2 id="inspector-title">inspector</h2>
+          <button id="inspector-close" class="hidden" title="close">✕</button>
+        </header>
+        <div class="panel-body" id="inspector"></div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer id="transport">
+  <div class="controls">
+    <button id="btn-play" title="play/pause (space)">▶</button>
+    <button id="btn-back" title="previous event (←)">⏮</button>
+    <button id="btn-fwd" title="next event (→)">⏭</button>
+  </div>
+  <div class="scrub">
+    <canvas id="timeline" width="900" height="34"></canvas>
+    <div class="readout">
+      <span id="readout-time">t=0.0s</span>
+      <span id="readout-event">event 0/0</span>
+      <span id="readout-duration"></span>
+      <span id="readout-speed" class="hidden"></span>
+    </div>
+  </div>
+  <label class="speed">speed
+    <input id="scr-speed" type="range" min="0.5" max="4" step="0.25" value="1">
+  </label>
+  <div class="legend" id="legend"></div>
+</footer>
+
+<script src="sprites.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

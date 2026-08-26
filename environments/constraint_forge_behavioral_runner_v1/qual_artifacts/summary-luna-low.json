@@ -1,0 +1,50 @@
+{
+  "base_url": "http://127.0.0.1:10531/v1",
+  "boundary": {
+    "call_timeout_seconds": 300,
+    "infra_backoff_seconds": [
+      4,
+      8
+    ],
+    "infra_retries": 2
+  },
+  "elapsed_seconds": 3644.6,
+  "endpoint": "/chat/completions",
+  "evidence_path": "qual_artifacts/dyad-luna-low.json",
+  "evidence_sha256": "fd53bbe058ab54a7d1a9fb6802309d1a74ed1f6c3d020ca6db3ad5a88666ddcb",
+  "finished_utc": "2026-08-25T11:47:37Z",
+  "freeze_commit": "23a0526eaf4de9f8d5df41fc092d862799257cdb",
+  "max_completion_tokens": 16384,
+  "model": "gpt-5.6-luna",
+  "plan_hash": "346952e3a7a628628634ead0cbaa21fb9682cf54aef1adbcb5969208017372fa",
+  "proxy": "openai-oauth@2.0.0",
+  "reasoning_effort": "low",
+  "scientific": false,
+  "seed_prefix": "constraint-forge/v1-qualification-v0",
+  "started_utc": "2026-08-25T10:46:52Z",
+  "summary_row": {
+    "abort_class": null,
+    "completed_jobs": 24,
+    "dyad_index": 0,
+    "evidence_path": "qual_artifacts/dyad-luna-low.json",
+    "evidence_sha256": "fd53bbe058ab54a7d1a9fb6802309d1a74ed1f6c3d020ca6db3ad5a88666ddcb",
+    "final_eight_nonoccluded_success_mean": 0.0,
+    "infra_retry_events": 3,
+    "job_success_mean": 0.0,
+    "live_model_calls": 543,
+    "plan_hash": "346952e3a7a628628634ead0cbaa21fb9682cf54aef1adbcb5969208017372fa",
+    "rerun_after_crash": false,
+    "retained_films_x": 5,
+    "retained_films_y": 6,
+    "sequence_id": "sequence-000000",
+    "status": "completed",
+    "successful_jobs": 0
+  },
+  "token_usage": {
+    "calls_with_usage": 540,
+    "completion_tokens": 119122,
+    "prompt_tokens": 5632133,
+    "reasoning_tokens": 0,
+    "total_tokens": 0
+  }
+}

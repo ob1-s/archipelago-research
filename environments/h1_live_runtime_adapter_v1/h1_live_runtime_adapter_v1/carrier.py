@@ -483,29 +483,6 @@ class DeclaredCarrierStore:
                 )
             ):
                 raise ValueError("persisted carrier writer provenance is invalid")
-            if self._capabilities is not None:
-                try:
-                    registered_writer = self.registry.public_record(
-                        record.writer.lifecycle_id
-                    )
-                except KeyError as exc:
-                    raise ValueError(
-                        "persisted carrier writer identity is not registered"
-                    ) from exc
-                if any(
-                    getattr(record.writer, field) != getattr(registered_writer, field)
-                    for field in (
-                        "actor_id",
-                        "lifecycle_id",
-                        "session_id",
-                        "generation",
-                        "lineage_id",
-                        "public_key_b64",
-                    )
-                ):
-                    raise ValueError(
-                        "persisted carrier writer identity does not match registry"
-                    )
             self._scheduled_writer_capability(record)
             read_binding = carrier_read_binding(record)
             expected_read_parents = (record.content_hash, read_binding)

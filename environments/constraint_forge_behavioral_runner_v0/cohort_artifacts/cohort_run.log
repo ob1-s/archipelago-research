@@ -1,0 +1,27 @@
+/home/ob1/Projects/archipelago/environments/constraint_forge_formation_v0/constraint_forge_formation_v0/models.py:144: UserWarning: Field name "register" in "PendingWrite" shadows an attribute in parent "StrictModel"
+  class PendingWrite(StrictModel):
+/home/ob1/Projects/archipelago/environments/constraint_forge_formation_v0/constraint_forge_formation_v0/actions.py:17: UserWarning: Field name "register" in "WriteAction" shadows an attribute in parent "ActionModel"
+  class WriteAction(ActionModel):
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ob1/Projects/archipelago/environments/constraint_forge_behavioral_runner_v0/constraint_forge_behavioral_runner_v0/cohort_launcher.py", line 372, in <module>
+    main()
+  File "/home/ob1/Projects/archipelago/environments/constraint_forge_behavioral_runner_v0/constraint_forge_behavioral_runner_v0/cohort_launcher.py", line 368, in main
+    raise SystemExit(asyncio.run(_run(args)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ob1/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/ob1/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ob1/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/ob1/Projects/archipelago/environments/constraint_forge_behavioral_runner_v0/constraint_forge_behavioral_runner_v0/cohort_launcher.py", line 317, in _run
+    print(json.dumps(json.loads(row.model_dump(mode="json")), sort_keys=True))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ob1/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py", line 339, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+TypeError: the JSON object must be str, bytes or bytearray, not dict

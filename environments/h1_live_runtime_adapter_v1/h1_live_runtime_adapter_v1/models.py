@@ -372,7 +372,6 @@ class GatewayReceipt(StrictModel):
     response_id: str = Field(min_length=1)
     provider_request_id: NonEmptyString | None = None
     output_hash: Sha256Digest
-    recipient_binding: Sha256Digest | None = None
     signature_b64: str
 
     def unsigned_payload(self) -> dict[str, Any]:

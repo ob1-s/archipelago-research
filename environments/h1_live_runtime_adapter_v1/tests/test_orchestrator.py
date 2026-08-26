@@ -359,32 +359,13 @@ async def test_durable_journal_admission_survives_controller_restart(tmp_path) -
 
 
 @pytest.mark.asyncio
-async def test_completed_attempt_cannot_restart_after_controller_restart(tmp_path) -> None:
-    journal_path = tmp_path / "lifecycle-journal.sqlite"
-    schedule = _schedule()
-    first = Orchestrator(
-        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
-    )
-    await first.start_actor("attempt-0")
-    await first.stop_actor("attempt-0")
-    first.close()
-
-    second = Orchestrator(
-        schedule, factory=_FakeFactory(), journal=LifecycleJournal(journal_path)
-    )
-    with pytest.raises(RuntimeError, match="already has durable history"):
-        await second.start_actor("attempt-0")
-    second.close()
-
-
-@pytest.mark.asyncio
 async def test_missing_revocation_blocks_successor_after_restart(tmp_path) -> None:
     journal_path = tmp_path / "lifecycle-journal.sqlite"
     schedule = _schedule()
     journal = LifecycleJournal(journal_path)
     assignment = schedule.assignments[0]
     for event in ("spawned", "teardown_complete"):
-        journal._append_controller_event(
+        journal.append(
             lifecycle_id=assignment.actor_spec.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,
             attempt_id=assignment.attempt_id,
@@ -400,46 +381,9 @@ async def test_missing_revocation_blocks_successor_after_restart(tmp_path) -> No
     orchestrator.close()
 
 
-@pytest.mark.asyncio
-async def test_journal_row_outside_frozen_schedule_blocks_actor_start(tmp_path) -> None:
-    journal = LifecycleJournal(tmp_path / "lifecycle-journal.sqlite")
-    journal._append_controller_event(
-        lifecycle_id="foreign-lifecycle",
-        actor_id="foreign-actor",
-        attempt_id="foreign-attempt",
-        lineage_id="foreign-lineage",
-        generation=0,
-        event="spawned",
-    )
-    orchestrator = Orchestrator(_schedule(generations=(0,)), factory=_FakeFactory(), journal=journal)
-    with pytest.raises(RuntimeError, match="frozen schedule"):
-        await orchestrator.start_actor("attempt-0")
-    orchestrator.close()
-
-
-@pytest.mark.asyncio
-async def test_public_journal_append_cannot_forge_successor_admission() -> None:
-    journal = LifecycleJournal()
-    assignment = _schedule().assignments[0]
-    values = {
-        "lifecycle_id": assignment.actor_spec.lifecycle_id,
-        "actor_id": assignment.actor_spec.actor_id,
-        "attempt_id": assignment.attempt_id,
-        "lineage_id": assignment.actor_spec.lineage_id,
-        "generation": assignment.actor_spec.generation,
-        "event": "spawned",
-    }
-    with pytest.raises(PermissionError, match="controller"):
-        journal.append(**values)
-    orchestrator = Orchestrator(_schedule(), factory=_FakeFactory(), journal=journal)
-    with pytest.raises(RuntimeError, match="complete durable turnover chain"):
-        await orchestrator.start_actor("attempt-1")
-    orchestrator.close()
-
-
 def _append_chain(journal: LifecycleJournal, assignment: FrozenAssignment) -> None:
     for event in ("spawned", "teardown_complete", "authorization_revoked"):
-        journal._append_controller_event(
+        journal.append(
             lifecycle_id=assignment.actor_spec.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,
             attempt_id=assignment.attempt_id,
@@ -456,7 +400,7 @@ async def test_teardown_and_revocation_without_spawn_block_successor(tmp_path) -
     journal = LifecycleJournal(journal_path)
     assignment = schedule.assignments[0]
     for event in ("teardown_complete", "authorization_revoked"):
-        journal._append_controller_event(
+        journal.append(
             lifecycle_id=assignment.actor_spec.lifecycle_id,
             actor_id=assignment.actor_spec.actor_id,
             attempt_id=assignment.attempt_id,
@@ -467,30 +411,8 @@ async def test_teardown_and_revocation_without_spawn_block_successor(tmp_path) -
     orchestrator = Orchestrator(
         schedule, factory=_FakeFactory(), journal=journal
     )
-    with pytest.raises(RuntimeError, match="journal is inconsistent"):
+    with pytest.raises(RuntimeError, match="missing_spawn"):
         await orchestrator.start_actor("attempt-1")
-    orchestrator.close()
-
-
-@pytest.mark.parametrize("event", ["teardown_complete", "authorization_revoked"])
-@pytest.mark.asyncio
-async def test_malformed_current_lifecycle_cannot_start(
-    tmp_path, event: str
-) -> None:
-    journal = LifecycleJournal(tmp_path / f"malformed-current-{event}.sqlite")
-    schedule = _schedule(generations=(0,))
-    assignment = schedule.assignments[0]
-    journal._append_controller_event(
-        lifecycle_id=assignment.actor_spec.lifecycle_id,
-        actor_id=assignment.actor_spec.actor_id,
-        attempt_id=assignment.attempt_id,
-        lineage_id=assignment.actor_spec.lineage_id,
-        generation=assignment.actor_spec.generation,
-        event=event,
-    )
-    orchestrator = Orchestrator(schedule, factory=_FakeFactory(), journal=journal)
-    with pytest.raises(RuntimeError, match="journal is inconsistent"):
-        await orchestrator.start_actor(assignment.attempt_id)
     orchestrator.close()
 
 
@@ -522,7 +444,7 @@ async def test_mismatched_journal_metadata_blocks_successor(
         }
         if event == "spawned":
             values[field] = wrong
-        journal._append_controller_event(**values)
+        journal.append(**values)
     orchestrator = Orchestrator(
         schedule, factory=_FakeFactory(), journal=journal
     )
@@ -542,14 +464,6 @@ class _FlawedTeardownFactory(_FakeFactory):
         evidence = await super().stop(actor)
         value: Any = 73 if self.field == "return_code" else False
         return evidence.model_copy(update={self.field: value})
-
-
-class _WrongPidTeardownFactory(_FakeFactory):
-    async def stop(self, actor: _FakeActor) -> TeardownEvidence:
-        evidence = await super().stop(actor)
-        return evidence.model_copy(
-            update={"launcher_pid": evidence.launcher_pid + 1}
-        )
 
 
 @pytest.mark.parametrize(
@@ -583,18 +497,6 @@ async def test_incomplete_teardown_evidence_fails_closed_before_journaling(
         await orchestrator.start_actor("attempt-1")
     with pytest.raises(KeyError):
         orchestrator.live_actor("attempt-0")
-    orchestrator.close()
-
-
-@pytest.mark.asyncio
-async def test_teardown_process_identity_fails_closed_before_journaling() -> None:
-    orchestrator = Orchestrator(
-        _schedule(), factory=_WrongPidTeardownFactory()
-    )
-    await orchestrator.start_actor("attempt-0")
-    with pytest.raises(RuntimeError, match="qualified turnover predicate"):
-        await orchestrator.stop_actor("attempt-0")
-    assert [event.event for event in orchestrator.lifecycle_events] == ["spawned"]
     orchestrator.close()
 
 

@@ -1,0 +1,12 @@
+[project]
+name = "archipelago-viewer"
+version = "0.1.0"
+description = "Read-only trajectory viewer for Archipelago traces (AI-Town-style replay UI)"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

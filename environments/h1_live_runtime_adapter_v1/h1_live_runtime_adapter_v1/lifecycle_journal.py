@@ -49,43 +49,6 @@ _REQUIRED_EVENTS = {
 }
 
 
-def journal_events_match_assignments(
-    events: tuple[LifecycleEvent, ...],
-    assignments: tuple[tuple[str, str, str, str, int], ...],
-) -> bool:
-    """Reject journal rows outside the frozen schedule or repeated transitions."""
-
-    sequences = [event.sequence for event in events]
-    if len(sequences) != len(set(sequences)) or any(
-        sequence != index for index, sequence in enumerate(sequences)
-    ):
-        return False
-    expected = set(assignments)
-    seen: set[tuple[str, str]] = set()
-    events_by_lifecycle: dict[str, list[str]] = {}
-    for event in events:
-        identity = (
-            event.lifecycle_id,
-            event.attempt_id,
-            event.actor_id,
-            event.lineage_id,
-            event.generation,
-        )
-        if identity not in expected:
-            return False
-        transition = (event.lifecycle_id, event.event)
-        if transition in seen:
-            return False
-        seen.add(transition)
-        events_by_lifecycle.setdefault(event.lifecycle_id, []).append(event.event)
-    if any(
-        event_names != list(_EVENT_NAMES[: len(event_names)])
-        for event_names in events_by_lifecycle.values()
-    ):
-        return False
-    return True
-
-
 def lifecycle_chain_outcome(
     events: tuple[LifecycleEvent, ...],
     *,
@@ -138,12 +101,7 @@ def lifecycle_chain_outcome(
 
 
 def teardown_evidence_complete(
-    evidence: TeardownEvidence,
-    *,
-    actor_id: str,
-    lifecycle_id: str,
-    expected_launcher_pid: int | None = None,
-    expected_runtime_process_id: int | None = None,
+    evidence: TeardownEvidence, *, actor_id: str, lifecycle_id: str
 ) -> bool:
     """Whether teardown evidence satisfies the qualified turnover predicate.
 
@@ -163,23 +121,14 @@ def teardown_evidence_complete(
         and evidence.private_root_removed
         and evidence.key_invalidated
         and evidence.return_code == 0
-        and (
-            expected_launcher_pid is None
-            or evidence.launcher_pid == expected_launcher_pid
-        )
-        and (
-            expected_runtime_process_id is None
-            or evidence.runtime_process_id == expected_runtime_process_id
-        )
     )
 
 
 class LifecycleJournal:
-    """Append-only SQLite lifecycle journal with controller-only writes."""
+    """Append-only SQLite lifecycle event journal with FULL synchronous durability."""
 
     def __init__(self, path: Path | None = None) -> None:
         self._owned = path is None
-        self._append_authority = object()
         if path is None:
             descriptor, raw_path = tempfile.mkstemp(
                 prefix="h1-lifecycle-journal-", suffix=".sqlite", dir="/tmp"
@@ -215,19 +164,13 @@ class LifecycleJournal:
         lineage_id: str,
         generation: int,
         event: str,
-        _authority: object | None = None,
     ) -> LifecycleEvent:
         """Append and durably commit one immutable event row.
 
         The row is committed before this method returns, so callers can
         proceed only after the transition is durable.  Returns the exact
-        committed row as the typed model the evidence layer consumes.  The
-        append authority is intentionally not part of the public API.
+        committed row as the typed model the evidence layer consumes.
         """
-        if _authority is not self._append_authority:
-            raise PermissionError(
-                "lifecycle events can only be appended by the controller"
-            )
         if event not in _EVENT_NAMES:
             raise ValueError(f"unknown lifecycle event: {event!r}")
         self.connection.execute("BEGIN IMMEDIATE")
@@ -267,11 +210,6 @@ class LifecycleJournal:
             event=event,
         )
 
-    def _append_controller_event(self, **kwargs: object) -> LifecycleEvent:
-        """Append one event through the controller-owned authority."""
-
-        return self.append(**kwargs, _authority=self._append_authority)
-
     def events(self) -> tuple[LifecycleEvent, ...]:
         """Return every committed row in global sequence order."""
 
@@ -303,7 +241,6 @@ class LifecycleJournal:
 __all__ = [
     "LifecycleJournal",
     "LifecycleChainOutcome",
-    "journal_events_match_assignments",
     "lifecycle_chain_outcome",
     "teardown_evidence_complete",
 ]

@@ -1,0 +1,54 @@
+/home/ob1/Projects/archipelago/environments/constraint_forge_formation_v0/constraint_forge_formation_v0/models.py:144: UserWarning: Field name "register" in "PendingWrite" shadows an attribute in parent "StrictModel"
+  class PendingWrite(StrictModel):
+/home/ob1/Projects/archipelago/environments/constraint_forge_formation_v0/constraint_forge_formation_v0/actions.py:17: UserWarning: Field name "register" in "WriteAction" shadows an attribute in parent "ActionModel"
+  class WriteAction(ActionModel):
+{
+  "base_url": "http://127.0.0.1:10531/v1",
+  "boundary": {
+    "call_timeout_seconds": 300,
+    "infra_backoff_seconds": [
+      4,
+      8
+    ],
+    "infra_retries": 2
+  },
+  "elapsed_seconds": 3544.2,
+  "endpoint": "/chat/completions",
+  "evidence_path": "qual_artifacts/dyad-luna-low.json",
+  "evidence_sha256": "8bec21b1e83c3872dc9c2149a27e613fc4adc8298237f710009c66dca49a3945",
+  "finished_utc": "2026-08-23T03:55:42Z",
+  "freeze_commit": "7747a12679f70167f2efc1d9e580fc5d064832f8",
+  "max_completion_tokens": 16384,
+  "model": "gpt-5.6-luna",
+  "plan_hash": "2b92a0ea1de0068a57226ac7eabbf6b5be58f104be7b51b2a4aaa5988c7eaad9",
+  "proxy": "openai-oauth@2.0.0",
+  "reasoning_effort": "low",
+  "scientific": false,
+  "seed_prefix": "constraint-forge/luna-qualification-v0",
+  "started_utc": "2026-08-23T02:56:38Z",
+  "summary_row": {
+    "abort_class": null,
+    "completed_jobs": 24,
+    "dyad_index": 0,
+    "evidence_path": "qual_artifacts/dyad-luna-low.json",
+    "evidence_sha256": "8bec21b1e83c3872dc9c2149a27e613fc4adc8298237f710009c66dca49a3945",
+    "final_eight_nonoccluded_success_mean": 0.0,
+    "infra_retry_events": 0,
+    "job_success_mean": 0.0,
+    "live_model_calls": 562,
+    "plan_hash": "2b92a0ea1de0068a57226ac7eabbf6b5be58f104be7b51b2a4aaa5988c7eaad9",
+    "rerun_after_crash": false,
+    "retained_films_x": 5,
+    "retained_films_y": 5,
+    "sequence_id": "sequence-000000",
+    "status": "completed",
+    "successful_jobs": 0
+  },
+  "token_usage": {
+    "calls_with_usage": 562,
+    "completion_tokens": 131661,
+    "prompt_tokens": 4940683,
+    "reasoning_tokens": 0,
+    "total_tokens": 0
+  }
+}
